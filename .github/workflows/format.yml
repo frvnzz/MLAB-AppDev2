@@ -1,0 +1,111 @@
+# TODO: update when tech stack is decided
+
+name: Format Check
+
+on:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main, develop]
+
+jobs:
+    format:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            # ============================================
+            # REACT NATIVE (uncomment when using React Native)
+            # ============================================
+            # - name: Set up Node.js
+            #   uses: actions/setup-node@v4
+            #   with:
+            #     node-version: '20'
+            #     cache: 'npm'
+            
+            # - name: Install dependencies
+            #   run: npm ci
+            
+            # - name: Run Prettier check
+            #   run: npm run format:check
+            #   # Add to package.json: "format:check": "prettier --check ."
+            
+            # - name: Check for unformatted files
+            #   run: |
+            #     if ! npm run format:check; then
+            #       echo "❌ Code is not formatted. Run 'npm run format' locally."
+            #       exit 1
+            #     fi
+
+            # ============================================
+            # FLUTTER (uncomment when using Flutter)
+            # ============================================
+            # - name: Set up Flutter
+            #   uses: subosito/flutter-action@v2
+            #   with:
+            #     flutter-version: '3.19.0'
+            #     channel: 'stable'
+            
+            # - name: Get dependencies
+            #   run: flutter pub get
+            
+            # - name: Run Dart format check
+            #   run: dart format --output=none --set-exit-if-changed .
+            
+            # - name: Check formatting
+            #   run: |
+            #     if ! dart format --output=none --set-exit-if-changed .; then
+            #       echo "❌ Code is not formatted. Run 'dart format .' locally."
+            #       exit 1
+            #     fi
+
+            # ============================================
+            # KOTLIN (Android Native - uncomment when using Kotlin)
+            # ============================================
+            # - name: Set up JDK
+            #   uses: actions/setup-java@v4
+            #   with:
+            #     java-version: '17'
+            #     distribution: 'temurin'
+            
+            # - name: Setup Android SDK
+            #   uses: android-actions/setup-android@v3
+            
+            # - name: Cache Gradle packages
+            #   uses: actions/cache@v4
+            #   with:
+            #     path: |
+            #       ~/.gradle/caches
+            #       ~/.gradle/wrapper
+            #     key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+            
+            # - name: Run ktlint format check
+            #   run: ./gradlew ktlintFormat --dry-run
+            #   # Or just check: ./gradlew ktlintCheck
+            
+            # - name: Check formatting
+            #   run: |
+            #     if ! ./gradlew ktlintCheck; then
+            #       echo "❌ Code is not formatted. Run './gradlew ktlintFormat' locally."
+            #       exit 1
+            #     fi
+
+            # ============================================
+            # EXPO (uncomment when using Expo)
+            # ============================================
+            # - name: Set up Node.js
+            #   uses: actions/setup-node@v4
+            #   with:
+            #     node-version: '20'
+            #     cache: 'npm'
+            
+            # - name: Install dependencies
+            #   run: npm ci
+            
+            # - name: Run Prettier check
+            #   run: npm run format:check
+            #   # Add to package.json: "format:check": "prettier --check ."
+
+            - name: Placeholder format check
+              run: echo "✓ Configure your stack-specific formatting above"

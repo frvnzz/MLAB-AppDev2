@@ -1,0 +1,102 @@
+# TODO: update when tech stack is decided
+
+name: Lint
+
+on:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main, develop]
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            # ============================================
+            # REACT NATIVE (uncomment when using React Native)
+            # ============================================
+            # - name: Set up Node.js
+            #   uses: actions/setup-node@v4
+            #   with:
+            #     node-version: '20'
+            #     cache: 'npm'
+            
+            # - name: Install dependencies
+            #   run: npm ci
+            
+            # - name: Run ESLint
+            #   run: npm run lint
+            
+            # - name: Run TypeScript type check
+            #   run: npx tsc --noEmit
+
+            # ============================================
+            # FLUTTER (uncomment when using Flutter)
+            # ============================================
+            # - name: Set up Flutter
+            #   uses: subosito/flutter-action@v2
+            #   with:
+            #     flutter-version: '3.19.0'
+            #     channel: 'stable'
+            
+            # - name: Get dependencies
+            #   run: flutter pub get
+            
+            # - name: Run Flutter analyze
+            #   run: flutter analyze
+            
+            # - name: Run custom lint rules
+            #   run: flutter pub run custom_lint
+
+            # ============================================
+            # KOTLIN (Android Native - uncomment when using Kotlin)
+            # ============================================
+            # - name: Set up JDK
+            #   uses: actions/setup-java@v4
+            #   with:
+            #     java-version: '17'
+            #     distribution: 'temurin'
+            
+            # - name: Setup Android SDK
+            #   uses: android-actions/setup-android@v3
+            
+            # - name: Cache Gradle packages
+            #   uses: actions/cache@v4
+            #   with:
+            #     path: |
+            #       ~/.gradle/caches
+            #       ~/.gradle/wrapper
+            #     key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+            
+            # - name: Run Kotlin lint (ktlint)
+            #   run: ./gradlew ktlintCheck
+            
+            # - name: Run Android lint
+            #   run: ./gradlew lint
+            
+            # - name: Run detekt (static code analysis)
+            #   run: ./gradlew detekt
+
+            # ============================================
+            # EXPO (uncomment when using Expo)
+            # ============================================
+            # - name: Set up Node.js
+            #   uses: actions/setup-node@v4
+            #   with:
+            #     node-version: '20'
+            #     cache: 'npm'
+            
+            # - name: Install dependencies
+            #   run: npm ci
+            
+            # - name: Run ESLint
+            #   run: npm run lint
+            
+            # - name: Run TypeScript check
+            #   run: npx tsc --noEmit
+
+            - name: Placeholder lint check
+              run: echo "✓ Configure your stack-specific linting above"
