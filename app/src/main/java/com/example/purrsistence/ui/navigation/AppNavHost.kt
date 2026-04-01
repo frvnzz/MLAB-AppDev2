@@ -1,6 +1,5 @@
 package com.example.purrsistence.ui.navigation
 
-import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
