@@ -35,14 +35,14 @@ fun AppNavHost(
         // -> add goal
         composable("add_goal") {
             AddGoalScreen(
-                onSave = { title ->
+                onSave = { title, type, minutes, deepFocus, inactive ->
                     viewModel.addGoal(
                         userId = 1,
                         title = title,
-                        type = "default",
-                        weeklyMinutes = 60,
-                        deepFocus = false,
-                        inactive = false,
+                        type = type,
+                        weeklyMinutes = minutes,
+                        deepFocus = deepFocus,
+                        inactive = inactive,
                         createdAt = System.currentTimeMillis(),
                         isCompleted = false
                     )
