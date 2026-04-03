@@ -8,11 +8,15 @@ import androidx.lifecycle.lifecycleScope
 import com.example.purrsistence.data.local.AppDatabase
 import com.example.purrsistence.data.local.entity.User
 import com.example.purrsistence.data.local.repository.DataRepository
+import com.example.purrsistence.ui.DataViewModel
 import com.example.purrsistence.ui.screens.MainScreen
 import com.example.purrsistence.ui.theme.PurrsistenceTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var viewModel: DataViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -20,6 +24,9 @@ class MainActivity : ComponentActivity() {
         val db = AppDatabase.getInstance(this)
         val dao = db.dao()
         val repo = DataRepository(dao)
+
+        // create ViewModel instance for this activity
+        viewModel = DataViewModel(repo)
 
         val exampleUser = User(
             username = "testuser",
@@ -34,7 +41,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             PurrsistenceTheme {
-                MainScreen()
+                // pass created ViewModel to MainScreen (scaffold)
+                MainScreen(viewModel = viewModel)
             }
         }
     }
