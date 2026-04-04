@@ -1,21 +1,45 @@
 package com.example.purrsistence.ui
 
+import android.content.SharedPreferences
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.data.local.repository.DataRepository
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
 
 class DataViewModel(
-    private val repository: DataRepository
+    private val repository: DataRepository,
+    private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
 
-    // Goal
+    // Goal Selection state (HomeScreen goal picker)
+    var selectedGoalId by mutableStateOf<Int?>(null)
+        private set
 
-    fun goals(userId: String) =
+    init {
+        // Load the saved goal ID on startup
+        val savedId = sharedPreferences.getInt("selected_goal_id", -1)
+        if (savedId != -1) {
+            selectedGoalId = savedId
+        }
+    }
+
+    fun selectGoal(id: Int) {
+        selectedGoalId = id
+        // Save the selection to disk
+        sharedPreferences.edit { putInt("selected_goal_id", id) }
+    }
+
+    // CRUD GOAL
+
+    fun goals(userId: String) = // here userId is a string
         repository.getGoals(userId)
 
     fun addGoal(
-        userId: Int,
+        userId: Int, // unnecessary danger of mismatch?
         title: String,
         type: String,
         weeklyMinutes: Int,
@@ -38,6 +62,7 @@ class DataViewModel(
         }
     }
 
+    // TODO: goalId should be Int, not Long
     fun deleteGoal(goalId: Long) {
         viewModelScope.launch {
             repository.deleteGoal(goalId)
