@@ -1,6 +1,7 @@
 package com.example.purrsistence.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,17 +13,21 @@ import com.example.purrsistence.ui.screens.HomeScreen
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    viewModel: DataViewModel
-    ) {
+    viewModel: DataViewModel,
+    modifier: Modifier = Modifier
+) {
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = "home",
+        modifier = modifier
     ) {
         // all screens go here :)
         // TODO: Maybe replace with single source of truth for routes (screen model) in the future
 
         // HOME
-        composable("home") { HomeScreen() }
+        composable("home") { HomeScreen(
+            viewModel = viewModel
+        ) }
         // GOALS
         composable("goals") {
             GoalsScreen(

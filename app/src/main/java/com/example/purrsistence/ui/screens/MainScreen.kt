@@ -33,12 +33,10 @@ fun MainScreen(
             }
         }
     ) { padding ->
-
-        Box(modifier = Modifier.padding(padding)) {
-            AppNavHost(
-                navController = navController,
-                viewModel = viewModel
-            )
-        }
+        AppNavHost(
+            navController = navController,
+            viewModel = viewModel,
+            modifier = Modifier.padding(padding)
+        )
     }
 }

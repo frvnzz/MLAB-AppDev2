@@ -9,7 +9,7 @@ class DataRepository (
     private val dao: Dao
 ) {
 
-    fun getGoals(userId: String) =
+    fun getGoals(userId: String) = // TODO: userId should be Int
         dao.getGoals(userId)
 
     suspend fun createGoal(
@@ -54,6 +54,7 @@ class DataRepository (
         )
     }
 
+    // TODO: goalId should be int instead of Long
     suspend fun deleteGoal(goalId: Long) {
         dao.deleteGoal(goalId)
     }

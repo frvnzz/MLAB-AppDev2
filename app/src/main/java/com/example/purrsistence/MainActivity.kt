@@ -1,5 +1,6 @@
 package com.example.purrsistence
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,12 +22,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // goal database and repository
         val db = AppDatabase.getInstance(this)
         val dao = db.dao()
         val repo = DataRepository(dao)
 
+        // shared preferences (for storing last selected goal from GoalBottomDrawer)
+        val prefs = getSharedPreferences("purrsistence_prefs", Context.MODE_PRIVATE)
+
         // create ViewModel instance for this activity
-        viewModel = DataViewModel(repo)
+        viewModel = DataViewModel(repo, prefs)
 
         val exampleUser = User(
             username = "testuser",
