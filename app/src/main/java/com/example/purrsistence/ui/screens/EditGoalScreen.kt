@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.purrsistence.ui.DataViewModel
+import java.util.Locale
 import kotlin.math.roundToInt
 
 @Composable
@@ -26,7 +27,11 @@ fun EditGoalScreen(
         var type by remember { mutableStateOf(currentGoal.type) }
 
         // convert minutes -> hours string
-        val initialHours = (currentGoal.targetDuration / 60f).toString()
+        val initialHours = String.format(
+            Locale.GERMANY,
+            "%.1f",
+            currentGoal.targetDuration / 60f
+        )
         var hours by remember { mutableStateOf(initialHours) }
 
         var deepFocus by remember { mutableStateOf(currentGoal.deepFocus) }
@@ -89,7 +94,8 @@ fun EditGoalScreen(
                 onClick = {
                     val normalized = hours.trim().replace(",", ".")
                     val hoursFloat = normalized.toFloatOrNull() ?: 0f
-                    val minutes = (hoursFloat * 60f).roundToInt()
+                    val hoursRounded = (hoursFloat * 10).roundToInt() / 10f
+                    val minutes = (hoursRounded * 60).roundToInt()
 
                     viewModel.updateGoal(
                         goalId = currentGoal.goalId,

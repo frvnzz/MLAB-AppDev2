@@ -84,7 +84,8 @@ fun AddGoalScreen(
             onClick = {
                 val normalized = hours.trim().replace(",", ".")
                 val hoursFloat = normalized.toFloatOrNull() ?: 0f
-                val minutes = (hoursFloat * 60f).roundToInt()
+                val hoursRounded = (hoursFloat * 10).roundToInt() / 10f
+                val minutes = (hoursRounded * 60).roundToInt()
 
                 onSave(
                     title,
