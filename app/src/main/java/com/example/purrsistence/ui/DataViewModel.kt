@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.data.local.repository.DataRepository
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
 
 class DataViewModel(
     private val repository: DataRepository,
@@ -29,13 +30,13 @@ class DataViewModel(
     fun selectGoal(id: Int) {
         selectedGoalId = id
         // Save the selection to disk
-        // sharedPreferences.edit { putInt("selected_goal_id", id) }
+        sharedPreferences.edit { putInt("selected_goal_id", id) }
     }
 
     // CRUD GOAL
 
     fun goals(userId: Int) =
-        repository.getGoals(userId)
+        repo.getGoals(userId)
 
     fun addGoal(
         userId: Int, // unnecessary danger of mismatch?
