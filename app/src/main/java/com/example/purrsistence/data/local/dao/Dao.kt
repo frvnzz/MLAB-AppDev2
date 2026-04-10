@@ -24,34 +24,59 @@ interface Dao {
 
     @androidx.room.Transaction
     @Query("SELECT * FROM Goal WHERE userId = :userId")
-    fun getGoals(userId: String): Flow<List<GoalWithSessions>>
-
-    // Sessions
-    @Insert
-    suspend fun insertSession(session: TrackingSession)
+    fun getGoals(userId: Int): Flow<List<GoalWithSessions>>
 
     // Observe total time spent on a goal
-    @Query(
-        """
-        SELECT SUM(endTime - startTime) 
-        FROM TrackingSession 
-        WHERE goalId = :goalId
-    """
-    )
-    fun observeTotalTime(goalId: Long): Flow<Long?>
+    @Query("""
+    SELECT SUM(endTime - startTime) 
+    FROM TrackingSession 
+    WHERE goalId = :goalId
+    """)
+    fun observeTotalTime(goalId: Int): Flow<Long?>
 
     @Query("DELETE FROM Goal WHERE goalId = :goalId")
-    suspend fun deleteGoal(goalId: Long)
+    suspend fun deleteGoal(goalId: Int)
 
     @Query("SELECT * FROM Goal WHERE goalId = :goalId")
-    fun getGoal(goalId: Long): Flow<Goal?>
+    fun getGoal(goalId: Int): Flow<Goal?>
 
-    @Query(
-        """
-        UPDATE Goal 
-        SET title = :title, targetDuration = :hours 
-        WHERE goalId = :goalId
-    """
+    @Query("""
+    UPDATE Goal 
+    SET title = :title,
+        type = :type,
+        targetDuration = :hours,
+        deepFocus = :deepFocus
+    WHERE goalId = :goalId
+    """)
+    suspend fun updateGoal(
+        goalId: Int,
+        title: String,
+        type: String,
+        hours: Int,
+        deepFocus: Boolean
     )
-    suspend fun updateGoal(goalId: Long, title: String, hours: Int)
+
+    // Tracking Sessions DAO part
+
+    @Insert
+    suspend fun insertTrackingSession(session: TrackingSession): Long
+
+    @Query("""
+        SELECT * FROM TrackingSession
+        WHERE goalId = :goalId and endTime IS NULL
+        ORDER BY startTime DESC
+        LIMIT 1
+    """)
+    suspend fun getActiveTrackingSession(goalId: Int): TrackingSession?
+
+    @Query("""
+        UPDATE TrackingSession
+        SET endTime = :endTime
+        WHERE trackingId = :trackingId
+    """)
+    suspend fun stopTrackingSession(trackingId: Int, endTime: Long)
+
+    @Query("SELECT * FROM TrackingSession WHERE trackingId = :trackingId LIMIT 1")
+    suspend fun getTrackingSessionById(trackingId: Int): TrackingSession?
+
 }

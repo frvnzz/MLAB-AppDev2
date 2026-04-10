@@ -2,14 +2,13 @@ package com.example.purrsistence.data.local.repository
 
 import com.example.purrsistence.data.local.dao.Dao
 import com.example.purrsistence.data.local.entity.Goal
-import com.example.purrsistence.data.local.entity.TrackingSession
 import kotlinx.coroutines.flow.flowOf
 
 class DataRepository (
     private val dao: Dao
 ) {
 
-    fun getGoals(userId: String) =
+    fun getGoals(userId: Int) =
         dao.getGoals(userId)
 
     suspend fun createGoal(
@@ -36,33 +35,21 @@ class DataRepository (
         )
     }
 
-    suspend fun trackSession(
-        goalId: Int,
-        userId: Int,
-        pauseReminder: Boolean,
-        start: Long,
-        end: Long?
-    ) {
-        dao.insertSession(
-            TrackingSession(
-                goalId = goalId,
-                userId = userId,
-                pauseReminder = pauseReminder,
-                startTime = start,
-                endTime = end
-            )
-        )
-    }
-
-    suspend fun deleteGoal(goalId: Long) {
+    suspend fun deleteGoal(goalId: Int) {
         dao.deleteGoal(goalId)
     }
 
-    fun getGoal(goalId: Long?) =
+    fun getGoal(goalId: Int?) =
         if (goalId == null) flowOf(null)
         else dao.getGoal(goalId)
 
-    suspend fun updateGoal(goalId: Long, title: String, hours: Int) {
-        dao.updateGoal(goalId, title, hours)
+    suspend fun updateGoal(
+        goalId: Int,
+        title: String,
+        type: String,
+        hours: Int,
+        deepFocus: Boolean
+    ) {
+        dao.updateGoal(goalId, title, type, hours, deepFocus)
     }
 }
