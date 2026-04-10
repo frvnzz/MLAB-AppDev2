@@ -1,5 +1,7 @@
 # MLAB-AppDev2 Project
 
+[![Android CI](https://github.com/frvnzz/purrsistence/actions/workflows/android-ci.yml/badge.svg?branch=main)](https://github.com/frvnzz/purrsistence/actions/workflows/android-ci.yml?query=branch%3Amain)
+
 ## Project Overview
 
 University project ...
