@@ -73,7 +73,7 @@ class TrackingRepositoryImplTest {
         fakeTimeProvider.currentTime = 4000L
         repository.stopTracking(started.trackingId)
 
-        val total = fakeDao.observeTotalTime(7L)
+        val total = fakeDao.observeTotalTime(7)
 
         var value: Long? = null
         total.collect {
