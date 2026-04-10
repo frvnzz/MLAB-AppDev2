@@ -4,11 +4,11 @@ import android.content.SharedPreferences
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.data.local.repository.DataRepository
 import kotlinx.coroutines.launch
-import androidx.core.content.edit
 
 class DataViewModel(
     private val repository: DataRepository,
@@ -36,7 +36,7 @@ class DataViewModel(
     // CRUD GOAL
 
     fun goals(userId: Int) =
-        repo.getGoals(userId)
+        repository.getGoals(userId)
 
     fun addGoal(
         userId: Int, // unnecessary danger of mismatch?
