@@ -23,6 +23,8 @@ env:
 
 permissions:
   contents: read
+  checks: write
+  pull-requests: write
 
 concurrency:
   group: android-ci-${{ github.ref }}
@@ -49,6 +51,14 @@ jobs:
 
       - name: Run all unit tests
         run: ./gradlew test --stacktrace
+
+      - name: Publish unit test results to GitHub
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Android Unit Tests
+          path: app/build/test-results/testDebugUnitTest/*.xml
+          reporter: java-junit
 
       - name: Upload unit test reports
         if: always()
