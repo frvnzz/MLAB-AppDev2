@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
-    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
 android {
