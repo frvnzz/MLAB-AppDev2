@@ -15,6 +15,8 @@ import androidx.room.PrimaryKey
     indices = [androidx.room.Index(value = ["userId"])]
 )
 
+//TODO add tracked time
+//INFO if this is updated, check if tests are still running (if not, update them accordingly)
 data class Goal(
     @PrimaryKey(autoGenerate = true) val goalId: Int = 0,
 
