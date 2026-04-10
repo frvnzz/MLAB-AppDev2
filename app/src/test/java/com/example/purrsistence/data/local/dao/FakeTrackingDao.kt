@@ -20,27 +20,33 @@ class FakeTrackingDao : Dao {
         throw UnsupportedOperationException("Not needed for tracking repository test")
     }
 
-    override fun getGoals(userId: String): Flow<List<GoalWithSessions>> {
+    override fun getGoals(userId: Int): Flow<List<GoalWithSessions>> {
         return flowOf(emptyList())
     }
 
-    override fun observeTotalTime(goalId: Long): Flow<Long?> {
+    override fun observeTotalTime(goalId: Int): Flow<Long?> {
         val total = sessions
-            .filter { it.goalId.toLong() == goalId && it.endTime != null }
+            .filter { it.goalId == goalId && it.endTime != null }
             .sumOf { (it.endTime ?: 0L) - it.startTime }
 
         return flowOf(total.takeIf { it > 0L })
     }
 
-    override suspend fun deleteGoal(goalId: Long) {
+    override suspend fun deleteGoal(goalId: Int) {
         throw UnsupportedOperationException("Not needed for tracking repository test")
     }
 
-    override fun getGoal(goalId: Long): Flow<Goal?> {
+    override fun getGoal(goalId: Int): Flow<Goal?> {
         return flowOf(null)
     }
 
-    override suspend fun updateGoal(goalId: Long, title: String, hours: Int) {
+    override suspend fun updateGoal(
+        goalId: Int,
+        title: String,
+        type: String,
+        hours: Int,
+        deepFocus: Boolean
+    ) {
         throw UnsupportedOperationException("Not needed for tracking repository test")
     }
 
