@@ -31,8 +31,9 @@ Commonly used branch naming conventions:
 1. Branch off `main` and keep branches focused
 2. Make small, meaningful commits
 3. Push and open a PR against `main`, direct pushes are not allowed
-4. No force pushes, no direct deletions of `main`
-5. After merging, either delete the branch or rename it to `archive/<name>`
+4. The required GitHub Actions check `Unit Tests (all)` must pass before merging
+5. No force pushes, no direct deletions of `main`
+6. After merging, either delete the branch or rename it to `archive/<name>`
 
 ---
 
