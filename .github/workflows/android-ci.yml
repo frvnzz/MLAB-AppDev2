@@ -3,20 +3,9 @@ name: Android CI
 on:
   push:
     branches: ['**']
-    paths:
-      - 'app/**'
-      - 'gradle/**'
-      - '*.gradle.kts'
-      - 'settings.gradle.kts'
-      - '.github/workflows/android-ci.yml'
   pull_request:
     branches: [main]
-    paths:
-      - 'app/**'
-      - 'gradle/**'
-      - '*.gradle.kts'
-      - 'settings.gradle.kts'
-      - '.github/workflows/android-ci.yml'
+  workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
@@ -27,7 +16,7 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: android-ci-${{ github.ref }}
+  group: android-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
