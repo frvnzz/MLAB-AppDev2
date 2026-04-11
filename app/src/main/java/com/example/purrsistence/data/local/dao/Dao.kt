@@ -18,6 +18,12 @@ interface Dao {
     @Insert
     suspend fun insertUser(user: User)
 
+    @Query("UPDATE User SET balance = balance + :amount WHERE userId = :userId")
+    suspend fun addCurrency(userId: Int, amount: Int)
+
+    @Query("SELECT * FROM User WHERE userId = :userId LIMIT 1")
+    suspend fun getUserById(userId: Int): User?
+
     // Goal
     @Insert
     suspend fun insertGoal(goal: Goal)
