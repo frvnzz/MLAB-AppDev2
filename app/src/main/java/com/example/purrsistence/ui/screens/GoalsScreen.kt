@@ -127,7 +127,12 @@ fun GoalsScreen(
                                     val minutes = goal.targetDuration
                                     val hoursFloat = minutes / 60f
                                     val displayHours = String.format(Locale.GERMANY, "%.1f", hoursFloat)
+                                    val trackedMinutes = goalWithSessions.totalTrackedMillis / 1000 / 60
+                                    val trackedHours = trackedMinutes / 60
+                                    val trackedRemainderMinutes = trackedMinutes % 60
+
                                     Text("Duration: ${displayHours}h (${minutes} min)")
+                                    Text("Tracked: ${trackedHours}h ${trackedRemainderMinutes}min")
 
                                     Text("Deep Focus: ${if (goal.deepFocus) "ON" else "OFF"}")
                                     Text("Inactive: ${if (goal.inactive) "YES" else "NO"}")
