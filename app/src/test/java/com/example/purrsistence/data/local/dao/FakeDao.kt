@@ -22,6 +22,18 @@ class FakeDao : Dao {
         users.add(user)
     }
 
+    override suspend fun addCurrency(userId: Int, amount: Int) {
+        val index = users.indexOfFirst { it.userId == userId }
+        if (index == -1) return
+
+        val old = users[index]
+        users[index] = old.copy(balance = old.balance + amount)
+    }
+
+    override suspend fun getUserById(userId: Int): User? {
+        return users.find { it.userId == userId }
+    }
+
     override suspend fun insertGoal(goal: Goal) {
         val userExists = users.any { it.userId == goal.userId }
         if (!userExists) {
