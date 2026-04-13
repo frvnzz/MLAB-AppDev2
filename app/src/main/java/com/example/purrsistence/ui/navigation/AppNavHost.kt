@@ -48,8 +48,8 @@ fun AppNavHost(
         // HOME
         composable("home") { HomeScreen(
             viewModel = dataViewModel,
-            onStartTracking = { goalId, userId ->
-                trackingViewModel.startTrack(goalId, userId)
+            onStartTracking = { goalId, userId, deepFocus ->
+                trackingViewModel.startTrack(goalId, userId, deepFocus)
             }
         ) }
         // GOALS

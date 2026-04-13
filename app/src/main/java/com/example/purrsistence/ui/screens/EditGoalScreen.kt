@@ -1,13 +1,35 @@
 package com.example.purrsistence.ui.screens
 
-import androidx.compose.foundation.layout.*
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.provider.Settings
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.purrsistence.focus.DeepFocusAccessibilityState
 import com.example.purrsistence.ui.DataViewModel
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -18,7 +40,9 @@ fun EditGoalScreen(
     viewModel: DataViewModel,
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
     val goal by viewModel.getGoal(goalId).collectAsState(initial = null)
+    var showAccessibilityDialog by remember { mutableStateOf(false) }
 
     goal?.let { currentGoal ->
 
@@ -85,7 +109,53 @@ fun EditGoalScreen(
                 Text("Deep Focus")
                 Switch(
                     checked = deepFocus,
-                    onCheckedChange = { deepFocus = it }
+                    onCheckedChange = {
+                        deepFocus = it
+                        if (it && !DeepFocusAccessibilityState.isServiceEnabled(context)) {
+                            showAccessibilityDialog = true
+                        }
+                    }
+                )
+            }
+
+            if (showAccessibilityDialog) {
+                AlertDialog(
+                    onDismissRequest = { showAccessibilityDialog = false },
+                    title = { Text("Enable Deep Focus Blocking") },
+                    text = {
+                        Text(
+                            "To block other apps during Deep Focus, enable the accessibility service:\n\n" +
+                                "1. Tap Open Settings\n" +
+                                "2. Accessibility\n" +
+                                "3. Use Purrsistence\n" +
+                                "4. Turn it on"
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                showAccessibilityDialog = false
+                                try {
+                                    context.startActivity(
+                                        Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    )
+                                } catch (_: ActivityNotFoundException) {
+                                    context.startActivity(
+                                        Intent(Settings.ACTION_SETTINGS)
+                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    )
+                                }
+                            }
+                        ) {
+                            Text("Open Settings")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showAccessibilityDialog = false }) {
+                            Text("Cancel")
+                        }
+                    }
                 )
             }
 
