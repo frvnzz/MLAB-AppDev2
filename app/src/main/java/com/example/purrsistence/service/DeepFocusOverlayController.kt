@@ -40,7 +40,7 @@ class DeepFocusOverlayController(
         val appName = resolveAppName(packageName)
 
         val root = FrameLayout(context).apply {
-            setBackgroundColor("#99000000".toColorInt())
+            setBackgroundColor("#CC000000".toColorInt())
             isClickable = true
             isFocusable = true
         }
