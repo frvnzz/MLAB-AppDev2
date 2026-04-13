@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.purrsistence.ui.components.CurrencyBadge
 import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.ui.components.GoalBottomDrawer
 import com.example.purrsistence.ui.viewmodel.UserViewModel
@@ -57,10 +58,16 @@ fun HomeScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
+                        .padding(top = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Welcome Home!", style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        "Welcome Home!",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    // Display user's currency balance
+                    CurrencyBadge(balance = balance)
                 }
                 // Cat UI can go here later :)
             }
