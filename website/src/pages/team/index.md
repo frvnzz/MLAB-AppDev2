@@ -11,7 +11,7 @@ Meet the people behind Purrsistence.
 - **Julia Klein** [@kljuli](https://github.com/kljuli)
 - **Nina Kowalska-vel-Kowalczyk** [@ninakvk](https://github.com/ninakvk)
 - **Mirjam McLachlan** [@Alyra07](https://github.com/Alyra07)
-- **Pia Sablatnig** [@pia0sbltg](https://github.com/pia0sbltg)  
+- **Pia Sablatnig** [@pia0sbltg](https://github.com/pia0sbltg)
 
 ---
 
