@@ -3,22 +3,11 @@ package com.example.purrsistence.service
 import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
-import android.graphics.Color
-import android.graphics.PixelFormat
 import android.os.SystemClock
 import android.util.Log
-import android.view.Gravity
-import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
-import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.core.graphics.toColorInt
-import com.example.purrsistence.R
 import com.example.purrsistence.focus.DeepFocusConfig
 
 @SuppressLint("AccessibilityPolicy")
@@ -48,9 +37,7 @@ class DeepFocusAccessibilityService : AccessibilityService() {
         )
     }
 
-    private var overlayView: View? = null
-    private var overlayForPackage: String? = null
-    private var windowManager: WindowManager? = null
+    private var overlayController: DeepFocusOverlayController? = null
     private var homePackages: Set<String> = emptySet()
     private var overlayShownAtMs: Long = 0L
     private var returnToAppRequestedAtMs: Long = 0L
@@ -59,7 +46,14 @@ class DeepFocusAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        val windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        overlayController = DeepFocusOverlayController(
+            context = this,
+            windowManager = windowManager,
+            onReturnClick = { previouslyBlockedPackage ->
+                handleReturnClick(previouslyBlockedPackage)
+            }
+        )
         homePackages = resolveAllHomePackages()
         debugLog("Service connected. homePackages=$homePackages")
     }
@@ -67,6 +61,7 @@ class DeepFocusAccessibilityService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         val accessibilityEvent = event ?: return
         val type = accessibilityEvent.eventType
+        // React only to foreground window changes to avoid noisy event churn.
         if (type != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
 
         clearExpiredReturnToAppGrace()
@@ -75,8 +70,9 @@ class DeepFocusAccessibilityService : AccessibilityService() {
         val currentPackage = accessibilityEvent.packageName?.toString() ?: return
         val className = accessibilityEvent.className?.toString().orEmpty()
 
-        debugLog("event type=$type pkg=$currentPackage class=$className overlayFor=$overlayForPackage")
+        debugLog("event type=$type pkg=$currentPackage class=$className overlayFor=${overlayController?.currentPackage()}")
 
+        // Short-circuit checks are ordered from cheapest/safest to most specific.
         if (handleOwnPackageEvent(currentPackage, className)) return
         if (shouldSuppressPackageAfterReturn(currentPackage)) return
         if (handleReturnToAppGraceForNonAppEvent()) return
@@ -95,6 +91,7 @@ class DeepFocusAccessibilityService : AccessibilityService() {
     private fun clearExpiredReturnToAppGrace() {
         val now = SystemClock.uptimeMillis()
 
+        // Grace windows prevent immediate overlay re-attach during app-switch transitions.
         if (returnToAppRequestedAtMs != 0L && now - returnToAppRequestedAtMs > RETURN_TO_APP_GRACE_MS) {
             returnToAppRequestedAtMs = 0L
         }
@@ -116,9 +113,9 @@ class DeepFocusAccessibilityService : AccessibilityService() {
         if (currentPackage != this.packageName) return false
 
         val isOverlayContainer = className == "android.widget.FrameLayout"
-        if (overlayView != null && isOverlayContainer) return true
+        if (hasOverlay() && isOverlayContainer) return true
 
-        if (overlayView != null) {
+        if (hasOverlay()) {
             debugLog("Own app foreground -> remove overlay")
             removeOverlay()
         }
@@ -129,6 +126,7 @@ class DeepFocusAccessibilityService : AccessibilityService() {
         val suppressedPackage = suppressedPackageAfterReturn ?: return false
         val isSuppressed = currentPackage == suppressedPackage
         val withinWindow = SystemClock.uptimeMillis() <= suppressPackageUntilMs
+        // Ignore one quick bounce back to the previously blocked app after pressing return.
         if (isSuppressed && withinWindow) {
             debugLog("Suppressed package after return -> ignore re-attach")
             return true
@@ -195,7 +193,7 @@ class DeepFocusAccessibilityService : AccessibilityService() {
     }
 
     private fun shouldDebounceAllowedSurface(packageName: String, className: String): Boolean {
-        val hasOverlay = overlayView != null
+        val hasOverlay = hasOverlay()
         if (!hasOverlay) return false
 
         val elapsed = SystemClock.uptimeMillis() - overlayShownAtMs
@@ -221,105 +219,46 @@ class DeepFocusAccessibilityService : AccessibilityService() {
     }
 
     private fun showOverlayForPackage(packageName: String) {
-        if (overlayView != null && overlayForPackage == packageName) return
+        if (overlayController?.isShowingFor(packageName) == true) return
 
-        removeOverlay()
-
-        val root = FrameLayout(this).apply {
-            setBackgroundColor("#99000000".toColorInt())
-            isClickable = true
-            isFocusable = true
+        val didAttach = overlayController?.showOverlay(packageName = packageName) == true
+        if (didAttach) {
+            overlayShownAtMs = SystemClock.uptimeMillis()
+            debugLog("Overlay attached for package=$packageName")
         }
-
-        val content = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setPadding(48, 48, 48, 48)
-        }
-
-        val appName = resolveAppName(packageName)
-
-        val textView = TextView(this).apply {
-            text = getString(R.string.deep_focus_overlay_message, appName)
-            setTextColor(Color.WHITE)
-            textSize = 22f
-            gravity = Gravity.CENTER
-        }
-
-        val backButton = Button(this).apply {
-            text = getString(R.string.deep_focus_overlay_button)
-            setOnClickListener {
-                val previouslyBlockedPackage = overlayForPackage
-
-                // Best practice: remove immediately on explicit user action.
-                removeOverlay()
-                returnToAppRequestedAtMs = SystemClock.uptimeMillis()
-                suppressedPackageAfterReturn = previouslyBlockedPackage
-                suppressPackageUntilMs = SystemClock.uptimeMillis() + RETURN_TO_APP_GRACE_MS
-
-                val appIntent =
-                    packageManager.getLaunchIntentForPackage(this@DeepFocusAccessibilityService.packageName)
-                appIntent?.addFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK or
-                            Intent.FLAG_ACTIVITY_SINGLE_TOP or
-                            Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                )
-                if (appIntent != null) {
-                    startActivity(appIntent)
-                } else {
-                    performGlobalAction(GLOBAL_ACTION_HOME)
-                }
-            }
-        }
-
-        content.addView(textView)
-        content.addView(backButton)
-        root.addView(
-            content,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.CENTER
-            )
-        )
-
-        val layoutParams = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-            PixelFormat.TRANSLUCENT
-        )
-
-        windowManager?.addView(root, layoutParams)
-        overlayView = root
-        overlayForPackage = packageName
-        overlayShownAtMs = SystemClock.uptimeMillis()
-        debugLog("Overlay attached for package=$packageName")
     }
 
     private fun removeOverlay() {
-        overlayView?.let { view ->
-            try {
-                windowManager?.removeView(view)
-            } catch (_: IllegalArgumentException) {
-                // Ignore if the view was already removed by the system.
-            }
-            debugLog("Overlay removed for package=$overlayForPackage")
+        val removedPackage = overlayController?.removeOverlay()
+        if (removedPackage != null) {
+            debugLog("Overlay removed for package=$removedPackage")
         }
-        overlayView = null
-        overlayForPackage = null
         overlayShownAtMs = 0L
     }
 
-    private fun resolveAppName(packageName: String): String {
-        return try {
-            val info = packageManager.getApplicationInfo(packageName, 0)
-            packageManager.getApplicationLabel(info).toString()
-        } catch (_: PackageManager.NameNotFoundException) {
-            packageName
+    private fun hasOverlay(): Boolean = overlayController?.hasOverlay() == true
+
+    private fun handleReturnClick(previouslyBlockedPackage: String?) {
+        // Button-driven exit from overlay: hide immediately, then protect transition.
+        removeOverlay()
+        returnToAppRequestedAtMs = SystemClock.uptimeMillis()
+        suppressedPackageAfterReturn = previouslyBlockedPackage
+        suppressPackageUntilMs = SystemClock.uptimeMillis() + RETURN_TO_APP_GRACE_MS
+
+        val appIntent = packageManager.getLaunchIntentForPackage(this.packageName)
+        appIntent?.addFlags(
+            Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+        )
+
+        if (appIntent != null) {
+            startActivity(appIntent)
+        } else {
+            performGlobalAction(GLOBAL_ACTION_HOME)
         }
     }
+
 
     private fun debugLog(message: String) {
         Log.d(TAG, message)
