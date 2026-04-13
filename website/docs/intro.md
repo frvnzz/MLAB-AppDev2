@@ -1,3 +1,7 @@
-# Welcome to Docs
+---
+sidebar_position: 1
+---
 
-This is the documentation placeholder.
+# Purrsistence Docs
+
+Welcome to the Purrsistence documentation.
