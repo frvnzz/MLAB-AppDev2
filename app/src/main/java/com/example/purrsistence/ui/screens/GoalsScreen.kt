@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.purrsistence.ui.GoalViewModel
+import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
 

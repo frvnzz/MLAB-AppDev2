@@ -9,15 +9,18 @@ import com.example.purrsistence.data.local.AppDatabase
 import com.example.purrsistence.data.local.entity.User
 import com.example.purrsistence.data.local.repository.GoalRepository
 import com.example.purrsistence.data.local.repository.TrackingRepositoryImpl
+import com.example.purrsistence.data.local.repository.UserRepository
 import com.example.purrsistence.domain.time.SystemTimeProvider
-import com.example.purrsistence.ui.GoalViewModel
+import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.ui.screens.MainScreen
 import com.example.purrsistence.ui.theme.PurrsistenceTheme
-import com.example.purrsistence.ui.tracking.TrackingViewModel
+import com.example.purrsistence.ui.viewmodel.TrackingViewModel
+import com.example.purrsistence.ui.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
+    private lateinit var userViewModel: UserViewModel
     private lateinit var goalViewModel: GoalViewModel
     private lateinit var trackingViewModel: TrackingViewModel
 
@@ -25,11 +28,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // goal database and repository
+        // DATABASE & DAO
         val db = AppDatabase.getInstance(this)
         val dao = db.dao()
+        // USER
+        val userRepo = UserRepository(dao)
+        userViewModel = UserViewModel(userRepo)
+        // GOAL
         val repo = GoalRepository(dao)
-
+        // TRACKING
         val timeProvider = SystemTimeProvider()
         val trackingRepo = TrackingRepositoryImpl(dao, timeProvider)
 
@@ -55,6 +62,7 @@ class MainActivity : ComponentActivity() {
             PurrsistenceTheme {
                 // pass created ViewModels to MainScreen (scaffold)
                 MainScreen(
+                    userViewModel = userViewModel,
                     goalViewModel = goalViewModel,
                     trackingViewModel = trackingViewModel
                 )

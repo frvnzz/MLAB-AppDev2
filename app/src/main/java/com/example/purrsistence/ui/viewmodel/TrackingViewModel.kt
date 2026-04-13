@@ -1,9 +1,11 @@
-package com.example.purrsistence.ui.tracking
+package com.example.purrsistence.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.data.local.repository.TrackingRepository
 import com.example.purrsistence.domain.time.TimeProvider
+import com.example.purrsistence.ui.tracking.TrackingEvent
+import com.example.purrsistence.ui.tracking.TrackingUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,7 +29,7 @@ class TrackingViewModel(
     private var timerJob: Job? = null
 
     fun startTrack(goalId: Int, userId: Int){
-        viewModelScope.launch{
+        viewModelScope.launch {
             val session = repository.startTracking(
                 goalId = goalId,
                 userId = userId,

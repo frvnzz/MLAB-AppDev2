@@ -6,23 +6,27 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.purrsistence.ui.GoalViewModel
+import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.ui.components.GoalBottomDrawer
+import com.example.purrsistence.ui.viewmodel.UserViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: GoalViewModel,
+    userViewModel: UserViewModel,
+    goalViewModel: GoalViewModel,
     onStartTracking: (Int, Int) -> Unit
 ) {
-    val goals by viewModel.goals(1).collectAsState(initial = emptyList())
+    val balance by userViewModel.userBalance.collectAsState()
+
+    val goals by goalViewModel.goals(1).collectAsState(initial = emptyList())
 
     // Use ViewModel state so that user can switch between screens and selectedGoalId is remembered
-    val selectedGoalId = viewModel.selectedGoalId
+    val selectedGoalId = goalViewModel.selectedGoalId
 
     // Auto-select first goal if none is selected
     LaunchedEffect(goals) {
         if (selectedGoalId == null && goals.isNotEmpty()) {
-            viewModel.selectGoal(goals.first().goal.goalId)
+            goalViewModel.selectGoal(goals.first().goal.goalId)
         }
     }
 
@@ -36,7 +40,7 @@ fun HomeScreen(
         GoalBottomDrawer(
             goals = goals,
             selectedGoalId = selectedGoalId,
-            onGoalSelected = { viewModel.selectGoal(it) },
+            onGoalSelected = { goalViewModel.selectGoal(it) },
             onStartClick = {
                 selectedGoal?.let {
                     onStartTracking(it.goalId, it.targetDuration)

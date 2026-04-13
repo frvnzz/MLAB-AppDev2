@@ -7,18 +7,20 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.purrsistence.ui.GoalViewModel
+import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.ui.screens.AddGoalScreen
 import com.example.purrsistence.ui.screens.EditGoalScreen
 import com.example.purrsistence.ui.screens.GoalsScreen
 import com.example.purrsistence.ui.screens.HomeScreen
 import com.example.purrsistence.ui.tracking.TrackingEvent
 import com.example.purrsistence.ui.tracking.TrackingScreen
-import com.example.purrsistence.ui.tracking.TrackingViewModel
+import com.example.purrsistence.ui.viewmodel.TrackingViewModel
+import com.example.purrsistence.ui.viewmodel.UserViewModel
 
 @Composable
 fun AppNavHost(
     navController: NavHostController,
+    userViewModel: UserViewModel,
     goalViewModel: GoalViewModel,
     trackingViewModel: TrackingViewModel,
     modifier: Modifier = Modifier,
@@ -47,7 +49,8 @@ fun AppNavHost(
 
         // HOME
         composable("home") { HomeScreen(
-            viewModel = goalViewModel,
+            userViewModel = userViewModel,
+            goalViewModel = goalViewModel,
             onStartTracking = { goalId, userId ->
                 trackingViewModel.startTrack(goalId, userId)
             }
