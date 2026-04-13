@@ -24,5 +24,7 @@ Deep Focus is implemented as a per-goal blocking flow that is activated when tra
 
 ## Notes
 
+- Android does not provide a built-in API for fully disabling an app; Deep Focus uses accessibility services to display an overlay instead.
+- This is different from iOS, where Screen Time provides a dedicated API for app restriction.
 - Accessibility must be enabled manually in Android Settings before Deep Focus can block apps.
 - Launcher and system UI packages are intentionally excluded from blocking to avoid trapping the user.
