@@ -77,6 +77,21 @@ const config = {
             label: 'Docs',
           },
           {
+            to: '/app/',
+            label: 'App',
+            position: 'left',
+          },
+          {
+            to: '/download/',
+            label: 'Download',
+            position: 'left',
+          },
+          {
+            to: '/team/',
+            label: 'Team',
+            position: 'left',
+          },
+          {
             href: 'https://github.com/frvnzz/purrsistence',
             label: 'GitHub',
             position: 'right',
