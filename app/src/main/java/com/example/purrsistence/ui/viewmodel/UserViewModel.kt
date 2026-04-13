@@ -10,8 +10,12 @@ class UserViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
+    // Centralized source of truth for the current user
+    val currentUserId: Int = 1
+
+    // TODO: unit test the getUserBalance function from the repository (+ Dao)
     val userBalance = userRepository
-        .getUserBalance(1)
+        .getUserBalance(currentUserId)
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),

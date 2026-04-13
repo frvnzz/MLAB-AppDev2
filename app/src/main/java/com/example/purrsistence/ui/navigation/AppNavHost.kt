@@ -58,7 +58,8 @@ fun AppNavHost(
         // GOALS
         composable("goals") {
             GoalsScreen(
-                viewModel = goalViewModel,
+                userViewModel = userViewModel,
+                goalViewModel = goalViewModel,
                 onAddGoalClick = {
                     navController.navigate("add_goal")
                 },
@@ -85,7 +86,7 @@ fun AppNavHost(
             AddGoalScreen(
                 onSave = { title, type, minutes, deepFocus ->
                     goalViewModel.addGoal(
-                        userId = 1,
+                        userId = userViewModel.currentUserId,
                         title = title,
                         type = type,
                         weeklyMinutes = minutes,

@@ -31,31 +31,33 @@ class MainActivity : ComponentActivity() {
         // DATABASE & DAO
         val db = AppDatabase.getInstance(this)
         val dao = db.dao()
-        // USER
-        val userRepo = UserRepository(dao)
-        userViewModel = UserViewModel(userRepo)
-        // GOAL
-        val repo = GoalRepository(dao)
-        // TRACKING
-        val timeProvider = SystemTimeProvider()
-        val trackingRepo = TrackingRepositoryImpl(dao, timeProvider)
 
         // shared preferences (for storing last selected goal from GoalBottomDrawer)
         val prefs = getSharedPreferences("purrsistence_prefs", MODE_PRIVATE)
 
+        // REPOSITORIES
+        val userRepo = UserRepository(dao)
+        val goalRepo = GoalRepository(dao)
+        val timeProvider = SystemTimeProvider()
+        val trackingRepo = TrackingRepositoryImpl(dao, timeProvider)
+
         // create ViewModel instances for this activity
-        goalViewModel = GoalViewModel(repo, prefs)
+        userViewModel = UserViewModel(userRepo)
+        goalViewModel = GoalViewModel(goalRepo, prefs)
         trackingViewModel = TrackingViewModel(trackingRepo, timeProvider)
 
-        val exampleUser = User(
-            username = "testuser",
-            balance = 100,
-            friends = listOf("alice", "bob"),
-            collectedCatsIds = listOf("cat1", "cat2")
-        )
-
         lifecycleScope.launch {
-            dao.insertUser(exampleUser)
+            // Only insert if userId 1 doesn't exist
+            if (dao.getUserById(1) == null) {
+                val exampleUser = User(
+                    userId = 1, // fixed userId 1 for the test user
+                    username = "testuser",
+                    balance = 100,
+                    friends = listOf("alice", "bob"),
+                    collectedCatsIds = listOf("cat1", "cat2")
+                )
+                dao.insertUser(exampleUser)
+            }
         }
 
         setContent {

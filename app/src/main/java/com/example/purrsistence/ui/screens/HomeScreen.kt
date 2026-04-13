@@ -44,7 +44,7 @@ fun HomeScreen(
             onGoalSelected = { goalViewModel.selectGoal(it) },
             onStartClick = {
                 selectedGoal?.let {
-                    onStartTracking(it.goalId, it.targetDuration)
+                    onStartTracking(it.goalId, it.userId)
                 }
             }
         ) {
