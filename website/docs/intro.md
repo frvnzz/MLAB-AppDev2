@@ -28,4 +28,18 @@ To contribute developer documentation:
 
 ---
 
+## 🧪 Preview the Docs Website Locally
+
+If you want to test your changes locally before publishing:
+
+```bash
+cd website
+npm install
+npm run start
+```
+
+This will start a local development server so you can preview your changes in real time.
+
+---
+
 Happy documenting! ✨
