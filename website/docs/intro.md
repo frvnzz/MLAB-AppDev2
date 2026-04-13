@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Purrsistence Docs
+# Docs
 
 Welcome to the **Purrsistence documentation**! This space includes:
 
