@@ -10,12 +10,12 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class DataRepositoryCrudTest {
+class GoalRepositoryCrudTest {
 
     @Test
     fun createGoal_insertsGoal_andGoalAppearsInList() = runBlocking {
         val dao = FakeDao()
-        val repository = DataRepository(dao)
+        val repository = GoalRepository(dao)
 
         dao.insertUser(
             User(
@@ -50,7 +50,7 @@ class DataRepositoryCrudTest {
     @Test
     fun getGoals_returnsOnlyGoalsOfRequestedUser() = runBlocking {
         val dao = FakeDao()
-        val repository = DataRepository(dao)
+        val repository = GoalRepository(dao)
 
         dao.insertUser(
             User(
@@ -106,7 +106,7 @@ class DataRepositoryCrudTest {
     @Test
     fun getGoal_returnsCorrectGoal() = runBlocking {
         val dao = FakeDao()
-        val repository = DataRepository(dao)
+        val repository = GoalRepository(dao)
 
         dao.insertUser(
             User(
@@ -141,7 +141,7 @@ class DataRepositoryCrudTest {
     @Test
     fun updateGoal_updatesStoredGoal() = runBlocking {
         val dao = FakeDao()
-        val repository = DataRepository(dao)
+        val repository = GoalRepository(dao)
 
         dao.insertUser(
             User(
@@ -186,7 +186,7 @@ class DataRepositoryCrudTest {
     @Test
     fun deleteGoal_removesGoalFromList() = runBlocking {
         val dao = FakeDao()
-        val repository = DataRepository(dao)
+        val repository = GoalRepository(dao)
 
         dao.insertUser(
             User(

@@ -6,12 +6,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.purrsistence.ui.DataViewModel
+import com.example.purrsistence.ui.GoalViewModel
 import com.example.purrsistence.ui.components.GoalBottomDrawer
 
 @Composable
 fun HomeScreen(
-    viewModel: DataViewModel,
+    viewModel: GoalViewModel,
     onStartTracking: (Int, Int) -> Unit
 ) {
     val goals by viewModel.goals(1).collectAsState(initial = emptyList())

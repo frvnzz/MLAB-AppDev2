@@ -11,14 +11,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.purrsistence.ui.DataViewModel
+import com.example.purrsistence.ui.GoalViewModel
 import com.example.purrsistence.ui.components.BottomNavBar
 import com.example.purrsistence.ui.navigation.AppNavHost
 import com.example.purrsistence.ui.tracking.TrackingViewModel
 
 @Composable
 fun MainScreen(
-    dataViewModel: DataViewModel,
+    goalViewModel: GoalViewModel,
     trackingViewModel: TrackingViewModel
 ) {
     val navController = rememberNavController()
@@ -52,7 +52,7 @@ fun MainScreen(
     ) { padding ->
         AppNavHost(
             navController = navController,
-            dataViewModel = dataViewModel,
+            goalViewModel = goalViewModel,
             trackingViewModel = trackingViewModel,
             modifier = Modifier.padding(padding),
             snackbarHostState = snackbarHostState

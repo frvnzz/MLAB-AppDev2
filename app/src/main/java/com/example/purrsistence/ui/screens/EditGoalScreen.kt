@@ -8,14 +8,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.example.purrsistence.ui.DataViewModel
+import com.example.purrsistence.ui.GoalViewModel
 import java.util.Locale
 import kotlin.math.roundToInt
 
 @Composable
 fun EditGoalScreen(
     goalId: Int?,
-    viewModel: DataViewModel,
+    viewModel: GoalViewModel,
     onBack: () -> Unit
 ) {
     val goal by viewModel.getGoal(goalId).collectAsState(initial = null)

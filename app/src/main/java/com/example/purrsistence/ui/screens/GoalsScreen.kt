@@ -12,13 +12,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.purrsistence.ui.DataViewModel
+import com.example.purrsistence.ui.GoalViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Composable
 fun GoalsScreen(
-    viewModel: DataViewModel,
+    viewModel: GoalViewModel,
     onAddGoalClick: () -> Unit = {},
     onGoalClick: (Int) -> Unit = {},
     snackbarHostState: SnackbarHostState

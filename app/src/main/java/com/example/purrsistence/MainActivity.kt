@@ -1,6 +1,5 @@
 package com.example.purrsistence
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,10 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
 import com.example.purrsistence.data.local.AppDatabase
 import com.example.purrsistence.data.local.entity.User
-import com.example.purrsistence.data.local.repository.DataRepository
+import com.example.purrsistence.data.local.repository.GoalRepository
 import com.example.purrsistence.data.local.repository.TrackingRepositoryImpl
 import com.example.purrsistence.domain.time.SystemTimeProvider
-import com.example.purrsistence.ui.DataViewModel
+import com.example.purrsistence.ui.GoalViewModel
 import com.example.purrsistence.ui.screens.MainScreen
 import com.example.purrsistence.ui.theme.PurrsistenceTheme
 import com.example.purrsistence.ui.tracking.TrackingViewModel
@@ -19,7 +18,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var dataViewModel: DataViewModel
+    private lateinit var goalViewModel: GoalViewModel
     private lateinit var trackingViewModel: TrackingViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,16 +28,16 @@ class MainActivity : ComponentActivity() {
         // goal database and repository
         val db = AppDatabase.getInstance(this)
         val dao = db.dao()
-        val repo = DataRepository(dao)
+        val repo = GoalRepository(dao)
 
         val timeProvider = SystemTimeProvider()
         val trackingRepo = TrackingRepositoryImpl(dao, timeProvider)
 
         // shared preferences (for storing last selected goal from GoalBottomDrawer)
-        val prefs = getSharedPreferences("purrsistence_prefs", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("purrsistence_prefs", MODE_PRIVATE)
 
         // create ViewModel instances for this activity
-        dataViewModel = DataViewModel(repo, prefs)
+        goalViewModel = GoalViewModel(repo, prefs)
         trackingViewModel = TrackingViewModel(trackingRepo, timeProvider)
 
         val exampleUser = User(
@@ -56,7 +55,7 @@ class MainActivity : ComponentActivity() {
             PurrsistenceTheme {
                 // pass created ViewModels to MainScreen (scaffold)
                 MainScreen(
-                    dataViewModel = dataViewModel,
+                    goalViewModel = goalViewModel,
                     trackingViewModel = trackingViewModel
                 )
             }

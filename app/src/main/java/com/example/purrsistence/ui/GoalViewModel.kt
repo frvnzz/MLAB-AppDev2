@@ -7,11 +7,11 @@ import androidx.compose.runtime.setValue
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.purrsistence.data.local.repository.DataRepository
+import com.example.purrsistence.data.local.repository.GoalRepository
 import kotlinx.coroutines.launch
 
-class DataViewModel(
-    private val repository: DataRepository,
+class GoalViewModel(
+    private val repository: GoalRepository,
     private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
 

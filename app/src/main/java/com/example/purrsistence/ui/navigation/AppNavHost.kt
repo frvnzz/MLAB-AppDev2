@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.purrsistence.ui.DataViewModel
+import com.example.purrsistence.ui.GoalViewModel
 import com.example.purrsistence.ui.screens.AddGoalScreen
 import com.example.purrsistence.ui.screens.EditGoalScreen
 import com.example.purrsistence.ui.screens.GoalsScreen
@@ -19,7 +19,7 @@ import com.example.purrsistence.ui.tracking.TrackingViewModel
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    dataViewModel: DataViewModel,
+    goalViewModel: GoalViewModel,
     trackingViewModel: TrackingViewModel,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState
@@ -47,7 +47,7 @@ fun AppNavHost(
 
         // HOME
         composable("home") { HomeScreen(
-            viewModel = dataViewModel,
+            viewModel = goalViewModel,
             onStartTracking = { goalId, userId ->
                 trackingViewModel.startTrack(goalId, userId)
             }
@@ -55,7 +55,7 @@ fun AppNavHost(
         // GOALS
         composable("goals") {
             GoalsScreen(
-                viewModel = dataViewModel,
+                viewModel = goalViewModel,
                 onAddGoalClick = {
                     navController.navigate("add_goal")
                 },
@@ -73,7 +73,7 @@ fun AppNavHost(
 
             EditGoalScreen(
                 goalId = goalId,
-                viewModel = dataViewModel,
+                viewModel = goalViewModel,
                 onBack = { navController.popBackStack() }
             )
         }
@@ -81,7 +81,7 @@ fun AppNavHost(
         composable("add_goal") {
             AddGoalScreen(
                 onSave = { title, type, minutes, deepFocus ->
-                    dataViewModel.addGoal(
+                    goalViewModel.addGoal(
                         userId = 1,
                         title = title,
                         type = type,
