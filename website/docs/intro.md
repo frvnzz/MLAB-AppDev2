@@ -30,7 +30,7 @@ To contribute developer documentation:
 
 ## 🧪 Preview the Docs Website Locally
 
-If you want to test your changes locally before publishing:
+If you want to test your changes locally before pushing:
 
 ```bash
 cd website
