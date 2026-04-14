@@ -23,6 +23,10 @@ class FakeTrackingDao : Dao {
         users[index] = old.copy(balance = old.balance + amount)
     }
 
+    override fun getUserBalance(userId: Int): Flow<Int> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getUserById(userId: Int): User? {
         return users.find { it.userId == userId }
     }

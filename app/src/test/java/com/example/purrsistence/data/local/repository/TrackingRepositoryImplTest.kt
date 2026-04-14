@@ -1,6 +1,6 @@
 package com.example.purrsistence.data.local.repository
 
-import com.example.purrsistence.data.local.dao.FakeTrackingDao
+import com.example.purrsistence.data.local.dao.FakeDao
 import com.example.purrsistence.data.local.entity.User
 import com.example.purrsistence.domain.time.FakeTimeProvider
 import kotlinx.coroutines.runBlocking
@@ -13,7 +13,7 @@ class TrackingRepositoryImplTest {
 
     @Test
     fun startTracking_createsSessionWithStartTime_andStoresIt() = runBlocking {
-        val fakeDao = FakeTrackingDao()
+        val fakeDao = FakeDao()
         val fakeTimeProvider = FakeTimeProvider(1000L)
         val repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
 
@@ -39,7 +39,7 @@ class TrackingRepositoryImplTest {
 
     @Test
     fun stopTracking_setsEndTime_onStoredSession() = runBlocking {
-        val fakeDao = FakeTrackingDao()
+        val fakeDao = FakeDao()
         val fakeTimeProvider = FakeTimeProvider(1000L)
         val repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
 
@@ -61,7 +61,7 @@ class TrackingRepositoryImplTest {
 
     @Test
     fun stopTracking_addsCurrency() = runBlocking {
-        val fakeDao = FakeTrackingDao()
+        val fakeDao = FakeDao()
         val fakeTimeProvider= FakeTimeProvider(1000L)
         val repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
 
@@ -94,7 +94,7 @@ class TrackingRepositoryImplTest {
 
     @Test
     fun observeTotalTime_returnsFinishedTrackedDuration() = runBlocking {
-        val fakeDao = FakeTrackingDao()
+        val fakeDao = FakeDao()
         val fakeTimeProvider = FakeTimeProvider(1000L)
         val repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
 
