@@ -3,8 +3,18 @@ name: Android CI
 on:
   push:
     branches: ['**']
+    paths-ignore:
+      - '**.md'
+      - 'website/**'
+      - '.gitignore'
+      - 'LICENSE'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'website/**'
+      - '.gitignore'
+      - 'LICENSE'
   workflow_dispatch:
 
 env:
