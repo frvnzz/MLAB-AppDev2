@@ -21,7 +21,7 @@ existing apps.
 - **Language:** Kotlin
 - **Backend / Services:** Supabase
 
-**🧠 Reasoning:** Kotlin is taught at university → team familiarity. Firebase provides fast setup,
+**🧠 Reasoning:** Kotlin is taught at university → team familiarity. Supabase provides fast setup,
 auth, and realtime features without needing a custom backend.
 
 ---
@@ -110,6 +110,16 @@ Read more: https://www.conventionalcommits.org/
 - **Methodology:** Scrum (required)
 - **Practices:** Sprints, backlog, task breakdown into tickets
 - **🧠 Reasoning:** Structured workflow required by the MLAB; supports planning and team coordination
+
+---
+
+## Externals of the Application
+
+- **Authentication:** Not integrated yet (planned). Current app state uses local Room data only (`User` entity and seed insert in `MainActivity`), with no auth SDK wired in.
+- **Time:** Abstracted via `TimeProvider`; production uses `SystemTimeProvider : TimeProvider`, while tests use `FakeTimeProvider : TimeProvider` for timing.
+- **Database:** Local storage via Room (`Goal`, `TrackingSession`, `User` entities). No external database or backend integration yet (planned Supabase).
+- **Statistics:** Implemented locally through Room (`Dao.observeTotalTime(goalId)` and `GoalWithSessions` relation). No external analytics/statistics provider is connected yet.
+<!-- **Notifications:** Not integrated yet. `TrackingSession` contains `pauseReminder`, but there is currently no notification scheduling/service implementation. -->
 
 ---
 
