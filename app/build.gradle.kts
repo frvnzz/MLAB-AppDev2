@@ -2,6 +2,11 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
+    jacoco
+}
+
+jacoco {
+    toolVersion = "0.8.13"
 }
 
 android {
@@ -38,6 +43,113 @@ android {
     buildFeatures {
         compose = true
     }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            all {
+                it.extensions.configure(JacocoTaskExtension::class.java) {
+                    isIncludeNoLocationClasses = true
+                    excludes = listOf("jdk.internal.*")
+                }
+            }
+        }
+    }
+}
+
+val jacocoExcludes = listOf(
+    "**/R.class",
+    "**/R\$*.class",
+    "**/BuildConfig.*",
+    "**/Manifest*.*",
+    "android/**/*.*",
+    "**/*Test*.*",
+    "**/*\$Lambda\$*.*",
+    "**/*\$inlined\$*.*",
+    "**/*_Factory*.*",
+    "**/*_Provide*Factory*.*",
+    "**/*_MembersInjector*.*",
+    "**/*_Impl*.*",
+    "**/*_ImplKt*.*",
+    "**/*Dao_Impl*.*",
+    "**/*JsonAdapter*.*",
+    "**/*MapperImpl*.*",
+    "**/*ComposableSingletons*.*",
+    "**/*Preview*.*",
+    "**/*\$serializer*.*",
+    "**/hilt_aggregated_deps/**",
+    "**/databinding/**",
+    "**/generated/**",
+    "**/testFixtures/**"
+)
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+
+    val javaClassesDir = layout.buildDirectory.dir("intermediates/javac/debug/compileDebugJavaWithJavac/classes")
+    val kotlinClassesDir = layout.buildDirectory.dir("tmp/kotlin-classes/debug")
+
+    reports {
+        xml.required.set(true)
+        xml.outputLocation.set(
+            layout.buildDirectory.file("reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
+        )
+        html.required.set(true)
+        csv.required.set(false)
+    }
+
+    classDirectories.setFrom(
+        files(
+            fileTree(javaClassesDir) {
+                exclude(jacocoExcludes)
+            },
+            fileTree(kotlinClassesDir) {
+                exclude(jacocoExcludes)
+            }
+        )
+    )
+
+    sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
+
+    executionData.setFrom(
+        fileTree(layout.buildDirectory) {
+            include(
+                "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec",
+                "jacoco/testDebugUnitTest.exec",
+                "jacoco/test.exec"
+            )
+        }
+    )
+}
+
+tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
+    dependsOn("jacocoTestReport")
+
+    classDirectories.setFrom(tasks.named("jacocoTestReport", JacocoReport::class.java).map { it.classDirectories })
+    sourceDirectories.setFrom(tasks.named("jacocoTestReport", JacocoReport::class.java).map { it.sourceDirectories })
+    executionData.setFrom(tasks.named("jacocoTestReport", JacocoReport::class.java).map { it.executionData })
+
+    violationRules {
+        rule {
+            enabled = true
+            element = "BUNDLE"
+
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.30".toBigDecimal()
+            }
+            limit {
+                counter = "BRANCH"
+                value = "COVEREDRATIO"
+                minimum = "0.20".toBigDecimal()
+            }
+        }
+    }
+}
+
+tasks.named("check") {
+    dependsOn("jacocoTestCoverageVerification")
 }
 
 dependencies {
