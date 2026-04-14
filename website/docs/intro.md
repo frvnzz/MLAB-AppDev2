@@ -10,7 +10,6 @@ Welcome to the **Purrsistence documentation**! This space includes:
 - 🧠 Project Decisions for the course [FSSD](https://ecampus.ustp.at/course/view.php?id=38356)
 - ➕ Additional project-related resources
 
-
 Use the **sidebar** to explore the different sections of the documentation.
 
 ---
@@ -19,7 +18,9 @@ Use the **sidebar** to explore the different sections of the documentation.
 
 To contribute developer documentation:
 
-1. Go to the `website/docs/developer` directory
+1. Go to the [
+   `website/docs/developer`](https://github.com/frvnzz/purrsistence/tree/main/website/docs/developer)
+   directory
 2. Create a new Markdown file (`.md`)
 3. Write your documentation in that file
 4. That’s it 🎉 — it will automatically appear in the sidebar
