@@ -115,10 +115,15 @@ Read more: https://www.conventionalcommits.org/
 
 ## Externals of the Application
 
-- **Authentication:** Not integrated yet (planned). Current app state uses local Room data only (`User` entity and seed insert in `MainActivity`), with no auth SDK wired in.
-- **Time:** Abstracted via `TimeProvider`; production uses `SystemTimeProvider : TimeProvider`, while tests use `FakeTimeProvider : TimeProvider` for timing.
-- **Database:** Local storage via Room (`Goal`, `TrackingSession`, `User` entities). No external database or backend integration yet (planned Supabase).
-- **Statistics:** Implemented locally through Room (`Dao.observeTotalTime(goalId)` and `GoalWithSessions` relation). No external analytics/statistics provider is connected yet.
+- **Authentication:** Not integrated yet (planned). Current app state uses local Room data only
+  (`User` entity and seed insert in `MainActivity`), with no auth SDK wired in.
+- **Time:** Abstracted via `TimeProvider`; production uses `SystemTimeProvider : TimeProvider`,
+  while tests use `FakeTimeProvider : TimeProvider` for timing.
+- **Database:** Local storage via Room (`Goal`, `TrackingSession`, `User` entities). No external
+  database or backend integration yet (planned Supabase).
+- **Statistics:** Implemented locally through Room (`Dao.observeTotalTime(goalId)` and
+  `GoalWithSessions` relation). No external analytics/statistics provider is connected yet.
+
 <!-- **Notifications:** Not integrated yet. `TrackingSession` contains `pauseReminder`, but there is currently no notification scheduling/service implementation. -->
 
 ---
@@ -133,6 +138,8 @@ Read more: https://www.conventionalcommits.org/
 
 ## Data Storage
 
+<!-- Explain Data Translation (Entity, DTO, Presentation) and how it applies to our app. Logic has no DB entity names (-> leaks, etc.) -->
+
 ---
 
 ## Domain Model
@@ -145,3 +152,21 @@ Read more: https://www.conventionalcommits.org/
 - **+ Familiar tech (Kotlin)**
 - **– Less backend control**
 - **– Supabase lock-in**
+
+---
+
+## Tasks from Class
+
+### Task - April 14th, 2026
+
+Think about a future data class we might want to add to the app and define it.
+
+```kotlin
+data class ShopItem(
+    val id: Int,
+    val name: String,
+    val description: String,
+    val price: UShort,
+    val pathToImage: String
+)
+```
