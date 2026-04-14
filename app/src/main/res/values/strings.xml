@@ -3,4 +3,5 @@
     <string name="deep_focus_accessibility_description">Blocks distracting apps while deep focus tracking is active.</string>
     <string name="deep_focus_overlay_message">Is %1$s distracting you?</string>
     <string name="deep_focus_overlay_button">Return to Purrsistence</string>
+    <string name="deep_focus_overlay_continue_button">Hold 5s to continue</string>
 </resources>

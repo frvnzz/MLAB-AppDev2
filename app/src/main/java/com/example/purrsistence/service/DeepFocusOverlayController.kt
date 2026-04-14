@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PixelFormat
+import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
@@ -18,8 +20,13 @@ import java.util.Locale
 class DeepFocusOverlayController(
     private val context: Context,
     private val windowManager: WindowManager,
-    private val onReturnClick: (String?) -> Unit
+    private val onReturnClick: (String?) -> Unit,
+    private val onContinueHoldComplete: (String?) -> Unit
 ) {
+
+    companion object {
+        private const val HOLD_TO_CONTINUE_MS = 5000L
+    }
 
     private var overlayView: View? = null
     private var overlayForPackage: String? = null
@@ -40,7 +47,7 @@ class DeepFocusOverlayController(
         val appName = resolveAppName(packageName)
 
         val root = FrameLayout(context).apply {
-            setBackgroundColor("#FE000000".toColorInt())
+            setBackgroundColor("#CC000000".toColorInt())
             isClickable = true
             isFocusable = true
         }
@@ -60,12 +67,57 @@ class DeepFocusOverlayController(
 
         val backButton = Button(context).apply {
             text = context.getString(R.string.deep_focus_overlay_button)
+            isAllCaps = false
             // Delegate navigation/state transitions back to the service layer.
             setOnClickListener { onReturnClick(overlayForPackage) }
         }
 
+        val continueButton = Button(context).apply {
+            text = context.getString(R.string.deep_focus_overlay_continue_button)
+            isAllCaps = false
+            setTextColor("#CCFFFFFF".toColorInt())
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 20f
+                setColor(Color.TRANSPARENT)
+                setStroke(2, "#66FFFFFF".toColorInt())
+            }
+
+            val triggerContinue = Runnable {
+                onContinueHoldComplete(overlayForPackage)
+            }
+
+            setOnTouchListener { _, event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        postDelayed(triggerContinue, HOLD_TO_CONTINUE_MS)
+                        true
+                    }
+
+                    MotionEvent.ACTION_UP,
+                    MotionEvent.ACTION_CANCEL -> {
+                        removeCallbacks(triggerContinue)
+                        performClick()
+                        true
+                    }
+
+                    else -> false
+                }
+            }
+        }
+
         content.addView(textView)
         content.addView(backButton)
+        content.addView(
+            continueButton,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = 16
+                gravity = Gravity.CENTER_HORIZONTAL
+            }
+        )
         root.addView(
             content,
             FrameLayout.LayoutParams(

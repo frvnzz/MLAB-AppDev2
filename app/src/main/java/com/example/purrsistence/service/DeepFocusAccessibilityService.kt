@@ -17,6 +17,7 @@ class DeepFocusAccessibilityService : AccessibilityService() {
         private const val TAG = "DeepFocusService"
         private const val TRANSIENT_SURFACE_DEBOUNCE_MS = 1200L
         private const val RETURN_TO_APP_GRACE_MS = 1800L
+        private const val HOME_TRANSITION_GRACE_MS = 1000L
 
         private val COMMON_LAUNCHER_PREFIXES = listOf(
             "com.android.launcher",
@@ -43,6 +44,9 @@ class DeepFocusAccessibilityService : AccessibilityService() {
     private var returnToAppRequestedAtMs: Long = 0L
     private var suppressedPackageAfterReturn: String? = null
     private var suppressPackageUntilMs: Long = 0L
+    private var lastAllowedPackage: String? = null
+    private var lastAllowedAtMs: Long = 0L
+    private var bypassedBlockedPackage: String? = null
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -52,6 +56,9 @@ class DeepFocusAccessibilityService : AccessibilityService() {
             windowManager = windowManager,
             onReturnClick = { previouslyBlockedPackage ->
                 handleReturnClick(previouslyBlockedPackage)
+            },
+            onContinueHoldComplete = { previouslyBlockedPackage ->
+                handleContinueInBlockedApp(previouslyBlockedPackage)
             }
         )
         homePackages = resolveAllHomePackages()
@@ -76,6 +83,7 @@ class DeepFocusAccessibilityService : AccessibilityService() {
         if (handleOwnPackageEvent(currentPackage, className)) return
         if (shouldSuppressPackageAfterReturn(currentPackage)) return
         if (handleReturnToAppGraceForNonAppEvent()) return
+        if (handleBypassedBlockedPackage(currentPackage)) return
 
         if (isTransientSystemSurface(currentPackage, className)) {
             debugLog("Transient system surface -> ignore")
@@ -83,6 +91,11 @@ class DeepFocusAccessibilityService : AccessibilityService() {
         }
 
         if (handleAllowedPackage(currentPackage, className)) return
+
+        if (shouldIgnoreBlockedReentry(currentPackage, className)) {
+            debugLog("Blocked package ignored during home transition")
+            return
+        }
 
         debugLog("Blocked package -> show overlay")
         showOverlayForPackage(currentPackage)
@@ -105,8 +118,21 @@ class DeepFocusAccessibilityService : AccessibilityService() {
     private fun handleBlockingDisabled(): Boolean {
         if (isBlockingEnabled()) return false
         debugLog("Blocking disabled -> remove overlay")
+        bypassedBlockedPackage = null
         removeOverlay()
         return true
+    }
+
+    private fun handleBypassedBlockedPackage(currentPackage: String): Boolean {
+        val bypassedPackage = bypassedBlockedPackage ?: return false
+        if (currentPackage == bypassedPackage) {
+            debugLog("Hold bypass active for package=$currentPackage")
+            return true
+        }
+
+        debugLog("Hold bypass cleared after leaving package=$bypassedPackage")
+        bypassedBlockedPackage = null
+        return false
     }
 
     private fun handleOwnPackageEvent(currentPackage: String, className: String): Boolean {
@@ -143,6 +169,8 @@ class DeepFocusAccessibilityService : AccessibilityService() {
     private fun handleAllowedPackage(currentPackage: String, className: String): Boolean {
         if (!isPackageAllowed(currentPackage)) return false
 
+        recordAllowedTransition(currentPackage)
+
         if (shouldDebounceAllowedSurface(currentPackage, className)) {
             debugLog("Allowed surface debounce -> keep overlay")
             return true
@@ -151,6 +179,30 @@ class DeepFocusAccessibilityService : AccessibilityService() {
         debugLog("Allowed package -> remove overlay")
         removeOverlay()
         return true
+    }
+
+    private fun shouldIgnoreBlockedReentry(currentPackage: String, className: String): Boolean {
+        if (hasOverlay()) return false
+        val allowedPackage = lastAllowedPackage ?: return false
+        if (currentPackage == allowedPackage) return false
+        val elapsed = SystemClock.uptimeMillis() - lastAllowedAtMs
+        if (elapsed > HOME_TRANSITION_GRACE_MS) return false
+        if (!isHomeOrSystemPackage(allowedPackage)) return false
+
+        // Some launchers emit a stale blocked app FrameLayout event after returning home.
+        return className == "android.widget.FrameLayout"
+    }
+
+    private fun recordAllowedTransition(packageName: String) {
+        lastAllowedPackage = packageName
+        lastAllowedAtMs = SystemClock.uptimeMillis()
+    }
+
+    private fun isHomeOrSystemPackage(packageName: String): Boolean {
+        return packageName == this.packageName ||
+            isLauncherPackage(packageName) ||
+            SYSTEM_PACKAGE_PREFIXES.any { prefix -> packageName.startsWith(prefix) } ||
+            packageName == "android"
     }
 
     override fun onInterrupt() {
@@ -240,6 +292,7 @@ class DeepFocusAccessibilityService : AccessibilityService() {
 
     private fun handleReturnClick(previouslyBlockedPackage: String?) {
         // Button-driven exit from overlay: hide immediately, then protect transition.
+        bypassedBlockedPackage = null
         removeOverlay()
         returnToAppRequestedAtMs = SystemClock.uptimeMillis()
         suppressedPackageAfterReturn = previouslyBlockedPackage
@@ -257,6 +310,18 @@ class DeepFocusAccessibilityService : AccessibilityService() {
         } else {
             performGlobalAction(GLOBAL_ACTION_HOME)
         }
+    }
+
+    private fun handleContinueInBlockedApp(previouslyBlockedPackage: String?) {
+        val blockedPackage = previouslyBlockedPackage ?: run {
+            removeOverlay()
+            return
+        }
+
+        // Allow the current blocked package until the user leaves it again.
+        bypassedBlockedPackage = blockedPackage
+        debugLog("Hold-to-continue granted for package=$blockedPackage")
+        removeOverlay()
     }
 
 
