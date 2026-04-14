@@ -2,9 +2,9 @@ name: Coverage
 
 on:
   push:
-    branches: [main, chore/add-code-coverage]
+    branches: [main]
   pull_request:
-    branches: [main, chore/add-code-coverage]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
