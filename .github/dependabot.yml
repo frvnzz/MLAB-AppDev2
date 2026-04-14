@@ -7,18 +7,9 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 5
 
-  # Add more package ecosystems as needed:
-  # - package-ecosystem: "npm"
-  #   directory: "/"
-  #   schedule:
-  #     interval: "weekly"
-
-  # - package-ecosystem: "pip"
-  #   directory: "/"
-  #   schedule:
-  #     interval: "weekly"
-
-  # - package-ecosystem: "maven"
-  #   directory: "/"
-  #   schedule:
-  #     interval: "weekly"
+  # Gradle / Kotlin dependencies
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
