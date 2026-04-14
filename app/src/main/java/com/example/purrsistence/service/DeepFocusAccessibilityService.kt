@@ -200,9 +200,9 @@ class DeepFocusAccessibilityService : AccessibilityService() {
 
     private fun isHomeOrSystemPackage(packageName: String): Boolean {
         return packageName == this.packageName ||
-            isLauncherPackage(packageName) ||
-            SYSTEM_PACKAGE_PREFIXES.any { prefix -> packageName.startsWith(prefix) } ||
-            packageName == "android"
+                isLauncherPackage(packageName) ||
+                SYSTEM_PACKAGE_PREFIXES.any { prefix -> packageName.startsWith(prefix) } ||
+                packageName == "android"
     }
 
     override fun onInterrupt() {
@@ -301,8 +301,8 @@ class DeepFocusAccessibilityService : AccessibilityService() {
         val appIntent = packageManager.getLaunchIntentForPackage(this.packageName)
         appIntent?.addFlags(
             Intent.FLAG_ACTIVITY_NEW_TASK or
-                Intent.FLAG_ACTIVITY_SINGLE_TOP or
-                Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                    Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
         )
 
         if (appIntent != null) {
