@@ -7,10 +7,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
 import com.example.purrsistence.data.local.AppDatabase
+import com.example.purrsistence.data.focus.SharedPrefsFocusBlocker
 import com.example.purrsistence.data.local.entity.User
 import com.example.purrsistence.data.local.repository.DataRepository
 import com.example.purrsistence.data.local.repository.TrackingRepositoryImpl
 import com.example.purrsistence.domain.time.SystemTimeProvider
+import com.example.purrsistence.focus.DeepFocusConfig
 import com.example.purrsistence.ui.DataViewModel
 import com.example.purrsistence.ui.screens.MainScreen
 import com.example.purrsistence.ui.theme.PurrsistenceTheme
@@ -35,11 +37,12 @@ class MainActivity : ComponentActivity() {
         val trackingRepo = TrackingRepositoryImpl(dao, timeProvider)
 
         // shared preferences (for storing last selected goal from GoalBottomDrawer)
-        val prefs = getSharedPreferences("purrsistence_prefs", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences(DeepFocusConfig.PREFS_NAME, Context.MODE_PRIVATE)
+        val focusBlocker = SharedPrefsFocusBlocker(prefs)
 
         // create ViewModel instances for this activity
         dataViewModel = DataViewModel(repo, prefs)
-        trackingViewModel = TrackingViewModel(trackingRepo, timeProvider)
+        trackingViewModel = TrackingViewModel(trackingRepo, timeProvider, focusBlocker)
 
         val exampleUser = User(
             username = "testuser",
