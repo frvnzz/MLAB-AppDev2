@@ -12,18 +12,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.purrsistence.ui.DataViewModel
+import com.example.purrsistence.ui.viewmodel.GoalViewModel
+import com.example.purrsistence.ui.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Composable
 fun GoalsScreen(
-    viewModel: DataViewModel,
+    userViewModel: UserViewModel,
+    goalViewModel: GoalViewModel,
     onAddGoalClick: () -> Unit = {},
     onGoalClick: (Int) -> Unit = {},
     snackbarHostState: SnackbarHostState
 ) {
-    val goals by viewModel.goals(1).collectAsState(initial = emptyList())
+    // get all goals from the current user
+    val goals by goalViewModel.goals(userViewModel.currentUserId).collectAsState(initial = emptyList())
 
     var isEditMode by remember { mutableStateOf(false) }
     var selectedGoals by remember { mutableStateOf(setOf<Int>()) }
@@ -179,7 +182,7 @@ fun GoalsScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            selectedGoals.forEach { viewModel.deleteGoal(it) }
+                            selectedGoals.forEach { goalViewModel.deleteGoal(it) }
                             selectedGoals = emptySet()
                             isEditMode = false
                             showDeleteDialog = false

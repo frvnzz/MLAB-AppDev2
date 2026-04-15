@@ -13,12 +13,22 @@ import kotlinx.coroutines.flow.Flow
 
 interface Dao {
 
-    // User
+    // USER
     // TODO: handle creation of user
     @Insert
     suspend fun insertUser(user: User)
 
-    // Goal
+    @Query("SELECT * FROM User WHERE userId = :userId LIMIT 1")
+    suspend fun getUserById(userId: Int): User?
+
+    // -> Currency
+    @Query("UPDATE User SET balance = balance + :amount WHERE userId = :userId")
+    suspend fun addCurrency(userId: Int, amount: Int)
+
+    @Query("SELECT balance FROM User WHERE userId = :userId")
+    fun getUserBalance(userId: Int): Flow<Int>
+
+    // GOAL
     @Insert
     suspend fun insertGoal(goal: Goal)
 
@@ -26,7 +36,7 @@ interface Dao {
     @Query("SELECT * FROM Goal WHERE userId = :userId")
     fun getGoals(userId: Int): Flow<List<GoalWithSessions>>
 
-    // Observe total time spent on a goal
+    // -> Observe total time spent on a goal
     @Query("""
     SELECT SUM(endTime - startTime) 
     FROM TrackingSession 

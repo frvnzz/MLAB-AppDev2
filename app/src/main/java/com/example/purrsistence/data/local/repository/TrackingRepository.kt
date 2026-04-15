@@ -33,8 +33,28 @@ class TrackingRepositoryImpl (
         return session.copy(trackingId = id)
     }
 
+    // CURRENCY
+
+    fun calculateCurrencyEarned(trackingDuration: Long): Int{
+        val rewardedCoins = (trackingDuration / 1000 / 60).toInt()
+
+        return rewardedCoins
+    }
+
+    // TRACKING SESSION
+
     override suspend fun stopTracking(trackingId: Int) {
-        dao.stopTrackingSession(trackingId, timeProvider.now())
+        val endTime = timeProvider.now()
+        dao.stopTrackingSession(trackingId, endTime)
+
+        val finishedSession = dao.getTrackingSessionById(trackingId) ?: return
+        val durationMillis = finishedSession.endTime?.minus(finishedSession.startTime) ?: return
+
+        val rewardedCurrency = calculateCurrencyEarned(durationMillis)
+        
+        if(rewardedCurrency > 0){
+            dao.addCurrency(finishedSession.userId, rewardedCurrency)
+        }
     }
 
     override suspend fun getTrackingSessionById(trackingId: Int): TrackingSession? {

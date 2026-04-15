@@ -1,10 +1,12 @@
-package com.example.purrsistence.ui.tracking
+package com.example.purrsistence.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.data.local.repository.TrackingRepository
 import com.example.purrsistence.domain.focus.FocusBlocker
 import com.example.purrsistence.domain.time.TimeProvider
+import com.example.purrsistence.ui.tracking.TrackingEvent
+import com.example.purrsistence.ui.tracking.TrackingUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow

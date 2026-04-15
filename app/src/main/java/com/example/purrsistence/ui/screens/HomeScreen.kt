@@ -3,50 +3,43 @@ package com.example.purrsistence.ui.screens
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.provider.Settings
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.purrsistence.ui.components.CurrencyBadge
+import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.data.local.entity.Goal
 import com.example.purrsistence.focus.DeepFocusAccessibilityState
-import com.example.purrsistence.ui.DataViewModel
 import com.example.purrsistence.ui.components.GoalBottomDrawer
+import com.example.purrsistence.ui.viewmodel.UserViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: DataViewModel,
+    userViewModel: UserViewModel,
+    goalViewModel: GoalViewModel,
     onStartTracking: (Int, Int, Boolean) -> Unit
 ) {
     val context = LocalContext.current
-    val goals by viewModel.goals(1).collectAsState(initial = emptyList())
     var showAccessibilityDialog by remember { mutableStateOf(false) }
+    val balance by userViewModel.userBalance.collectAsState()
+    val goals by goalViewModel.goals(1).collectAsState(initial = emptyList())
 
     // Use ViewModel state so that user can switch between screens and selectedGoalId is remembered
-    val selectedGoalId = viewModel.selectedGoalId
+    val selectedGoalId = goalViewModel.selectedGoalId
 
     // Auto-select first goal if none is selected
     LaunchedEffect(goals) {
         if (selectedGoalId == null && goals.isNotEmpty()) {
-            viewModel.selectGoal(goals.first().goal.goalId)
+            goalViewModel.selectGoal(goals.first().goal.goalId)
         }
     }
 
@@ -60,7 +53,7 @@ fun HomeScreen(
         GoalBottomDrawer(
             goals = goals,
             selectedGoalId = selectedGoalId,
-            onGoalSelected = { viewModel.selectGoal(it) },
+            onGoalSelected = { goalViewModel.selectGoal(it) },
             onStartClick = {
                 handleStartTrackingClick(
                     goal = selectedGoal,
@@ -80,10 +73,16 @@ fun HomeScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
+                        .padding(top = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Welcome Home!", style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        "Welcome Home!",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    // Display user's currency balance
+                    CurrencyBadge(balance = balance)
                 }
                 // Cat UI can go here later :)
             }

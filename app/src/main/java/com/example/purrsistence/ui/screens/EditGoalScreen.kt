@@ -29,15 +29,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.focus.DeepFocusAccessibilityState
-import com.example.purrsistence.ui.DataViewModel
 import java.util.Locale
 import kotlin.math.roundToInt
 
 @Composable
 fun EditGoalScreen(
     goalId: Int?,
-    viewModel: DataViewModel,
+    viewModel: GoalViewModel,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current

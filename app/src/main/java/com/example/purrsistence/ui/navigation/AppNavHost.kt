@@ -7,19 +7,21 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.purrsistence.ui.DataViewModel
+import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.ui.screens.AddGoalScreen
 import com.example.purrsistence.ui.screens.EditGoalScreen
 import com.example.purrsistence.ui.screens.GoalsScreen
 import com.example.purrsistence.ui.screens.HomeScreen
 import com.example.purrsistence.ui.tracking.TrackingEvent
 import com.example.purrsistence.ui.tracking.TrackingScreen
-import com.example.purrsistence.ui.tracking.TrackingViewModel
+import com.example.purrsistence.ui.viewmodel.TrackingViewModel
+import com.example.purrsistence.ui.viewmodel.UserViewModel
 
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    dataViewModel: DataViewModel,
+    userViewModel: UserViewModel,
+    goalViewModel: GoalViewModel,
     trackingViewModel: TrackingViewModel,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState
@@ -47,7 +49,8 @@ fun AppNavHost(
 
         // HOME
         composable("home") { HomeScreen(
-            viewModel = dataViewModel,
+            userViewModel = userViewModel,
+            goalViewModel = goalViewModel,
             onStartTracking = { goalId, userId, deepFocus ->
                 trackingViewModel.startTrack(goalId, userId, deepFocus)
             }
@@ -55,7 +58,8 @@ fun AppNavHost(
         // GOALS
         composable("goals") {
             GoalsScreen(
-                viewModel = dataViewModel,
+                userViewModel = userViewModel,
+                goalViewModel = goalViewModel,
                 onAddGoalClick = {
                     navController.navigate("add_goal")
                 },
@@ -73,7 +77,7 @@ fun AppNavHost(
 
             EditGoalScreen(
                 goalId = goalId,
-                viewModel = dataViewModel,
+                viewModel = goalViewModel,
                 onBack = { navController.popBackStack() }
             )
         }
@@ -81,8 +85,8 @@ fun AppNavHost(
         composable("add_goal") {
             AddGoalScreen(
                 onSave = { title, type, minutes, deepFocus ->
-                    dataViewModel.addGoal(
-                        userId = 1,
+                    goalViewModel.addGoal(
+                        userId = userViewModel.currentUserId,
                         title = title,
                         type = type,
                         weeklyMinutes = minutes,

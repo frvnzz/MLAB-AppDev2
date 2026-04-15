@@ -1,6 +1,7 @@
 package com.example.purrsistence.data.local.repository
 
-import com.example.purrsistence.data.local.dao.FakeTrackingDao
+import com.example.purrsistence.data.local.dao.FakeDao
+import com.example.purrsistence.data.local.entity.User
 import com.example.purrsistence.domain.time.FakeTimeProvider
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -12,7 +13,7 @@ class TrackingRepositoryImplTest {
 
     @Test
     fun startTracking_createsSessionWithStartTime_andStoresIt() = runBlocking {
-        val fakeDao = FakeTrackingDao()
+        val fakeDao = FakeDao()
         val fakeTimeProvider = FakeTimeProvider(1000L)
         val repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
 
@@ -38,7 +39,7 @@ class TrackingRepositoryImplTest {
 
     @Test
     fun stopTracking_setsEndTime_onStoredSession() = runBlocking {
-        val fakeDao = FakeTrackingDao()
+        val fakeDao = FakeDao()
         val fakeTimeProvider = FakeTimeProvider(1000L)
         val repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
 
@@ -59,8 +60,41 @@ class TrackingRepositoryImplTest {
     }
 
     @Test
+    fun stopTracking_addsCurrency() = runBlocking {
+        val fakeDao = FakeDao()
+        val fakeTimeProvider= FakeTimeProvider(1000L)
+        val repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
+
+        fakeDao.insertUser(
+            User(
+                userId = 10,
+                username = "TestUser",
+                balance = 10,
+                friends= emptyList(),
+                collectedCatsIds = emptyList()
+            )
+        )
+
+        val started = repository.startTracking(
+            goalId = 2,
+            userId = 10,
+            pauseReminder = false
+        )
+
+        fakeTimeProvider.currentTime = 181000L
+        repository.stopTracking(started.trackingId)
+
+        val updateUser= fakeDao.getUserById(10)
+
+        assertNotNull(updateUser)
+        assertEquals("TestUser",updateUser!!.username)
+        assertEquals(13, updateUser.balance)
+
+    }
+
+    @Test
     fun observeTotalTime_returnsFinishedTrackedDuration() = runBlocking {
-        val fakeDao = FakeTrackingDao()
+        val fakeDao = FakeDao()
         val fakeTimeProvider = FakeTimeProvider(1000L)
         val repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
 

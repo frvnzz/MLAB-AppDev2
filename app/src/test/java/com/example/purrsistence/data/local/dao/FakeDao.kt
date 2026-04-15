@@ -6,6 +6,7 @@ import com.example.purrsistence.data.local.entity.User
 import com.example.purrsistence.data.local.relation.GoalWithSessions
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 class FakeDao : Dao {
@@ -18,10 +19,34 @@ class FakeDao : Dao {
     private var nextGoalId = 1
     private var nextTrackingId = 1
 
+    private val balanceFlows = mutableMapOf<Int, MutableStateFlow<Int>>()
+
+    //User
     override suspend fun insertUser(user: User) {
         users.add(user)
+        balanceFlows[user.userId] = MutableStateFlow(user.balance)
     }
 
+    override suspend fun addCurrency(userId: Int, amount: Int) {
+        val index = users.indexOfFirst { it.userId == userId }
+        if (index == -1) return
+
+        val old = users[index]
+        val updated = old.copy(balance = old.balance + amount)
+        users[index] = updated
+
+        balanceFlows.getOrPut(userId) { MutableStateFlow(0) }.value = updated.balance
+    }
+
+    override fun getUserBalance(userId: Int): Flow<Int> {
+        return balanceFlows.getOrPut(userId) { MutableStateFlow(0) }
+    }
+
+    override suspend fun getUserById(userId: Int): User? {
+        return users.find { it.userId == userId }
+    }
+
+    //Goals
     override suspend fun insertGoal(goal: Goal) {
         val userExists = users.any { it.userId == goal.userId }
         if (!userExists) {
@@ -44,15 +69,6 @@ class FakeDao : Dao {
                     )
                 }
         }
-    }
-
-    override fun observeTotalTime(goalId: Int): Flow<Long?> {
-        return MutableStateFlow(
-            trackingSessions
-                .filter { it.goalId == goalId && it.endTime != null }
-                .sumOf { (it.endTime ?: 0L) - it.startTime }
-                .takeIf { it > 0L }
-        )
     }
 
     override suspend fun deleteGoal(goalId: Int) {
@@ -87,6 +103,7 @@ class FakeDao : Dao {
         goalsFlow.value = goals.toList()
     }
 
+    //Tracking Session
     override suspend fun insertTrackingSession(session: TrackingSession): Long {
         val stored = session.copy(trackingId = nextTrackingId++)
         trackingSessions.add(stored)
@@ -110,5 +127,13 @@ class FakeDao : Dao {
 
     override suspend fun getTrackingSessionById(trackingId: Int): TrackingSession? {
         return trackingSessions.find { it.trackingId == trackingId }
+    }
+
+    override fun observeTotalTime(goalId: Int): Flow<Long?> {
+        val total = trackingSessions
+            .filter { it.goalId == goalId && it.endTime != null }
+            .sumOf { (it.endTime ?: 0L) - it.startTime }
+
+        return flowOf(total.takeIf { it > 0L })
     }
 }

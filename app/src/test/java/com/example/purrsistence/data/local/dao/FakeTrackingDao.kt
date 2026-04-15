@@ -8,12 +8,27 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class FakeTrackingDao : Dao {
-
+    private val users = mutableListOf<User>()
     private val sessions = mutableListOf<TrackingSession>()
     private var nextTrackingId = 1
 
     override suspend fun insertUser(user: User) {
-        throw UnsupportedOperationException("Not needed for tracking repository test")
+        users.add(user)
+    }
+    override suspend fun addCurrency(userId: Int, amount: Int) {
+        val index = users.indexOfFirst { it.userId == userId }
+        if (index == -1) return
+
+        val old = users[index]
+        users[index] = old.copy(balance = old.balance + amount)
+    }
+
+    override fun getUserBalance(userId: Int): Flow<Int> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getUserById(userId: Int): User? {
+        return users.find { it.userId == userId }
     }
 
     override suspend fun insertGoal(goal: Goal) {
