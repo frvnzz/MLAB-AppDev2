@@ -1,0 +1,25 @@
+codecov:
+  require_ci_to_pass: true
+
+coverage:
+  precision: 2
+  round: down
+  range: "50...90"
+
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+    patch:
+      default:
+        target: auto
+        threshold: 1%
+
+ignore:
+  - "**/build/**"
+  - "**/generated/**"
+  - "**/*Test*"
+  - "**/BuildConfig.*"
+  - "**/R.class"
+  - "**/R$*.class"

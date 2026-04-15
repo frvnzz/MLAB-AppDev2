@@ -1,5 +1,10 @@
 # MLAB-AppDev2 Project
 
+[![Android CI](https://github.com/frvnzz/purrsistence/actions/workflows/android-ci.yml/badge.svg?branch=main)](https://github.com/frvnzz/purrsistence/actions/workflows/android-ci.yml?query=branch%3Amain)
+[![Deploy Website](https://github.com/frvnzz/purrsistence/actions/workflows/deploy-website.yml/badge.svg?branch=main)](https://github.com/frvnzz/purrsistence/actions/workflows/deploy-website.yml)
+[![codecov](https://codecov.io/gh/frvnzz/purrsistence/graph/badge.svg?branch=main)](https://codecov.io/gh/frvnzz/purrsistence/tree/main)
+[![Dependabot](https://img.shields.io/badge/Dependabot-enabled-1f8ceb)](https://github.com/frvnzz/purrsistence/blob/main/.github/dependabot.yml)
+
 ## Project Overview
 
 University project ...

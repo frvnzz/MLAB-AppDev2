@@ -3,6 +3,7 @@ package com.example.purrsistence.ui.tracking
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.data.local.repository.TrackingRepository
+import com.example.purrsistence.domain.focus.FocusBlocker
 import com.example.purrsistence.domain.time.TimeProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -15,7 +16,8 @@ import kotlinx.coroutines.launch
 
 class TrackingViewModel(
     private val repository: TrackingRepository,
-    private val timeProvider: TimeProvider
+    private val timeProvider: TimeProvider,
+    private val focusBlocker: FocusBlocker
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TrackingUiState())
@@ -25,14 +27,20 @@ class TrackingViewModel(
     val events: SharedFlow<TrackingEvent> = _events
 
     private var timerJob: Job? = null
+    private var isDeepFocusSession = false
 
-    fun startTrack(goalId: Int, userId: Int){
+    fun startTrack(goalId: Int, userId: Int, deepFocus: Boolean) {
         viewModelScope.launch{
             val session = repository.startTracking(
                 goalId = goalId,
                 userId = userId,
                 pauseReminder = false
             )
+
+            isDeepFocusSession = deepFocus
+            if (isDeepFocusSession) {
+                focusBlocker.startBlocking()
+            }
 
             _uiState.value = TrackingUiState(
                 trackingId = session.trackingId,
@@ -55,9 +63,23 @@ class TrackingViewModel(
             timerJob?.cancel()
             timerJob = null
 
+            if (isDeepFocusSession) {
+                focusBlocker.stopBlocking()
+                isDeepFocusSession = false
+            }
+
             _uiState.value = TrackingUiState()
             _events.emit(TrackingEvent.NavigateBackHome)
         }
+    }
+
+    override fun onCleared() {
+        timerJob?.cancel()
+        if (isDeepFocusSession) {
+            focusBlocker.stopBlocking()
+            isDeepFocusSession = false
+        }
+        super.onCleared()
     }
 
     private fun startTicker(startTime: Long) {

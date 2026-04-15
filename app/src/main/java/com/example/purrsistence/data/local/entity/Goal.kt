@@ -25,7 +25,7 @@ data class Goal(
     val type: String,
     val targetDuration: Int, // in minutes
     val deepFocus: Boolean,
-    val inactive: Boolean,
+    val inactive: Boolean, // if user deletes a goal, we still want to keep the data for statistics, so we just mark it as inactive
     val createdAt: Long,
     val isCompleted: Boolean
 )
