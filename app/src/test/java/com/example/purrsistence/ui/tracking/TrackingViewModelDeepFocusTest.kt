@@ -4,6 +4,7 @@ import com.example.purrsistence.data.local.entity.TrackingSession
 import com.example.purrsistence.data.local.repository.TrackingRepository
 import com.example.purrsistence.domain.focus.FocusBlocker
 import com.example.purrsistence.domain.time.FakeTimeProvider
+import com.example.purrsistence.ui.viewmodel.TrackingViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
