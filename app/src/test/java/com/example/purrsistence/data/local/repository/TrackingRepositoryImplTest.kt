@@ -116,4 +116,157 @@ class TrackingRepositoryImplTest {
 
         assertEquals(3000L, value)
     }
+
+    @Test
+    fun stopTracking_appliesRewardMultipliersAndCap_correctly() = runBlocking {
+
+
+        var fakeDao = FakeDao()
+        var fakeTimeProvider = FakeTimeProvider(1000L)
+        var repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
+
+        fakeDao.insertUser(
+            User(
+                userId = 1,
+                username = "TestUser",
+                balance = 0,
+                friends = emptyList(),
+                collectedCatsIds = emptyList()
+            )
+        )
+
+        var started = repository.startTracking(
+            goalId = 1,
+            userId = 1,
+            pauseReminder = false
+        )
+
+        // 10 minutes
+        fakeTimeProvider.currentTime = 601000L
+        repository.stopTracking(started.trackingId)
+
+        var updatedUser = fakeDao.getUserById(1)
+        assertNotNull(updatedUser)
+        assertEquals(10, updatedUser!!.balance)
+
+
+        fakeDao = FakeDao()
+        fakeTimeProvider = FakeTimeProvider(1000L)
+        repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
+
+        fakeDao.insertUser(
+            User(
+                userId = 1,
+                username = "TestUser",
+                balance = 0,
+                friends = emptyList(),
+                collectedCatsIds = emptyList()
+            )
+        )
+
+        started = repository.startTracking(
+            goalId = 1,
+            userId = 1,
+            pauseReminder = false
+        )
+
+        // 15 minutes
+        fakeTimeProvider.currentTime = 901000L
+        repository.stopTracking(started.trackingId)
+
+        updatedUser = fakeDao.getUserById(1)
+        assertNotNull(updatedUser)
+        assertEquals(17, updatedUser!!.balance)
+
+
+        fakeDao = FakeDao()
+        fakeTimeProvider = FakeTimeProvider(1000L)
+        repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
+
+        fakeDao.insertUser(
+            User(
+                userId = 1,
+                username = "TestUser",
+                balance = 0,
+                friends = emptyList(),
+                collectedCatsIds = emptyList()
+            )
+        )
+
+        started = repository.startTracking(
+            goalId = 1,
+            userId = 1,
+            pauseReminder = false
+        )
+
+        // 30 minutes
+        fakeTimeProvider.currentTime = 1_801_000L
+        repository.stopTracking(started.trackingId)
+
+        updatedUser = fakeDao.getUserById(1)
+        assertNotNull(updatedUser)
+        assertEquals(38, updatedUser!!.balance)
+
+
+        // ---- Case 4: 45 minutes -> 1.35x ----
+        fakeDao = FakeDao()
+        fakeTimeProvider = FakeTimeProvider(1000L)
+        repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
+
+        fakeDao.insertUser(
+            User(
+                userId = 1,
+                username = "TestUser",
+                balance = 0,
+                friends = emptyList(),
+                collectedCatsIds = emptyList()
+            )
+        )
+
+        started = repository.startTracking(
+            goalId = 1,
+            userId = 1,
+            pauseReminder = false
+        )
+
+        // 45 minutes
+        fakeTimeProvider.currentTime = 2_701_000L
+        repository.stopTracking(started.trackingId)
+
+        updatedUser = fakeDao.getUserById(1)
+        assertNotNull(updatedUser)
+        assertEquals(61, updatedUser!!.balance)
+
+
+        // ---- Case 5: cap at 2.0x ----
+        fakeDao = FakeDao()
+        fakeTimeProvider = FakeTimeProvider(1000L)
+        repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
+
+        fakeDao.insertUser(
+            User(
+                userId = 1,
+                username = "TestUser",
+                balance = 0,
+                friends = emptyList(),
+                collectedCatsIds = emptyList()
+            )
+        )
+
+        started = repository.startTracking(
+            goalId = 1,
+            userId = 1,
+            pauseReminder = false
+        )
+
+        // 150 minutes -> multiplier would exceed 2.0, so it must cap at 2.0
+        fakeTimeProvider.currentTime = 9_001_000L
+        repository.stopTracking(started.trackingId)
+
+        updatedUser = fakeDao.getUserById(1)
+        assertNotNull(updatedUser)
+        assertEquals(300, updatedUser!!.balance)
+    }
+
+
 }
