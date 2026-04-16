@@ -4,6 +4,7 @@ package com.example.purrsistence.data.local.repository
 import com.example.purrsistence.data.local.dao.Dao
 import com.example.purrsistence.data.local.entity.TrackingSession
 import com.example.purrsistence.domain.time.TimeProvider
+import kotlin.math.round
 
 interface TrackingRepository {
     suspend fun startTracking(goalId: Int, userId: Int, pauseReminder: Boolean = false): TrackingSession
@@ -36,7 +37,10 @@ class TrackingRepositoryImpl (
     // CURRENCY
 
     fun calculateCurrencyEarned(trackingDuration: Long): Int{
-        val rewardedCoins = (trackingDuration / 1000 / 60).toInt()
+        val trackedMinutes = (trackingDuration/ 1000 / 60).toInt()
+
+        val mult = calculateRewardMultiplier(trackedMinutes)
+        val rewardedCoins = round(trackedMinutes * mult).toInt()
 
         return rewardedCoins
     }
@@ -63,5 +67,14 @@ class TrackingRepositoryImpl (
 
     override suspend fun getActiveTrackingSession(goalId: Int): TrackingSession? {
         return dao.getActiveTrackingSession(goalId)
+    }
+
+    private fun calculateRewardMultiplier(trackedMinutes: Int): Double {
+        if (trackedMinutes < 15) return 1.0
+
+        val additionalReward = (trackedMinutes - 15) / 15
+        val multiplier = 1.15 + (additionalReward * 0.10)
+
+        return multiplier.coerceAtMost(2.0)
     }
 }
