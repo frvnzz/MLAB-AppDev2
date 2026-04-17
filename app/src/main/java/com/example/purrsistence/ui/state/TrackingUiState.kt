@@ -1,4 +1,4 @@
-package com.example.purrsistence.ui.tracking
+package com.example.purrsistence.ui.state
 
 data class TrackingUiState(
     val trackingId: Int? = null,

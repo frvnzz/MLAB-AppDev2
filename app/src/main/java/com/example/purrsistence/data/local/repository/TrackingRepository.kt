@@ -5,6 +5,8 @@ import com.example.purrsistence.data.local.dao.Dao
 import com.example.purrsistence.data.local.entity.TrackingSession
 import com.example.purrsistence.domain.time.TimeProvider
 
+// TODO: refactor logic to service layer (Ramon) :)
+
 interface TrackingRepository {
     suspend fun startTracking(goalId: Int, userId: Int, pauseReminder: Boolean = false): TrackingSession
     suspend fun stopTracking(trackingId: Int)

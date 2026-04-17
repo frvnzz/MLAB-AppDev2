@@ -15,6 +15,8 @@ import androidx.room.PrimaryKey
     indices = [androidx.room.Index(value = ["userId"])]
 )
 
+// TODO: refactor entity + add "canonical Goal" :)
+
 //TODO add tracked time
 //INFO if this is updated, check if tests are still running (if not, update them accordingly)
 data class Goal(

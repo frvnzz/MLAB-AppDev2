@@ -13,7 +13,7 @@ import com.example.purrsistence.ui.screens.EditGoalScreen
 import com.example.purrsistence.ui.screens.GoalsScreen
 import com.example.purrsistence.ui.screens.HomeScreen
 import com.example.purrsistence.ui.tracking.TrackingEvent
-import com.example.purrsistence.ui.tracking.TrackingScreen
+import com.example.purrsistence.ui.screens.TrackingScreen
 import com.example.purrsistence.ui.viewmodel.TrackingViewModel
 import com.example.purrsistence.ui.viewmodel.UserViewModel
 

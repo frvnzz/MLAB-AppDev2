@@ -9,6 +9,8 @@ import com.example.purrsistence.data.local.entity.User
 import com.example.purrsistence.data.local.relation.GoalWithSessions
 import kotlinx.coroutines.flow.Flow
 
+// TODO: SPLIT DAO
+
 @Dao
 
 interface Dao {
