@@ -14,12 +14,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.purrsistence.ui.DataViewModel
 import com.example.purrsistence.ui.components.BottomNavBar
 import com.example.purrsistence.ui.navigation.AppNavHost
+import com.example.purrsistence.ui.statistics.StatisticsViewModel
 import com.example.purrsistence.ui.tracking.TrackingViewModel
 
 @Composable
 fun MainScreen(
     dataViewModel: DataViewModel,
-    trackingViewModel: TrackingViewModel
+    trackingViewModel: TrackingViewModel,
+    statisticsViewModel: StatisticsViewModel,
 ) {
     val navController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -30,7 +32,7 @@ fun MainScreen(
         ?.destination
         ?.route
 
-    val topLevelRoutes = listOf("home", "goals")
+    val topLevelRoutes = listOf("home", "goals", "statistics")
 
     Scaffold(
         // SNACK BAR (for alerts / warnings / errors)
@@ -54,6 +56,7 @@ fun MainScreen(
             navController = navController,
             dataViewModel = dataViewModel,
             trackingViewModel = trackingViewModel,
+            statisticsViewModel = statisticsViewModel,
             modifier = Modifier.padding(padding),
             snackbarHostState = snackbarHostState
         )

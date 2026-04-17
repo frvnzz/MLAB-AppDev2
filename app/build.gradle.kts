@@ -66,4 +66,8 @@ dependencies {
     implementation("androidx.room:room-runtime:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
+
+    //Vico Compose Graphs
+    implementation(libs.vico.compose)
+    implementation(libs.vico.compose.m3)
 }

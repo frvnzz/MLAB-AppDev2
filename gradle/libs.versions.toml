@@ -11,6 +11,7 @@ kotlin = "2.2.10"
 composeBom = "2024.09.00"
 navigationCompose = "2.9.7"
 material3 = "1.4.0"
+vico = "3.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -31,6 +32,10 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+# Compose Multiplatform
+vico-compose = { group = "com.patrykandpatrick.vico", name = "compose", version.ref = "vico" }
+# Material 3 theming in Compose Multiplatform
+vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -9,10 +9,12 @@ import androidx.lifecycle.lifecycleScope
 import com.example.purrsistence.data.local.AppDatabase
 import com.example.purrsistence.data.local.entity.User
 import com.example.purrsistence.data.local.repository.DataRepository
+import com.example.purrsistence.data.local.repository.StatisticsRepository
 import com.example.purrsistence.data.local.repository.TrackingRepositoryImpl
 import com.example.purrsistence.domain.time.SystemTimeProvider
 import com.example.purrsistence.ui.DataViewModel
 import com.example.purrsistence.ui.screens.MainScreen
+import com.example.purrsistence.ui.statistics.StatisticsViewModel
 import com.example.purrsistence.ui.theme.PurrsistenceTheme
 import com.example.purrsistence.ui.tracking.TrackingViewModel
 import kotlinx.coroutines.launch
@@ -21,6 +23,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var dataViewModel: DataViewModel
     private lateinit var trackingViewModel: TrackingViewModel
+    private lateinit var statisticsViewModel: StatisticsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +36,7 @@ class MainActivity : ComponentActivity() {
 
         val timeProvider = SystemTimeProvider()
         val trackingRepo = TrackingRepositoryImpl(dao, timeProvider)
+        val statisticsRepo = StatisticsRepository(dao)
 
         // shared preferences (for storing last selected goal from GoalBottomDrawer)
         val prefs = getSharedPreferences("purrsistence_prefs", Context.MODE_PRIVATE)
@@ -40,6 +44,7 @@ class MainActivity : ComponentActivity() {
         // create ViewModel instances for this activity
         dataViewModel = DataViewModel(repo, prefs)
         trackingViewModel = TrackingViewModel(trackingRepo, timeProvider)
+        statisticsViewModel = StatisticsViewModel(statisticsRepo)
 
         val exampleUser = User(
             username = "testuser",
@@ -57,7 +62,8 @@ class MainActivity : ComponentActivity() {
                 // pass created ViewModels to MainScreen (scaffold)
                 MainScreen(
                     dataViewModel = dataViewModel,
-                    trackingViewModel = trackingViewModel
+                    trackingViewModel = trackingViewModel,
+                    statisticsViewModel = statisticsViewModel,
                 )
             }
         }
