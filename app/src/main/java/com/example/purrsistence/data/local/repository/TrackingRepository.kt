@@ -13,6 +13,7 @@ interface TrackingRepository {
     suspend fun stopTracking(trackingId: Int)
     suspend fun getTrackingSessionById(trackingId: Int): TrackingSession?
     suspend fun getActiveTrackingSession(goalId: Int): TrackingSession?
+    fun calculateReward(trackingDuration: Long): Pair<Int, Double>
 }
 class TrackingRepositoryImpl (
     private val dao: Dao,
@@ -38,13 +39,13 @@ class TrackingRepositoryImpl (
 
     // CURRENCY
 
-    fun calculateCurrencyEarned(trackingDuration: Long): Int{
-        val trackedMinutes = (trackingDuration/ 1000 / 60).toInt()
+    override fun calculateReward(trackingDuration: Long): Pair<Int, Double> {
+        val trackedMinutes = (trackingDuration / 1000 / 60).toInt()
 
         val mult = calculateRewardMultiplier(trackedMinutes)
-        val rewardedCoins = round(trackedMinutes * mult).toInt()
+        val coins = round(trackedMinutes * mult).toInt()
 
-        return rewardedCoins
+        return coins to mult
     }
 
     // TRACKING SESSION
@@ -56,10 +57,10 @@ class TrackingRepositoryImpl (
         val finishedSession = dao.getTrackingSessionById(trackingId) ?: return
         val durationMillis = finishedSession.endTime?.minus(finishedSession.startTime) ?: return
 
-        val rewardedCurrency = calculateCurrencyEarned(durationMillis)
-        
-        if(rewardedCurrency > 0){
-            dao.addCurrency(finishedSession.userId, rewardedCurrency)
+        val (coins, _) = calculateReward(durationMillis)
+
+        if (coins > 0) {
+            dao.addCurrency(finishedSession.userId, coins)
         }
     }
 

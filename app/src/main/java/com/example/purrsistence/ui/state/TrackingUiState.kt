@@ -5,5 +5,10 @@ data class TrackingUiState(
     val goalId: Int? = null,
     val startTime: Long? = null,
     val elapsedMillis: Long = 0L,
-    val isTracking: Boolean = false
+    val isTracking: Boolean = false,
+
+    // UI to show rewards (+ multiplier) after stopping a tracking session
+    val rewardedCurrency: Int? = null,
+    val multiplier: Double? = null,
+    val sessionDurationMillis: Long? = null
 )
