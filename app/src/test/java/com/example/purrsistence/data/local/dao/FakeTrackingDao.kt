@@ -71,4 +71,16 @@ class FakeTrackingDao : Dao {
     override suspend fun getTrackingSessionById(trackingId: Int): TrackingSession? {
         return sessions.find { it.trackingId == trackingId }
     }
+
+    //added for statistics
+    override fun getGoalsRaw(userId: Int): Flow<List<Goal>> {
+        return flowOf(emptyList())
+    }
+
+    //added for statistics
+    override fun getCompletedSessionsForUser(userId: Int): Flow<List<TrackingSession>> {
+        return flowOf(
+            sessions.filter { it.endTime != null }
+        )
+    }
 }
