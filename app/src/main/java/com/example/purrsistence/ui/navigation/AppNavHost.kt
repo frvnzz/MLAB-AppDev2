@@ -12,6 +12,8 @@ import com.example.purrsistence.ui.screens.AddGoalScreen
 import com.example.purrsistence.ui.screens.EditGoalScreen
 import com.example.purrsistence.ui.screens.GoalsScreen
 import com.example.purrsistence.ui.screens.HomeScreen
+import com.example.purrsistence.ui.screens.StatisticsScreen
+import com.example.purrsistence.ui.statistics.StatisticsViewModel
 import com.example.purrsistence.ui.tracking.TrackingEvent
 import com.example.purrsistence.ui.screens.TrackingScreen
 import com.example.purrsistence.ui.viewmodel.TrackingViewModel
@@ -23,6 +25,7 @@ fun AppNavHost(
     userViewModel: UserViewModel,
     goalViewModel: GoalViewModel,
     trackingViewModel: TrackingViewModel,
+    statisticsViewModel: StatisticsViewModel,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState
 ) {
@@ -106,6 +109,12 @@ fun AppNavHost(
                 onNavigateBackHome = {
                     navController.popBackStack("home", inclusive = false)
                 }
+            )
+        }
+        // STATISTICS
+        composable("statistics") {
+            StatisticsScreen(
+                viewModel = statisticsViewModel,
             )
         }
     }

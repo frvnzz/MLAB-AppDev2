@@ -12,6 +12,7 @@ composeBom = "2024.09.00"
 navigationCompose = "2.9.7"
 material3 = "1.4.0"
 room = "2.8.4"
+vico = "3.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -36,6 +37,10 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+# Compose Multiplatform
+vico-compose = { group = "com.patrykandpatrick.vico", name = "compose", version.ref = "vico" }
+# Material 3 theming in Compose Multiplatform
+vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
