@@ -1,4 +1,4 @@
-package com.example.purrsistence.ui.statistics
+package com.example.purrsistence.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

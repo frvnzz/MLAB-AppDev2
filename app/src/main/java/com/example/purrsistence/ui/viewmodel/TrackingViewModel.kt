@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.data.local.repository.TrackingRepository
 import com.example.purrsistence.domain.focus.FocusBlocker
 import com.example.purrsistence.domain.time.TimeProvider
-import com.example.purrsistence.ui.tracking.TrackingEvent
+import com.example.purrsistence.ui.navigation.TrackingEvent
 import com.example.purrsistence.ui.state.TrackingUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.example.purrsistence.ui.tracking.TrackingEvent
+import com.example.purrsistence.ui.navigation.TrackingEvent
 import com.example.purrsistence.ui.viewmodel.TrackingViewModel
 
 

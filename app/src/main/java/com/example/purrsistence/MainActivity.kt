@@ -16,7 +16,7 @@ import com.example.purrsistence.domain.time.SystemTimeProvider
 import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.focus.DeepFocusConfig
 import com.example.purrsistence.ui.screens.MainScreen
-import com.example.purrsistence.ui.statistics.StatisticsViewModel
+import com.example.purrsistence.ui.viewmodel.StatisticsViewModel
 import com.example.purrsistence.ui.theme.PurrsistenceTheme
 import com.example.purrsistence.ui.viewmodel.TrackingViewModel
 import com.example.purrsistence.ui.viewmodel.UserViewModel

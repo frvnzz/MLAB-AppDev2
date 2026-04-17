@@ -12,10 +12,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.purrsistence.ui.statistics.GoalStatsList
-import com.example.purrsistence.ui.statistics.StatisticsViewModel
-import com.example.purrsistence.ui.statistics.WeekSelector
-import com.example.purrsistence.ui.statistics.WeeklyChart
+import com.example.purrsistence.ui.components.GoalStatsList
+import com.example.purrsistence.ui.viewmodel.StatisticsViewModel
+import com.example.purrsistence.ui.components.WeekSelector
+import com.example.purrsistence.ui.components.WeeklyChart
 
 @Composable
 fun StatisticsScreen(viewModel: StatisticsViewModel) {

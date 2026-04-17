@@ -1,4 +1,4 @@
-package com.example.purrsistence.ui.statistics
+package com.example.purrsistence.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.purrsistence.domain.model.DailyStat
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
@@ -21,7 +20,6 @@ import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesian
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.common.Fill
 import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
-import com.patrykandpatrick.vico.compose.common.component.rememberShapeComponent
 import java.time.DayOfWeek
 import java.time.ZoneId
 import java.time.format.TextStyle

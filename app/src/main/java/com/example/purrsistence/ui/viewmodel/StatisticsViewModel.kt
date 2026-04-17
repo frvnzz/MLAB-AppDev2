@@ -1,8 +1,9 @@
-package com.example.purrsistence.ui.statistics
+package com.example.purrsistence.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.data.local.repository.StatisticsRepository
+import com.example.purrsistence.ui.state.StatisticsUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -1,4 +1,4 @@
-package com.example.purrsistence.ui.statistics
+package com.example.purrsistence.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -7,6 +7,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.example.purrsistence.ui.state.StatisticsUiState
+import com.example.purrsistence.ui.viewmodel.StatisticsViewModel
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.ZoneId

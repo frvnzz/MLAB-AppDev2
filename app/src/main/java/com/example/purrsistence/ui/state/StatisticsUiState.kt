@@ -1,4 +1,4 @@
-package com.example.purrsistence.ui.statistics
+package com.example.purrsistence.ui.state
 
 import com.example.purrsistence.domain.model.DailyStat
 import com.example.purrsistence.domain.model.GoalStat
