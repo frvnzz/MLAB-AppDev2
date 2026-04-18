@@ -23,9 +23,9 @@ fun ShopScreen(
 
     val shopItems = listOf(
         ShopItem("cat_1", "Orange Cat", 2),
-        ShopItem("cat_2", "Black Cat", 75),
-        ShopItem("cat_3", "White Cat", 100),
-        ShopItem("cat_4", "Brown Cat", 120),
+        ShopItem("cat_2", "Black Cat", 13),
+        ShopItem("cat_3", "White Cat", 20),
+        ShopItem("cat_4", "Brown Cat", 100),
         ShopItem("cat_5", "Gray Cat", 150),
         ShopItem("cat_6", "Spotted Cat", 200),
         ShopItem("cat_7", "Siamese Cat", 300),
@@ -45,11 +45,15 @@ fun ShopScreen(
                 CurrencyBadge(balance = balance)
             }
         )
-        // TODO: LazyColumn is a bit laggy on emulator during scrolling, maybe try to fix that?
+
         LazyColumn(
+            modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(shopItems) { item ->
+            items(
+                items = shopItems,
+                key = { it.id }
+            ) { item ->
 
                 val isOwned = item.id in collectedCats
 

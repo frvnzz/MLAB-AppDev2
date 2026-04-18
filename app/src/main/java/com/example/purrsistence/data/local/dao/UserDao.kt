@@ -20,10 +20,11 @@ interface UserDao {
     @Query("SELECT * FROM User WHERE userId = :userId LIMIT 1")
     suspend fun getUserById(userId: Int): User?
 
-    // TODO: merge these two functions so that there is only one call to the database
-    @Query("UPDATE User SET balance = balance - :amount WHERE userId = :userId")
-    suspend fun spendCurrency(userId: Int, amount: Int)
-
-    @Query("UPDATE User SET collectedCatsIds = :cats WHERE userId = :userId")
-    suspend fun updateCollectedCats(userId: Int, cats: List<String>)
+    @Query("""
+    UPDATE User 
+    SET balance = balance - :price,
+        collectedCatsIds = :cats
+    WHERE userId = :userId
+    """)
+    suspend fun buyCat(userId: Int, price: Int, cats: List<String>)
 }

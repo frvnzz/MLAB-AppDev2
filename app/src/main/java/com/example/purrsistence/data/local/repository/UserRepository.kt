@@ -26,7 +26,6 @@ class UserRepository(
 
         val updatedCats = user.collectedCatsIds + catId
 
-        userDao.spendCurrency(userId, price)
-        userDao.updateCollectedCats(userId, updatedCats)
+        userDao.buyCat(userId, price, updatedCats)
     }
 }

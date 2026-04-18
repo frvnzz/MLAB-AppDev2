@@ -113,7 +113,7 @@ fun GoalsScreen(
 
             // CONTENT
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
@@ -122,7 +122,10 @@ fun GoalsScreen(
                         Text("No goals yet - Add one! 🐱")
                     }
                 } else {
-                    items(goals) { goalWithSessions ->
+                    items(
+                        items = goals,
+                        key = { it.goal.goalId }
+                    ) { goalWithSessions ->
 
                         val goal = goalWithSessions.goal
                         val isSelected = selectedGoals.contains(goal.goalId)
