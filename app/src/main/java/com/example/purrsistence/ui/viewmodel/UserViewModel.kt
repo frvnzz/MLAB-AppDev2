@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.data.local.repository.UserRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class UserViewModel(
     private val userRepository: UserRepository
@@ -13,7 +14,14 @@ class UserViewModel(
     // Centralized source of truth for the current user
     val currentUserId: Int = 1
 
-    // TODO: unit test the getUserBalance function from the repository (+ Dao)
+    val user = userRepository
+        .observeUser(currentUserId)
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            null
+        )
+    
     val userBalance = userRepository
         .getUserBalance(currentUserId)
         .stateIn(
@@ -21,4 +29,10 @@ class UserViewModel(
             SharingStarted.WhileSubscribed(5000),
             0
         )
+
+    fun buyCat(catId: String, price: Int) {
+        viewModelScope.launch {
+            userRepository.buyCat(currentUserId, catId, price)
+        }
+    }
 }

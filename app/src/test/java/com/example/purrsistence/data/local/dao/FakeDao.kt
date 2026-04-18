@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
+// TODO: Split Dao !!
+
 class FakeDao : Dao {
 
     private val users = mutableListOf<User>()
@@ -36,10 +38,6 @@ class FakeDao : Dao {
         users[index] = updated
 
         balanceFlows.getOrPut(userId) { MutableStateFlow(0) }.value = updated.balance
-    }
-
-    override fun getUserBalance(userId: Int): Flow<Int> {
-        return balanceFlows.getOrPut(userId) { MutableStateFlow(0) }
     }
 
     override suspend fun getUserById(userId: Int): User? {

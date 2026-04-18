@@ -36,9 +36,10 @@ class MainActivity : ComponentActivity() {
         // DATABASE & DAO
         val db = AppDatabase.getInstance(this)
         val dao = db.dao()
+        val userDao = db.userDao()
 
         // REPOSITORIES
-        val userRepo = UserRepository(dao)
+        val userRepo = UserRepository(userDao)
         val goalRepo = GoalRepository(dao)
         val timeProvider = SystemTimeProvider()
         val trackingRepo = TrackingRepositoryImpl(dao, timeProvider)
@@ -56,7 +57,7 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             // Only insert if userId 1 doesn't exist
-            if (dao.getUserById(1) == null) {
+            if (userDao.getUserById(1) == null) {
                 val exampleUser = User(
                     userId = 1, // fixed userId 1 for the test user
                     username = "testuser",

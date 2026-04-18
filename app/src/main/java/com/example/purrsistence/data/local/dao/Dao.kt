@@ -27,9 +27,6 @@ interface Dao {
     @Query("UPDATE User SET balance = balance + :amount WHERE userId = :userId")
     suspend fun addCurrency(userId: Int, amount: Int)
 
-    @Query("SELECT balance FROM User WHERE userId = :userId")
-    fun getUserBalance(userId: Int): Flow<Int>
-
     // GOAL
     @Insert
     suspend fun insertGoal(goal: Goal)
