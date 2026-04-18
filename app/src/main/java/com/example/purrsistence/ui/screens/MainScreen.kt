@@ -34,7 +34,7 @@ fun MainScreen(
         ?.destination
         ?.route
 
-    val topLevelRoutes = listOf("home", "goals", "statistics")
+    val topLevelRoutes = listOf("statistics", "goals", "home", "shop", "profile")
 
     Scaffold(
         // SNACK BAR (for alerts / warnings / errors)

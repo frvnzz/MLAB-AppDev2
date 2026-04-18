@@ -12,6 +12,8 @@ import com.example.purrsistence.ui.screens.AddGoalScreen
 import com.example.purrsistence.ui.screens.EditGoalScreen
 import com.example.purrsistence.ui.screens.GoalsScreen
 import com.example.purrsistence.ui.screens.HomeScreen
+import com.example.purrsistence.ui.screens.ProfileScreen
+import com.example.purrsistence.ui.screens.ShopScreen
 import com.example.purrsistence.ui.screens.StatisticsScreen
 import com.example.purrsistence.ui.viewmodel.StatisticsViewModel
 import com.example.purrsistence.ui.screens.TrackingScreen
@@ -114,6 +116,18 @@ fun AppNavHost(
         composable("statistics") {
             StatisticsScreen(
                 viewModel = statisticsViewModel,
+            )
+        }
+        // SHOP
+        composable("shop") {
+            ShopScreen(
+                userViewModel = userViewModel
+            )
+        }
+        // PROFILE
+        composable("profile") {
+            ProfileScreen(
+                userViewModel = userViewModel
             )
         }
     }

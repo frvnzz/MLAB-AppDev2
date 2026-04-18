@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.purrsistence.ui.components.TopBar
 import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.ui.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
@@ -26,7 +27,8 @@ fun GoalsScreen(
     snackbarHostState: SnackbarHostState
 ) {
     // get all goals from the current user
-    val goals by goalViewModel.goals(userViewModel.currentUserId).collectAsState(initial = emptyList())
+    val goals by goalViewModel.goals(userViewModel.currentUserId)
+        .collectAsState(initial = emptyList())
 
     var isEditMode by remember { mutableStateOf(false) }
     var selectedGoals by remember { mutableStateOf(setOf<Int>()) }
@@ -52,42 +54,62 @@ fun GoalsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // HEADER
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Your Goals", style = MaterialTheme.typography.titleLarge)
-
-                Row {
-                    if (isEditMode) {
-                        TextButton(
-                            onClick = {
-                                if (selectedGoals.isEmpty()) {
-                                    // 👉 show snackbar
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar("Select at least one goal to delete")
-                                    }
-                                } else {
-                                    showDeleteDialog = true
+            // TOP BAR
+            TopBar(
+                title = "Your Goals",
+                actions = if (goals.isNotEmpty()) {
+                    {
+                        Row {
+                            if (isEditMode) {
+                                // Delete Button
+                                Button(
+                                    onClick = {
+                                        if (selectedGoals.isEmpty()) {
+                                            // show snackbar when no goals are selected for deletion
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar("Select at least one goal to delete")
+                                            }
+                                        } else {
+                                            showDeleteDialog = true
+                                        }
+                                    },
+                                    shape = MaterialTheme.shapes.large,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp),
+                                        contentColor = MaterialTheme.colorScheme.error
+                                    ),
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+                                    modifier = Modifier.height(40.dp)
+                                ) {
+                                    Text("Delete (${selectedGoals.size})", style = MaterialTheme.typography.titleMedium)
                                 }
+                                Spacer(modifier = Modifier.width(8.dp))
                             }
-                        ) {
-                            Text("Delete (${selectedGoals.size})")
+                            // Toggle Edit-Mode Button
+                            Button(
+                                onClick = {
+                                    isEditMode = !isEditMode
+                                    selectedGoals = emptySet()
+                                },
+                                shape = MaterialTheme.shapes.large,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp),
+                                    contentColor = MaterialTheme.colorScheme.primary
+                                ),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                                elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+                                modifier = Modifier.height(40.dp)
+                            ) {
+                                Text(
+                                    if (isEditMode) "Cancel" else "Edit",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
                         }
                     }
-
-                    TextButton(
-                        onClick = {
-                            isEditMode = !isEditMode
-                            selectedGoals = emptySet()
-                        }
-                    ) {
-                        Text(if (isEditMode) "Cancel" else "Edit")
-                    }
-                }
-            }
+                } else null
+            )
 
             // CONTENT
             LazyColumn(
@@ -129,8 +151,10 @@ fun GoalsScreen(
 
                                     val minutes = goal.targetDuration
                                     val hoursFloat = minutes / 60f
-                                    val displayHours = String.format(Locale.GERMANY, "%.1f", hoursFloat)
-                                    val trackedMinutes = goalWithSessions.totalTrackedMillis / 1000 / 60
+                                    val displayHours =
+                                        String.format(Locale.GERMANY, "%.1f", hoursFloat)
+                                    val trackedMinutes =
+                                        goalWithSessions.totalTrackedMillis / 1000 / 60
                                     val trackedHours = trackedMinutes / 60
                                     val trackedRemainderMinutes = trackedMinutes % 60
 

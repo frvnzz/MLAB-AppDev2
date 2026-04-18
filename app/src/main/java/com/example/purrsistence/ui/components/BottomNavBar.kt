@@ -1,12 +1,17 @@
 package com.example.purrsistence.ui.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AssignmentTurnedIn
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.Assessment
+import androidx.compose.material.icons.filled.Checklist
+import androidx.compose.material.icons.filled.DoDisturb
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.StackedBarChart
-import androidx.compose.material.icons.outlined.AssignmentTurnedIn
+import androidx.compose.material.icons.filled.LocalGroceryStore
+import androidx.compose.material.icons.outlined.AccountBox
+import androidx.compose.material.icons.outlined.Assessment
+import androidx.compose.material.icons.outlined.Checklist
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.StackedBarChart
+import androidx.compose.material.icons.outlined.LocalGroceryStore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -22,7 +27,7 @@ fun BottomNavBar(navController: NavController) {
 
     // list of all possible tab routes from AppNavHost
     // TODO: use single source of truth for routes (screen model) in the future
-    val items = listOf("home", "goals", "statistics")
+    val items = listOf("statistics", "goals", "home", "shop", "profile")
 
     NavigationBar {
         items.forEach { screen ->
@@ -42,10 +47,13 @@ fun BottomNavBar(navController: NavController) {
                     Icon(
                         // Display the icon for the current screen (filled when tab is selected)
                         imageVector = when (screen) {
+                            "statistics" -> if(isSelected) Icons.Filled.Assessment else Icons.Outlined.Assessment
+                            "goals" -> if (isSelected) Icons.Filled.Checklist else Icons.Outlined.Checklist
                             "home" -> if (isSelected) Icons.Filled.Home else Icons.Outlined.Home
-                            "goals" -> if (isSelected) Icons.Filled.AssignmentTurnedIn else Icons.Outlined.AssignmentTurnedIn
-                            "statistics" -> if(isSelected) Icons.Filled.StackedBarChart else Icons.Outlined.StackedBarChart
-                            else -> Icons.Default.Home
+                            "shop" -> if(isSelected) Icons.Filled.LocalGroceryStore else Icons.Outlined.LocalGroceryStore
+                            "profile" -> if (isSelected) Icons.Filled.AccountBox else Icons.Outlined.AccountBox
+
+                            else -> Icons.Filled.DoDisturb
                         },
                         contentDescription = screen
                     )

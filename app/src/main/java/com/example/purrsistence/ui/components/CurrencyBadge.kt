@@ -13,17 +13,14 @@ import androidx.compose.ui.unit.dp
 import com.example.purrsistence.R
 
 @Composable
-fun CurrencyBadge(
-    balance: Int,
-    modifier: Modifier = Modifier
-) {
+fun CurrencyBadge(balance: Int) {
     Surface(
-        modifier = modifier,
+        modifier = Modifier.height(40.dp),
         shape = MaterialTheme.shapes.large,
         tonalElevation = 4.dp
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            modifier = Modifier.padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
