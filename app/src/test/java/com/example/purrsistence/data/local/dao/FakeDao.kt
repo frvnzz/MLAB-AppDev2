@@ -136,4 +136,24 @@ class FakeDao : Dao {
 
         return flowOf(total.takeIf { it > 0L })
     }
+
+    //added for statistics
+    override fun getGoalsRaw(userId: Int): Flow<List<Goal>> {
+        return goalsFlow.map { goalList ->
+            goalList.filter { it.userId == userId }
+        }
+    }
+
+    //added for statistics
+    override fun getCompletedSessionsForUser(userId: Int): Flow<List<TrackingSession>> {
+        return goalsFlow.map {
+            val userGoalIds = goals
+                .filter { it.userId == userId }
+                .map { it.goalId }
+
+            trackingSessions.filter { session ->
+                session.goalId in userGoalIds && session.endTime != null
+            }
+        }
+    }
 }

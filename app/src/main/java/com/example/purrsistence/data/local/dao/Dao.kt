@@ -9,6 +9,8 @@ import com.example.purrsistence.data.local.entity.User
 import com.example.purrsistence.data.local.relation.GoalWithSessions
 import kotlinx.coroutines.flow.Flow
 
+// TODO: SPLIT DAO
+
 @Dao
 
 interface Dao {
@@ -35,6 +37,9 @@ interface Dao {
     @androidx.room.Transaction
     @Query("SELECT * FROM Goal WHERE userId = :userId")
     fun getGoals(userId: Int): Flow<List<GoalWithSessions>>
+
+    @Query("SELECT * FROM Goal WHERE userId = :userId")
+    fun getGoalsRaw(userId: Int): Flow<List<Goal>> //get only the goals data
 
     // -> Observe total time spent on a goal
     @Query("""
@@ -89,4 +94,11 @@ interface Dao {
     @Query("SELECT * FROM TrackingSession WHERE trackingId = :trackingId LIMIT 1")
     suspend fun getTrackingSessionById(trackingId: Int): TrackingSession?
 
+    @Query("""
+        SELECT ts.* FROM TrackingSession ts
+        INNER JOIN Goal g ON ts.goalId = g.goalId
+        WHERE g.userId = :userId
+        AND ts.endTime IS NOT NULL
+    """)
+    fun getCompletedSessionsForUser(userId: Int): Flow<List<TrackingSession>> //get the sessions that are completed and not ongoing
 }

@@ -3,8 +3,10 @@ package com.example.purrsistence.ui.components
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AssignmentTurnedIn
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.StackedBarChart
 import androidx.compose.material.icons.outlined.AssignmentTurnedIn
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.StackedBarChart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -20,7 +22,7 @@ fun BottomNavBar(navController: NavController) {
 
     // list of all possible tab routes from AppNavHost
     // TODO: use single source of truth for routes (screen model) in the future
-    val items = listOf("home", "goals")
+    val items = listOf("home", "goals", "statistics")
 
     NavigationBar {
         items.forEach { screen ->
@@ -42,6 +44,7 @@ fun BottomNavBar(navController: NavController) {
                         imageVector = when (screen) {
                             "home" -> if (isSelected) Icons.Filled.Home else Icons.Outlined.Home
                             "goals" -> if (isSelected) Icons.Filled.AssignmentTurnedIn else Icons.Outlined.AssignmentTurnedIn
+                            "statistics" -> if(isSelected) Icons.Filled.StackedBarChart else Icons.Outlined.StackedBarChart
                             else -> Icons.Default.Home
                         },
                         contentDescription = screen

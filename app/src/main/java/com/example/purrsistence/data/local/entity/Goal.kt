@@ -15,6 +15,8 @@ import androidx.room.PrimaryKey
     indices = [androidx.room.Index(value = ["userId"])]
 )
 
+// TODO: refactor entity + add "canonical Goal" :)
+
 //TODO add tracked time
 //INFO if this is updated, check if tests are still running (if not, update them accordingly)
 data class Goal(
@@ -25,7 +27,7 @@ data class Goal(
     val type: String,
     val targetDuration: Int, // in minutes
     val deepFocus: Boolean,
-    val inactive: Boolean,
+    val inactive: Boolean, // if user deletes a goal, we still want to keep the data for statistics, so we just mark it as inactive
     val createdAt: Long,
     val isCompleted: Boolean
 )

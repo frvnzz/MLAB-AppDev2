@@ -3,9 +3,10 @@ package com.example.purrsistence.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.data.local.repository.TrackingRepository
+import com.example.purrsistence.domain.focus.FocusBlocker
 import com.example.purrsistence.domain.time.TimeProvider
-import com.example.purrsistence.ui.tracking.TrackingEvent
-import com.example.purrsistence.ui.tracking.TrackingUiState
+import com.example.purrsistence.ui.navigation.TrackingEvent
+import com.example.purrsistence.ui.state.TrackingUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -17,7 +18,8 @@ import kotlinx.coroutines.launch
 
 class TrackingViewModel(
     private val repository: TrackingRepository,
-    private val timeProvider: TimeProvider
+    private val timeProvider: TimeProvider,
+    private val focusBlocker: FocusBlocker
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TrackingUiState())
@@ -27,14 +29,20 @@ class TrackingViewModel(
     val events: SharedFlow<TrackingEvent> = _events
 
     private var timerJob: Job? = null
+    private var isDeepFocusSession = false
 
-    fun startTrack(goalId: Int, userId: Int){
-        viewModelScope.launch {
+    fun startTrack(goalId: Int, userId: Int, deepFocus: Boolean) {
+        viewModelScope.launch{
             val session = repository.startTracking(
                 goalId = goalId,
                 userId = userId,
                 pauseReminder = false
             )
+
+            isDeepFocusSession = deepFocus
+            if (isDeepFocusSession) {
+                focusBlocker.startBlocking()
+            }
 
             _uiState.value = TrackingUiState(
                 trackingId = session.trackingId,
@@ -50,16 +58,49 @@ class TrackingViewModel(
     }
 
     fun stopTracking() {
-        viewModelScope.launch{
-            val trackingId = _uiState.value.trackingId ?: return@launch
+        viewModelScope.launch {
+            val state = _uiState.value
+            val trackingId = state.trackingId ?: return@launch
+            val startTime = state.startTime ?: return@launch
+
+            val endTime = timeProvider.now()
+            val duration = endTime - startTime
+
+            val (coins, multiplier) = repository.calculateReward(duration)
+
             repository.stopTracking(trackingId)
 
             timerJob?.cancel()
             timerJob = null
 
-            _uiState.value = TrackingUiState()
+            if (isDeepFocusSession) {
+                focusBlocker.stopBlocking()
+                isDeepFocusSession = false
+            }
+
+            _uiState.value = state.copy(
+                isTracking = false,
+                rewardedCurrency = coins,
+                multiplier = multiplier,
+                sessionDurationMillis = duration
+            )
+        }
+    }
+
+    // return to HomeScreen after receiving a reward
+    fun returnHome() {
+        viewModelScope.launch {
             _events.emit(TrackingEvent.NavigateBackHome)
         }
+    }
+
+    override fun onCleared() {
+        timerJob?.cancel()
+        if (isDeepFocusSession) {
+            focusBlocker.stopBlocking()
+            isDeepFocusSession = false
+        }
+        super.onCleared()
     }
 
     private fun startTicker(startTime: Long) {
@@ -73,5 +114,4 @@ class TrackingViewModel(
             }
         }
     }
-
 }
