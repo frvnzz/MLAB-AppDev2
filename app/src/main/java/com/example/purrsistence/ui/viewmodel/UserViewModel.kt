@@ -16,19 +16,11 @@ class UserViewModel(
     val currentUserId: Int = 1
 
     val user = userRepository
-        .observeUser(currentUserId)
+        .getUser(currentUserId)
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
             null
-        )
-    
-    val userBalance = userRepository
-        .getUserBalance(currentUserId)
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            0
         )
 
     fun buyCat(catId: String, price: Int) {

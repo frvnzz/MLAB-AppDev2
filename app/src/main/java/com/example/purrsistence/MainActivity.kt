@@ -20,6 +20,7 @@ import com.example.purrsistence.ui.viewmodel.StatisticsViewModel
 import com.example.purrsistence.ui.theme.PurrsistenceTheme
 import com.example.purrsistence.ui.viewmodel.TrackingViewModel
 import com.example.purrsistence.ui.viewmodel.UserViewModel
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -57,7 +58,7 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             // Only insert if userId 1 doesn't exist
-            if (userDao.getUserById(1) == null) {
+            if (userDao.getUser(1).firstOrNull() == null) {
                 val exampleUser = User(
                     userId = 1, // fixed userId 1 for the test user
                     username = "testuser",
