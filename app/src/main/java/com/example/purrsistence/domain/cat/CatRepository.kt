@@ -16,7 +16,6 @@ object CatRepository {
         ShopItem("cat_8", "Lucky Cat", 500, R.drawable.cat_lucky)
     )
 
-    fun getCatById(id: String): ShopItem? {
-        return cats.find { it.id == id }
-    }
+    private val catMap = cats.associateBy { it.id }
+    fun getCatById(id: String): ShopItem? = catMap[id]
 }
