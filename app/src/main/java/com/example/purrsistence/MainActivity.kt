@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
 
         // REPOSITORIES
         val userRepo = UserRepository(userDao)
-        val goalRepo = GoalRepository(dao)
+        val goalRepo = GoalRepository(dao) // replace with goalDao when it's implemented
         val timeProvider = SystemTimeProvider()
         val trackingRepo = TrackingRepositoryImpl(dao, timeProvider)
         val statisticsRepo = StatisticsRepository(dao)

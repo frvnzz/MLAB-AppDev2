@@ -80,4 +80,14 @@ class GoalViewModel(
             repository.updateGoal(goalId, title, type, hours, deepFocus)
         }
     }
+
+    var searchQuery by mutableStateOf("")
+        private set
+
+    fun onSearchQueryChange(query: String) {
+        searchQuery = query
+    }
+
+    fun searchedGoals(userId: Int) =
+        repository.searchGoals(userId, searchQuery)
 }

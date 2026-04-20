@@ -52,4 +52,7 @@ class GoalRepository (
     ) {
         dao.updateGoal(goalId, title, type, hours, deepFocus)
     }
+
+    fun searchGoals(userId: Int, query: String) =
+        dao.searchGoalsWithSessions(userId, query)
 }

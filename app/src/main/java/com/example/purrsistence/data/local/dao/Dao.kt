@@ -3,6 +3,7 @@ package com.example.purrsistence.data.local.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import com.example.purrsistence.data.local.entity.Goal
 import com.example.purrsistence.data.local.entity.TrackingSession
 import com.example.purrsistence.data.local.entity.User
@@ -17,6 +18,7 @@ interface Dao {
 
     // USER
     // TODO: handle creation of user
+    // TODO: Move user calls to UserDao !!
     @Insert
     suspend fun insertUser(user: User)
 
@@ -31,7 +33,7 @@ interface Dao {
     @Insert
     suspend fun insertGoal(goal: Goal)
 
-    @androidx.room.Transaction
+    @Transaction
     @Query("SELECT * FROM Goal WHERE userId = :userId")
     fun getGoals(userId: Int): Flow<List<GoalWithSessions>>
 
@@ -67,6 +69,18 @@ interface Dao {
         hours: Int,
         deepFocus: Boolean
     )
+
+    @Transaction
+    @Query("""
+    SELECT * FROM Goal 
+    WHERE userId = :userId 
+    AND inactive = 0
+    AND (:query = '' OR title LIKE '%' || :query || '%')
+    """)
+    fun searchGoalsWithSessions(
+        userId: Int,
+        query: String
+    ): Flow<List<GoalWithSessions>>
 
     // Tracking Sessions DAO part
 
