@@ -219,4 +219,69 @@ class GoalRepositoryCrudTest {
         assertTrue(goalsAfterDelete.isEmpty())
         assertNull(goalAfterDelete)
     }
+
+    @Test
+    fun searchGoals_returnsOnlyMatchingGoalsForUser() = runBlocking {
+        val fakeDao = FakeDao()
+        val repository = GoalRepository(fakeDao)
+
+        fakeDao.insertUser(
+            User(
+                userId = 1,
+                username = "TestUser",
+                balance = 0,
+                friends = emptyList(),
+                collectedCatsIds = emptyList()
+            )
+        )
+
+        fakeDao.insertUser(
+            User(
+                userId = 2,
+                username = "OtherUser",
+                balance = 0,
+                friends = emptyList(),
+                collectedCatsIds = emptyList()
+            )
+        )
+
+        repository.createGoal(
+            userId = 1,
+            title = "Read Research Papers",
+            type = "Weekly",
+            weeklyMinutes = 120,
+            deepFocus = true,
+            inactive = false,
+            createdAt = 1000L,
+            isCompleted = false
+        )
+
+        repository.createGoal(
+            userId = 1,
+            title = "Workout",
+            type = "Daily",
+            weeklyMinutes = 60,
+            deepFocus = false,
+            inactive = false,
+            createdAt = 2000L,
+            isCompleted = false
+        )
+
+        repository.createGoal(
+            userId = 2,
+            title = "Read Book",
+            type = "Weekly",
+            weeklyMinutes = 90,
+            deepFocus = false,
+            inactive = false,
+            createdAt = 3000L,
+            isCompleted = false
+        )
+
+        val results = repository.searchGoals(userId = 1, query = "read").first()
+
+        assertEquals(1, results.size)
+        assertEquals("Read Research Papers", results[0].goal.title)
+        assertTrue(results.all { it.goal.userId == 1 })
+    }
 }

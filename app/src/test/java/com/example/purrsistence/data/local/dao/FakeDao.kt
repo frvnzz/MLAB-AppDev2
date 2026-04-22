@@ -101,6 +101,22 @@ class FakeDao : Dao {
         goalsFlow.value = goals.toList()
     }
 
+    override fun searchGoalsWithSessions(userId: Int, query: String): Flow<List<GoalWithSessions>> {
+        return goalsFlow.map { goalList ->
+            goalList
+                .filter { goal ->
+                    goal.userId == userId &&
+                            goal.title.contains(query, ignoreCase = true)
+                }
+                .map { goal ->
+                    GoalWithSessions(
+                        goal = goal,
+                        sessions = trackingSessions.filter { it.goalId == goal.goalId }
+                    )
+                }
+        }
+    }
+
     //Tracking Session
     override suspend fun insertTrackingSession(session: TrackingSession): Long {
         val stored = session.copy(trackingId = nextTrackingId++)

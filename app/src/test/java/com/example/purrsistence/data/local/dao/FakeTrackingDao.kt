@@ -61,6 +61,10 @@ class FakeTrackingDao : Dao {
         throw UnsupportedOperationException("Not needed for tracking repository test")
     }
 
+    override fun searchGoalsWithSessions(userId: Int, query: String): Flow<List<GoalWithSessions>> {
+        return flowOf(emptyList())
+    }
+
     override suspend fun insertTrackingSession(session: TrackingSession): Long {
         val stored = session.copy(trackingId = nextTrackingId++)
         sessions.add(stored)
