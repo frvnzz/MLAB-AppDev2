@@ -1,6 +1,5 @@
 package com.example.purrsistence.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,20 +10,33 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.purrsistence.ui.DataViewModel
+import com.example.purrsistence.ui.components.goalsScreen.GoalSearchBar
+import com.example.purrsistence.ui.components.TopBar
+import com.example.purrsistence.ui.components.goalsScreen.DeleteGoalDialog
+import com.example.purrsistence.ui.components.goalsScreen.GoalCard
+import com.example.purrsistence.ui.viewmodel.GoalViewModel
+import com.example.purrsistence.ui.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 @Composable
 fun GoalsScreen(
-    viewModel: DataViewModel,
+    userViewModel: UserViewModel,
+    goalViewModel: GoalViewModel,
     onAddGoalClick: () -> Unit = {},
     onGoalClick: (Int) -> Unit = {},
     snackbarHostState: SnackbarHostState
 ) {
-    val goals by viewModel.goals(1).collectAsState(initial = emptyList())
+    // get all goals from the current user
+    val goals by goalViewModel
+        .searchedGoals(userViewModel.currentUserId)
+        .collectAsState(initial = emptyList())
+    // search goals (GoalSearchBar)
+    val query = goalViewModel.searchQuery
+    val isSearching = query.isNotBlank()
 
+    // Edit / delete goal
     var isEditMode by remember { mutableStateOf(false) }
     var selectedGoals by remember { mutableStateOf(setOf<Int>()) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -32,8 +44,10 @@ fun GoalsScreen(
     val scope = rememberCoroutineScope()
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
+    // Reset search query and edit mode when screen is resumed
     LaunchedEffect(lifecycleOwner) {
-        lifecycleOwner.lifecycle.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.RESUMED) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            goalViewModel.onSearchQueryChange("")   // reset search
             isEditMode = false
             selectedGoals = emptySet()
         }
@@ -49,106 +63,115 @@ fun GoalsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // HEADER
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Your Goals", style = MaterialTheme.typography.titleLarge)
-
-                Row {
-                    if (isEditMode) {
-                        TextButton(
-                            onClick = {
-                                if (selectedGoals.isEmpty()) {
-                                    // 👉 show snackbar
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar("Select at least one goal to delete")
-                                    }
-                                } else {
-                                    showDeleteDialog = true
+            // TOP BAR
+            TopBar(
+                title = "Your Goals",
+                actions = if (goals.isNotEmpty()) {
+                    {
+                        Row {
+                            if (isEditMode) {
+                                // Delete Button
+                                Button(
+                                    onClick = {
+                                        if (selectedGoals.isEmpty()) {
+                                            // show snackbar when no goals are selected for deletion
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar("Select at least one goal to delete")
+                                            }
+                                        } else {
+                                            showDeleteDialog = true
+                                        }
+                                    },
+                                    shape = MaterialTheme.shapes.large,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp),
+                                        contentColor = MaterialTheme.colorScheme.error
+                                    ),
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+                                    modifier = Modifier.height(40.dp)
+                                ) {
+                                    Text("Delete (${selectedGoals.size})", style = MaterialTheme.typography.titleMedium)
                                 }
+                                Spacer(modifier = Modifier.width(8.dp))
                             }
-                        ) {
-                            Text("Delete (${selectedGoals.size})")
+                            // Toggle Edit-Mode Button
+                            Button(
+                                onClick = {
+                                    isEditMode = !isEditMode
+                                    selectedGoals = emptySet()
+                                },
+                                shape = MaterialTheme.shapes.large,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp),
+                                    contentColor = MaterialTheme.colorScheme.primary
+                                ),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                                elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+                                modifier = Modifier.height(40.dp)
+                            ) {
+                                Text(
+                                    if (isEditMode) "Cancel" else "Edit",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
                         }
                     }
+                } else null
+            )
 
-                    TextButton(
-                        onClick = {
-                            isEditMode = !isEditMode
-                            selectedGoals = emptySet()
-                        }
-                    ) {
-                        Text(if (isEditMode) "Cancel" else "Edit")
-                    }
-                }
-            }
+            // SEARCH BAR
+            GoalSearchBar(
+                query = goalViewModel.searchQuery,
+                onQueryChange = goalViewModel::onSearchQueryChange
+            )
 
             // CONTENT
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
+                // if no goals are added or found, show a message
                 if (goals.isEmpty()) {
                     item {
-                        Text("No goals yet - Add one! 🐱")
+                        val message = if (isSearching) {
+                            "No results for \"$query\""
+                        } else {
+                            "No goals yet - Add one! 🐱"
+                        }
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(message)
+                        }
+
                     }
+                // List Goal Cards that are found
                 } else {
-                    items(goals) { goalWithSessions ->
+                    items(
+                        items = goals,
+                        key = { it.goal.goalId }
+                    ) { goalWithSessions ->
 
                         val goal = goalWithSessions.goal
                         val isSelected = selectedGoals.contains(goal.goalId)
 
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .then(
-                                    // click on a Card to edit the goal (when isEditMode)
-                                    if (isEditMode) Modifier.clickable {
-                                        onGoalClick(goal.goalId)
-                                    } else Modifier
-                                )
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-
-                                Column(
-                                    modifier = Modifier.weight(1f),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    Text(goal.title, style = MaterialTheme.typography.titleMedium)
-                                    Text("Type: ${goal.type}")
-
-                                    val minutes = goal.targetDuration
-                                    val hoursFloat = minutes / 60f
-                                    val displayHours = String.format(Locale.GERMANY, "%.1f", hoursFloat)
-                                    Text("Duration: ${displayHours}h (${minutes} min)")
-
-                                    Text("Deep Focus: ${if (goal.deepFocus) "ON" else "OFF"}")
-                                    Text("Inactive: ${if (goal.inactive) "YES" else "NO"}")
-                                    Text("Created: ${goal.createdAt}")
-                                    Text("Completed: ${if (goal.isCompleted) "YES" else "NO"}")
-                                }
-
-                                if (isEditMode) {
-                                    Checkbox(
-                                        checked = isSelected,
-                                        onCheckedChange = {
-                                            selectedGoals = if (it) {
-                                                selectedGoals + goal.goalId
-                                            } else {
-                                                selectedGoals - goal.goalId
-                                            }
-                                        }
-                                    )
+                        GoalCard(
+                            goalWithSessions = goalWithSessions,
+                            isEditMode = isEditMode,
+                            isSelected = isSelected,
+                            onClick = {
+                                onGoalClick(goal.goalId)
+                            },
+                            onCheckedChange = { checked ->
+                                selectedGoals = if (checked) {
+                                    selectedGoals + goal.goalId
+                                } else {
+                                    selectedGoals - goal.goalId
                                 }
                             }
-                        }
+                        )
                     }
                 }
             }
@@ -165,30 +188,16 @@ fun GoalsScreen(
         }
 
         if (showDeleteDialog) {
-            AlertDialog(
-                onDismissRequest = { showDeleteDialog = false },
-                title = { Text("Delete Goals") },
-                text = {
-                    Text("Are you sure you want to delete ${selectedGoals.size} goals?")
+            DeleteGoalDialog(
+                message = "Are you sure you want to delete ${selectedGoals.size} goals?",
+                onConfirm = {
+                    selectedGoals.forEach { goalViewModel.deleteGoal(it) }
+                    selectedGoals = emptySet()
+                    isEditMode = false
+                    showDeleteDialog = false
                 },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            selectedGoals.forEach { viewModel.deleteGoal(it) }
-                            selectedGoals = emptySet()
-                            isEditMode = false
-                            showDeleteDialog = false
-                        }
-                    ) {
-                        Text("Yes")
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = { showDeleteDialog = false }
-                    ) {
-                        Text("Cancel")
-                    }
+                onDismiss = {
+                    showDeleteDialog = false
                 }
             )
         }

@@ -200,4 +200,14 @@ dependencies {
     // ─────────── Debug ───────────
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    val room_version = "2.8.4"
+
+    implementation("androidx.room:room-runtime:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+
+    //Vico Compose Graphs
+    implementation(libs.vico.compose)
+    implementation(libs.vico.compose.m3)
 }

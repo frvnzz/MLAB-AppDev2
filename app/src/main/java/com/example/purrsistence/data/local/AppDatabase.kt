@@ -10,6 +10,7 @@ import com.example.purrsistence.data.local.entity.TrackingSession
 import com.example.purrsistence.data.local.entity.User
 import androidx.room.TypeConverters
 import com.example.purrsistence.data.local.converter.StringListConverter
+import com.example.purrsistence.data.local.dao.UserDao
 
 @Database(
     entities = [
@@ -23,7 +24,9 @@ import com.example.purrsistence.data.local.converter.StringListConverter
 @TypeConverters(StringListConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
+    // TODO: Split Dao and add all of them
     abstract fun dao(): Dao
+    abstract fun userDao(): UserDao
 
     companion object {
         @Volatile

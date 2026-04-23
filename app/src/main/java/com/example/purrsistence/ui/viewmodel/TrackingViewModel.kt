@@ -1,10 +1,12 @@
-package com.example.purrsistence.ui.tracking
+package com.example.purrsistence.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.data.local.repository.TrackingRepository
 import com.example.purrsistence.domain.focus.FocusBlocker
 import com.example.purrsistence.domain.time.TimeProvider
+import com.example.purrsistence.ui.navigation.TrackingEvent
+import com.example.purrsistence.ui.state.TrackingUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -56,8 +58,16 @@ class TrackingViewModel(
     }
 
     fun stopTracking() {
-        viewModelScope.launch{
-            val trackingId = _uiState.value.trackingId ?: return@launch
+        viewModelScope.launch {
+            val state = _uiState.value
+            val trackingId = state.trackingId ?: return@launch
+            val startTime = state.startTime ?: return@launch
+
+            val endTime = timeProvider.now()
+            val duration = endTime - startTime
+
+            val (coins, multiplier) = repository.calculateReward(duration)
+
             repository.stopTracking(trackingId)
 
             timerJob?.cancel()
@@ -68,7 +78,18 @@ class TrackingViewModel(
                 isDeepFocusSession = false
             }
 
-            _uiState.value = TrackingUiState()
+            _uiState.value = state.copy(
+                isTracking = false,
+                rewardedCurrency = coins,
+                multiplier = multiplier,
+                sessionDurationMillis = duration
+            )
+        }
+    }
+
+    // return to HomeScreen after receiving a reward
+    fun returnHome() {
+        viewModelScope.launch {
             _events.emit(TrackingEvent.NavigateBackHome)
         }
     }
@@ -93,5 +114,4 @@ class TrackingViewModel(
             }
         }
     }
-
 }

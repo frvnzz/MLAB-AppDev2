@@ -1,17 +1,15 @@
-package com.example.purrsistence.ui
+package com.example.purrsistence.ui.viewmodel
 
 import android.content.SharedPreferences
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.purrsistence.data.local.repository.DataRepository
+import com.example.purrsistence.data.local.repository.GoalRepository
 import kotlinx.coroutines.launch
 
-class DataViewModel(
-    private val repository: DataRepository,
+class GoalViewModel(
+    private val repository: GoalRepository,
     private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
 
@@ -82,4 +80,14 @@ class DataViewModel(
             repository.updateGoal(goalId, title, type, hours, deepFocus)
         }
     }
+
+    var searchQuery by mutableStateOf("")
+        private set
+
+    fun onSearchQueryChange(query: String) {
+        searchQuery = query
+    }
+
+    fun searchedGoals(userId: Int) =
+        repository.searchGoals(userId, searchQuery)
 }

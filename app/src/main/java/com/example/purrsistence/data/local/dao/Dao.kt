@@ -3,30 +3,44 @@ package com.example.purrsistence.data.local.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import com.example.purrsistence.data.local.entity.Goal
 import com.example.purrsistence.data.local.entity.TrackingSession
 import com.example.purrsistence.data.local.entity.User
 import com.example.purrsistence.data.local.relation.GoalWithSessions
 import kotlinx.coroutines.flow.Flow
 
+// TODO: SPLIT DAO
+
 @Dao
 
 interface Dao {
 
-    // User
+    // USER
     // TODO: handle creation of user
+    // TODO: Move user calls to UserDao !!
     @Insert
     suspend fun insertUser(user: User)
 
-    // Goal
+    @Query("SELECT * FROM User WHERE userId = :userId LIMIT 1")
+    suspend fun getUserById(userId: Int): User?
+
+    // -> Currency
+    @Query("UPDATE User SET balance = balance + :amount WHERE userId = :userId")
+    suspend fun addCurrency(userId: Int, amount: Int)
+
+    // GOAL
     @Insert
     suspend fun insertGoal(goal: Goal)
 
-    @androidx.room.Transaction
+    @Transaction
     @Query("SELECT * FROM Goal WHERE userId = :userId")
     fun getGoals(userId: Int): Flow<List<GoalWithSessions>>
 
-    // Observe total time spent on a goal
+    @Query("SELECT * FROM Goal WHERE userId = :userId")
+    fun getGoalsRaw(userId: Int): Flow<List<Goal>> //get only the goals data
+
+    // -> Observe total time spent on a goal
     @Query("""
     SELECT SUM(endTime - startTime) 
     FROM TrackingSession 
@@ -56,6 +70,18 @@ interface Dao {
         deepFocus: Boolean
     )
 
+    @Transaction
+    @Query("""
+    SELECT * FROM Goal 
+    WHERE userId = :userId 
+    AND inactive = 0
+    AND (:query = '' OR title LIKE '%' || :query || '%')
+    """)
+    fun searchGoalsWithSessions(
+        userId: Int,
+        query: String
+    ): Flow<List<GoalWithSessions>>
+
     // Tracking Sessions DAO part
 
     @Insert
@@ -79,4 +105,11 @@ interface Dao {
     @Query("SELECT * FROM TrackingSession WHERE trackingId = :trackingId LIMIT 1")
     suspend fun getTrackingSessionById(trackingId: Int): TrackingSession?
 
+    @Query("""
+        SELECT ts.* FROM TrackingSession ts
+        INNER JOIN Goal g ON ts.goalId = g.goalId
+        WHERE g.userId = :userId
+        AND ts.endTime IS NOT NULL
+    """)
+    fun getCompletedSessionsForUser(userId: Int): Flow<List<TrackingSession>> //get the sessions that are completed and not ongoing
 }

@@ -4,7 +4,7 @@ import com.example.purrsistence.data.local.dao.Dao
 import com.example.purrsistence.data.local.entity.Goal
 import kotlinx.coroutines.flow.flowOf
 
-class DataRepository (
+class GoalRepository (
     private val dao: Dao
 ) {
 
@@ -52,4 +52,7 @@ class DataRepository (
     ) {
         dao.updateGoal(goalId, title, type, hours, deepFocus)
     }
+
+    fun searchGoals(userId: Int, query: String) =
+        dao.searchGoalsWithSessions(userId, query)
 }

@@ -8,12 +8,23 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class FakeTrackingDao : Dao {
-
+    private val users = mutableListOf<User>()
     private val sessions = mutableListOf<TrackingSession>()
     private var nextTrackingId = 1
 
     override suspend fun insertUser(user: User) {
-        throw UnsupportedOperationException("Not needed for tracking repository test")
+        users.add(user)
+    }
+    override suspend fun addCurrency(userId: Int, amount: Int) {
+        val index = users.indexOfFirst { it.userId == userId }
+        if (index == -1) return
+
+        val old = users[index]
+        users[index] = old.copy(balance = old.balance + amount)
+    }
+
+    override suspend fun getUserById(userId: Int): User? {
+        return users.find { it.userId == userId }
     }
 
     override suspend fun insertGoal(goal: Goal) {
@@ -50,6 +61,10 @@ class FakeTrackingDao : Dao {
         throw UnsupportedOperationException("Not needed for tracking repository test")
     }
 
+    override fun searchGoalsWithSessions(userId: Int, query: String): Flow<List<GoalWithSessions>> {
+        return flowOf(emptyList())
+    }
+
     override suspend fun insertTrackingSession(session: TrackingSession): Long {
         val stored = session.copy(trackingId = nextTrackingId++)
         sessions.add(stored)
@@ -70,5 +85,17 @@ class FakeTrackingDao : Dao {
 
     override suspend fun getTrackingSessionById(trackingId: Int): TrackingSession? {
         return sessions.find { it.trackingId == trackingId }
+    }
+
+    //added for statistics
+    override fun getGoalsRaw(userId: Int): Flow<List<Goal>> {
+        return flowOf(emptyList())
+    }
+
+    //added for statistics
+    override fun getCompletedSessionsForUser(userId: Int): Flow<List<TrackingSession>> {
+        return flowOf(
+            sessions.filter { it.endTime != null }
+        )
     }
 }

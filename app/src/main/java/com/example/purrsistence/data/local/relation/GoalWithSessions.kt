@@ -13,4 +13,9 @@ data class GoalWithSessions(
         entityColumn = "goalId"
     )
     val sessions: List<TrackingSession>
-)
+) {
+    val totalTrackedMillis: Long
+        get() = sessions
+            .filter { it.endTime != null }
+            .sumOf { (it.endTime ?: 0L) - it.startTime }
+}
