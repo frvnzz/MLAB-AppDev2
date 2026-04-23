@@ -2,11 +2,12 @@ package com.example.purrsistence.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.Instant
 
 @Entity(
     foreignKeys = [
         androidx.room.ForeignKey(
-            entity = User::class,
+            entity = UserEntity::class,
             parentColumns = ["userId"],
             childColumns = ["userId"],
             onDelete = androidx.room.ForeignKey.CASCADE
@@ -19,7 +20,7 @@ import androidx.room.PrimaryKey
 
 //TODO add tracked time
 //INFO if this is updated, check if tests are still running (if not, update them accordingly)
-data class Goal(
+data class GoalEntity(
     @PrimaryKey(autoGenerate = true) val goalId: Int = 0,
 
     val userId: Int,

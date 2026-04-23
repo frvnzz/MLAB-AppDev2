@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
 import com.example.purrsistence.data.local.AppDatabase
 import com.example.purrsistence.data.focus.SharedPrefsFocusBlocker
-import com.example.purrsistence.data.local.entity.User
+import com.example.purrsistence.data.local.entity.UserEntity
 import com.example.purrsistence.data.local.repository.GoalRepository
 import com.example.purrsistence.data.local.repository.StatisticsRepository
 import com.example.purrsistence.data.local.repository.TrackingRepositoryImpl
@@ -15,6 +15,11 @@ import com.example.purrsistence.data.local.repository.UserRepository
 import com.example.purrsistence.domain.time.SystemTimeProvider
 import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.focus.DeepFocusConfig
+import com.example.purrsistence.service.GoalService
+import com.example.purrsistence.service.RewardService
+import com.example.purrsistence.service.ShopService
+import com.example.purrsistence.service.StatisticsService
+import com.example.purrsistence.service.TrackingService
 import com.example.purrsistence.ui.screens.MainScreen
 import com.example.purrsistence.ui.viewmodel.StatisticsViewModel
 import com.example.purrsistence.ui.theme.PurrsistenceTheme
@@ -36,37 +41,45 @@ class MainActivity : ComponentActivity() {
 
         // DATABASE & DAO
         val db = AppDatabase.getInstance(this)
-        val dao = db.dao()
+        val goalsDao = db.goalsDao()
+        val trackingDao = db.trackingDao()
         val userDao = db.userDao()
 
         // REPOSITORIES
         val userRepo = UserRepository(userDao)
-        val goalRepo = GoalRepository(dao) // replace with goalDao when it's implemented
+        val goalRepo = GoalRepository(goalsDao) // replace with goalDao when it's implemented
         val timeProvider = SystemTimeProvider()
-        val trackingRepo = TrackingRepositoryImpl(dao, timeProvider)
-        val statisticsRepo = StatisticsRepository(dao)
+        val trackingRepo = TrackingRepositoryImpl(trackingDao)
+        val statisticsRepo = StatisticsRepository(goalsDao, trackingDao)
+
+        //Services
+        val goalService = GoalService(goalRepo, timeProvider)
+        val rewardService = RewardService()
+        val trackingService = TrackingService(trackingRepo, userRepo, rewardService, timeProvider)
+        val shopService = ShopService(userRepo)
+        val statisticsService = StatisticsService(statisticsRepo)
 
         // shared preferences (for storing last selected goal from GoalBottomDrawer)
         val prefs = getSharedPreferences(DeepFocusConfig.PREFS_NAME, MODE_PRIVATE)
         val focusBlocker = SharedPrefsFocusBlocker(prefs)
 
         // create ViewModel instances for this activity
-        userViewModel = UserViewModel(userRepo)
-        goalViewModel = GoalViewModel(goalRepo, prefs)
-        trackingViewModel = TrackingViewModel(trackingRepo, timeProvider, focusBlocker)
-        statisticsViewModel = StatisticsViewModel(statisticsRepo)
+        userViewModel = UserViewModel(shopService)
+        goalViewModel = GoalViewModel(goalService, prefs)
+        trackingViewModel = TrackingViewModel(trackingService, timeProvider, focusBlocker)
+        statisticsViewModel = StatisticsViewModel(statisticsService)
 
         lifecycleScope.launch {
             // Only insert if userId 1 doesn't exist
             if (userDao.getUser(1).firstOrNull() == null) {
-                val exampleUser = User(
+                val exampleUserEntity = UserEntity(
                     userId = 1, // fixed userId 1 for the test user
                     username = "testuser",
                     balance = 100,
                     friends = listOf("alice", "bob"),
                     collectedCatsIds = listOf("cat1", "cat2")
                 )
-                dao.insertUser(exampleUser)
+                userDao.insertUser(exampleUserEntity)
             }
         }
 

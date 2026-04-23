@@ -1,7 +1,7 @@
 package com.example.purrsistence.data.local.repository
 
 import com.example.purrsistence.data.local.dao.FakeDao
-import com.example.purrsistence.data.local.entity.User
+import com.example.purrsistence.data.local.entity.UserEntity
 import com.example.purrsistence.domain.time.FakeTimeProvider
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -66,7 +66,7 @@ class TrackingRepositoryImplTest {
         val repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
 
         fakeDao.insertUser(
-            User(
+            UserEntity(
                 userId = 10,
                 username = "TestUser",
                 balance = 10,
@@ -126,7 +126,7 @@ class TrackingRepositoryImplTest {
         var repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
 
         fakeDao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 0,
@@ -155,7 +155,7 @@ class TrackingRepositoryImplTest {
         repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
 
         fakeDao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 0,
@@ -184,7 +184,7 @@ class TrackingRepositoryImplTest {
         repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
 
         fakeDao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 0,
@@ -214,7 +214,7 @@ class TrackingRepositoryImplTest {
         repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
 
         fakeDao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 0,
@@ -244,7 +244,7 @@ class TrackingRepositoryImplTest {
         repository = TrackingRepositoryImpl(fakeDao, fakeTimeProvider)
 
         fakeDao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 0,

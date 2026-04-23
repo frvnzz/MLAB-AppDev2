@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.data.local.repository.TrackingRepository
 import com.example.purrsistence.domain.focus.FocusBlocker
 import com.example.purrsistence.domain.time.TimeProvider
+import com.example.purrsistence.service.TrackingService
 import com.example.purrsistence.ui.navigation.TrackingEvent
 import com.example.purrsistence.ui.state.TrackingUiState
 import kotlinx.coroutines.Job
@@ -15,9 +16,11 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.time.Duration
+import java.time.Instant
 
 class TrackingViewModel(
-    private val repository: TrackingRepository,
+    private val trackingService: TrackingService,
     private val timeProvider: TimeProvider,
     private val focusBlocker: FocusBlocker
 ) : ViewModel() {
@@ -33,10 +36,11 @@ class TrackingViewModel(
 
     fun startTrack(goalId: Int, userId: Int, deepFocus: Boolean) {
         viewModelScope.launch{
-            val session = repository.startTracking(
+            val session = trackingService.startTracking(
                 goalId = goalId,
                 userId = userId,
-                pauseReminder = false
+                pauseReminder = false,
+                deepFocus = deepFocus
             )
 
             isDeepFocusSession = deepFocus
@@ -45,7 +49,7 @@ class TrackingViewModel(
             }
 
             _uiState.value = TrackingUiState(
-                trackingId = session.trackingId,
+                trackingId = session.id,
                 goalId = session.goalId,
                 startTime = session.startTime,
                 elapsedMillis = 0L,
@@ -61,14 +65,8 @@ class TrackingViewModel(
         viewModelScope.launch {
             val state = _uiState.value
             val trackingId = state.trackingId ?: return@launch
-            val startTime = state.startTime ?: return@launch
 
-            val endTime = timeProvider.now()
-            val duration = endTime - startTime
-
-            val (coins, multiplier) = repository.calculateReward(duration)
-
-            repository.stopTracking(trackingId)
+            val stopResult = trackingService.stopTracking(trackingId) ?: return@launch
 
             timerJob?.cancel()
             timerJob = null
@@ -80,9 +78,10 @@ class TrackingViewModel(
 
             _uiState.value = state.copy(
                 isTracking = false,
-                rewardedCurrency = coins,
-                multiplier = multiplier,
-                sessionDurationMillis = duration
+                rewardedCurrency = stopResult.rewardedCurrency,
+                multiplier = stopResult.multiplier,
+                sessionDurationMillis = stopResult.sessionDurationMillis,
+                elapsedMillis = stopResult.sessionDurationMillis
             )
         }
     }
@@ -103,13 +102,16 @@ class TrackingViewModel(
         super.onCleared()
     }
 
-    private fun startTicker(startTime: Long) {
+    private fun startTicker(startTime: Instant) {
         timerJob?.cancel()
         timerJob = viewModelScope.launch {
             while (coroutineContext.isActive) {
+                val elapsed = Duration.between(startTime, timeProvider.now()).toMillis()
+
                 _uiState.value = _uiState.value.copy(
-                    elapsedMillis = timeProvider.now() - startTime
+                    elapsedMillis = elapsed.coerceAtLeast(0L)
                 )
+
                 delay(1000)
             }
         }

@@ -4,19 +4,20 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.purrsistence.data.local.dao.Dao
-import com.example.purrsistence.data.local.entity.Goal
-import com.example.purrsistence.data.local.entity.TrackingSession
-import com.example.purrsistence.data.local.entity.User
+import com.example.purrsistence.data.local.entity.GoalEntity
+import com.example.purrsistence.data.local.entity.TrackingSessionEntity
+import com.example.purrsistence.data.local.entity.UserEntity
 import androidx.room.TypeConverters
 import com.example.purrsistence.data.local.converter.StringListConverter
+import com.example.purrsistence.data.local.dao.GoalsDao
+import com.example.purrsistence.data.local.dao.TrackingDao
 import com.example.purrsistence.data.local.dao.UserDao
 
 @Database(
     entities = [
-        User::class,
-        Goal::class,
-        TrackingSession::class
+        UserEntity::class,
+        GoalEntity::class,
+        TrackingSessionEntity::class
     ],
     version = 1,
     exportSchema = false
@@ -25,7 +26,8 @@ import com.example.purrsistence.data.local.dao.UserDao
 abstract class AppDatabase : RoomDatabase() {
 
     // TODO: Split Dao and add all of them
-    abstract fun dao(): Dao
+    abstract fun goalsDao(): GoalsDao
+    abstract fun trackingDao(): TrackingDao
     abstract fun userDao(): UserDao
 
     companion object {

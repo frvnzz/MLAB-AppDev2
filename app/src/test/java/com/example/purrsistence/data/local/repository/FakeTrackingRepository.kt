@@ -1,6 +1,6 @@
 package com.example.purrsistence.data.local.repository
 
-import com.example.purrsistence.data.local.entity.TrackingSession
+import com.example.purrsistence.data.local.entity.TrackingSessionEntity
 import com.example.purrsistence.domain.time.TimeProvider
 import kotlin.math.round
 
@@ -9,15 +9,15 @@ class FakeTrackingRepository(
     private val timeProvider: TimeProvider
 ) : TrackingRepository {
 
-    private val sessions = mutableListOf<TrackingSession>()
+    private val sessions = mutableListOf<TrackingSessionEntity>()
     private var nextId = 1
 
     override suspend fun startTracking(
         goalId: Int,
         userId: Int,
         pauseReminder: Boolean
-    ): TrackingSession {
-        val session = TrackingSession(
+    ): TrackingSessionEntity {
+        val session = TrackingSessionEntity(
             trackingId = nextId++,
             goalId = goalId,
             userId = userId,
@@ -37,11 +37,11 @@ class FakeTrackingRepository(
         sessions[index] = old.copy(endTime = timeProvider.now())
     }
 
-    override suspend fun getTrackingSessionById(trackingId: Int): TrackingSession? {
+    override suspend fun getTrackingSessionById(trackingId: Int): TrackingSessionEntity? {
         return sessions.find { it.trackingId == trackingId }
     }
 
-    override suspend fun getActiveTrackingSession(goalId: Int): TrackingSession? {
+    override suspend fun getActiveTrackingSession(goalId: Int): TrackingSessionEntity? {
         return sessions.lastOrNull { it.goalId == goalId && it.endTime == null }
     }
 

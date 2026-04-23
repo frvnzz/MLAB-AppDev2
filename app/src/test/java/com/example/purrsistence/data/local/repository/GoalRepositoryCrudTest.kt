@@ -1,7 +1,7 @@
 package com.example.purrsistence.data.local.repository
 
 import com.example.purrsistence.data.local.dao.FakeDao
-import com.example.purrsistence.data.local.entity.User
+import com.example.purrsistence.data.local.entity.UserEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -18,7 +18,7 @@ class GoalRepositoryCrudTest {
         val repository = GoalRepository(dao)
 
         dao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 10,
@@ -41,10 +41,10 @@ class GoalRepositoryCrudTest {
         val goals = repository.getGoals(1).first()
 
         assertEquals(1, goals.size)
-        assertEquals("Read papers", goals[0].goal.title)
-        assertEquals("Weekly", goals[0].goal.type)
-        assertEquals(120, goals[0].goal.targetDuration)
-        assertTrue(goals[0].goal.deepFocus)
+        assertEquals("Read papers", goals[0].goalEntity.title)
+        assertEquals("Weekly", goals[0].goalEntity.type)
+        assertEquals(120, goals[0].goalEntity.targetDuration)
+        assertTrue(goals[0].goalEntity.deepFocus)
     }
 
     @Test
@@ -53,7 +53,7 @@ class GoalRepositoryCrudTest {
         val repository = GoalRepository(dao)
 
         dao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 10,
@@ -62,7 +62,7 @@ class GoalRepositoryCrudTest {
             )
         )
         dao.insertUser(
-            User(
+            UserEntity(
                 userId = 2,
                 username = "TestUser2",
                 balance = 10,
@@ -97,10 +97,10 @@ class GoalRepositoryCrudTest {
         val user2Goals = repository.getGoals(2).first()
 
         assertEquals(1, user1Goals.size)
-        assertEquals("Goal A", user1Goals[0].goal.title)
+        assertEquals("Goal A", user1Goals[0].goalEntity.title)
 
         assertEquals(1, user2Goals.size)
-        assertEquals("Goal B", user2Goals[0].goal.title)
+        assertEquals("Goal B", user2Goals[0].goalEntity.title)
     }
 
     @Test
@@ -109,7 +109,7 @@ class GoalRepositoryCrudTest {
         val repository = GoalRepository(dao)
 
         dao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 10,
@@ -129,7 +129,7 @@ class GoalRepositoryCrudTest {
             isCompleted = false
         )
 
-        val createdGoalId = repository.getGoals(1).first().first().goal.goalId
+        val createdGoalId = repository.getGoals(1).first().first().goalEntity.goalId
         val goal = repository.getGoal(createdGoalId).first()
 
         assertNotNull(goal)
@@ -144,7 +144,7 @@ class GoalRepositoryCrudTest {
         val repository = GoalRepository(dao)
 
         dao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 10,
@@ -164,7 +164,7 @@ class GoalRepositoryCrudTest {
             isCompleted = false
         )
 
-        val goalId = repository.getGoals(1).first().first().goal.goalId
+        val goalId = repository.getGoals(1).first().first().goalEntity.goalId
 
         repository.updateGoal(
             goalId = goalId,
@@ -189,7 +189,7 @@ class GoalRepositoryCrudTest {
         val repository = GoalRepository(dao)
 
         dao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 10,
@@ -209,7 +209,7 @@ class GoalRepositoryCrudTest {
             isCompleted = false
         )
 
-        val goalId = repository.getGoals(1).first().first().goal.goalId
+        val goalId = repository.getGoals(1).first().first().goalEntity.goalId
 
         repository.deleteGoal(goalId)
 
@@ -226,7 +226,7 @@ class GoalRepositoryCrudTest {
         val repository = GoalRepository(fakeDao)
 
         fakeDao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 0,
@@ -236,7 +236,7 @@ class GoalRepositoryCrudTest {
         )
 
         fakeDao.insertUser(
-            User(
+            UserEntity(
                 userId = 2,
                 username = "OtherUser",
                 balance = 0,
@@ -281,7 +281,7 @@ class GoalRepositoryCrudTest {
         val results = repository.searchGoals(userId = 1, query = "read").first()
 
         assertEquals(1, results.size)
-        assertEquals("Read Research Papers", results[0].goal.title)
-        assertTrue(results.all { it.goal.userId == 1 })
+        assertEquals("Read Research Papers", results[0].goalEntity.title)
+        assertTrue(results.all { it.goalEntity.userId == 1 })
     }
 }

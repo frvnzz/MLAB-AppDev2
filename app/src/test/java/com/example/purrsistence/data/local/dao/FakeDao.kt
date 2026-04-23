@@ -1,9 +1,9 @@
 package com.example.purrsistence.data.local.dao
 
-import com.example.purrsistence.data.local.entity.Goal
-import com.example.purrsistence.data.local.entity.TrackingSession
-import com.example.purrsistence.data.local.entity.User
-import com.example.purrsistence.data.local.relation.GoalWithSessions
+import com.example.purrsistence.data.local.entity.GoalEntity
+import com.example.purrsistence.data.local.entity.TrackingSessionEntity
+import com.example.purrsistence.data.local.entity.UserEntity
+import com.example.purrsistence.data.local.relation.GoalWithSessionsEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -13,69 +13,69 @@ import kotlinx.coroutines.flow.map
 
 class FakeDao : Dao {
 
-    private val users = mutableListOf<User>()
-    private val goals = mutableListOf<Goal>()
-    private val trackingSessions = mutableListOf<TrackingSession>()
+    private val userEntities = mutableListOf<UserEntity>()
+    private val goalEntities = mutableListOf<GoalEntity>()
+    private val trackingSessionEntities = mutableListOf<TrackingSessionEntity>()
 
-    private val goalsFlow = MutableStateFlow<List<Goal>>(emptyList())
+    private val goalsFlow = MutableStateFlow<List<GoalEntity>>(emptyList())
     private var nextGoalId = 1
     private var nextTrackingId = 1
 
     private val balanceFlows = mutableMapOf<Int, MutableStateFlow<Int>>()
 
     //User
-    override suspend fun insertUser(user: User) {
-        users.add(user)
-        balanceFlows[user.userId] = MutableStateFlow(user.balance)
+    override suspend fun insertUser(userEntity: UserEntity) {
+        userEntities.add(userEntity)
+        balanceFlows[userEntity.userId] = MutableStateFlow(userEntity.balance)
     }
 
     override suspend fun addCurrency(userId: Int, amount: Int) {
-        val index = users.indexOfFirst { it.userId == userId }
+        val index = userEntities.indexOfFirst { it.userId == userId }
         if (index == -1) return
 
-        val old = users[index]
+        val old = userEntities[index]
         val updated = old.copy(balance = old.balance + amount)
-        users[index] = updated
+        userEntities[index] = updated
 
         balanceFlows.getOrPut(userId) { MutableStateFlow(0) }.value = updated.balance
     }
 
-    override suspend fun getUserById(userId: Int): User? {
-        return users.find { it.userId == userId }
+    override suspend fun getUserById(userId: Int): UserEntity? {
+        return userEntities.find { it.userId == userId }
     }
 
     //Goals
-    override suspend fun insertGoal(goal: Goal) {
-        val userExists = users.any { it.userId == goal.userId }
+    override suspend fun insertGoal(goalEntity: GoalEntity) {
+        val userExists = userEntities.any { it.userId == goalEntity.userId }
         if (!userExists) {
-            throw IllegalArgumentException("User with id ${goal.userId} does not exist")
+            throw IllegalArgumentException("User with id ${goalEntity.userId} does not exist")
         }
 
-        val storedGoal = goal.copy(goalId = nextGoalId++)
-        goals.add(storedGoal)
-        goalsFlow.value = goals.toList()
+        val storedGoal = goalEntity.copy(goalId = nextGoalId++)
+        goalEntities.add(storedGoal)
+        goalsFlow.value = goalEntities.toList()
     }
 
-    override fun getGoals(userId: Int): Flow<List<GoalWithSessions>> {
+    override fun getGoals(userId: Int): Flow<List<GoalWithSessionsEntity>> {
         return goalsFlow.map { goalList ->
             goalList
                 .filter { it.userId == userId }
                 .map { goal ->
-                    GoalWithSessions(
-                        goal = goal,
-                        sessions = trackingSessions.filter { it.goalId == goal.goalId }
+                    GoalWithSessionsEntity(
+                        goalEntity = goal,
+                        sessions = trackingSessionEntities.filter { it.goalId == goal.goalId }
                     )
                 }
         }
     }
 
     override suspend fun deleteGoal(goalId: Int) {
-        goals.removeAll { it.goalId == goalId }
-        trackingSessions.removeAll { it.goalId == goalId }
-        goalsFlow.value = goals.toList()
+        goalEntities.removeAll { it.goalId == goalId }
+        trackingSessionEntities.removeAll { it.goalId == goalId }
+        goalsFlow.value = goalEntities.toList()
     }
 
-    override fun getGoal(goalId: Int): Flow<Goal?> {
+    override fun getGoal(goalId: Int): Flow<GoalEntity?> {
         return goalsFlow.map { goalList ->
             goalList.find { it.goalId == goalId }
         }
@@ -88,20 +88,20 @@ class FakeDao : Dao {
         hours: Int,
         deepFocus: Boolean
     ) {
-        val index = goals.indexOfFirst { it.goalId == goalId }
+        val index = goalEntities.indexOfFirst { it.goalId == goalId }
         if (index == -1) return
 
-        val old = goals[index]
-        goals[index] = old.copy(
+        val old = goalEntities[index]
+        goalEntities[index] = old.copy(
             title = title,
             type = type,
             targetDuration = hours,
             deepFocus = deepFocus
         )
-        goalsFlow.value = goals.toList()
+        goalsFlow.value = goalEntities.toList()
     }
 
-    override fun searchGoalsWithSessions(userId: Int, query: String): Flow<List<GoalWithSessions>> {
+    override fun searchGoalsWithSessions(userId: Int, query: String): Flow<List<GoalWithSessionsEntity>> {
         return goalsFlow.map { goalList ->
             goalList
                 .filter { goal ->
@@ -109,42 +109,42 @@ class FakeDao : Dao {
                             goal.title.contains(query, ignoreCase = true)
                 }
                 .map { goal ->
-                    GoalWithSessions(
-                        goal = goal,
-                        sessions = trackingSessions.filter { it.goalId == goal.goalId }
+                    GoalWithSessionsEntity(
+                        goalEntity = goal,
+                        sessions = trackingSessionEntities.filter { it.goalId == goal.goalId }
                     )
                 }
         }
     }
 
     //Tracking Session
-    override suspend fun insertTrackingSession(session: TrackingSession): Long {
+    override suspend fun insertTrackingSession(session: TrackingSessionEntity): Long {
         val stored = session.copy(trackingId = nextTrackingId++)
-        trackingSessions.add(stored)
-        goalsFlow.value = goals.toList()
+        trackingSessionEntities.add(stored)
+        goalsFlow.value = goalEntities.toList()
         return stored.trackingId.toLong()
     }
 
-    override suspend fun getActiveTrackingSession(goalId: Int): TrackingSession? {
-        return trackingSessions
+    override suspend fun getActiveTrackingSession(goalId: Int): TrackingSessionEntity? {
+        return trackingSessionEntities
             .lastOrNull { it.goalId == goalId && it.endTime == null }
     }
 
     override suspend fun stopTrackingSession(trackingId: Int, endTime: Long) {
-        val index = trackingSessions.indexOfFirst { it.trackingId == trackingId }
+        val index = trackingSessionEntities.indexOfFirst { it.trackingId == trackingId }
         if (index == -1) return
 
-        val old = trackingSessions[index]
-        trackingSessions[index] = old.copy(endTime = endTime)
-        goalsFlow.value = goals.toList()
+        val old = trackingSessionEntities[index]
+        trackingSessionEntities[index] = old.copy(endTime = endTime)
+        goalsFlow.value = goalEntities.toList()
     }
 
-    override suspend fun getTrackingSessionById(trackingId: Int): TrackingSession? {
-        return trackingSessions.find { it.trackingId == trackingId }
+    override suspend fun getTrackingSessionById(trackingId: Int): TrackingSessionEntity? {
+        return trackingSessionEntities.find { it.trackingId == trackingId }
     }
 
     override fun observeTotalTime(goalId: Int): Flow<Long?> {
-        val total = trackingSessions
+        val total = trackingSessionEntities
             .filter { it.goalId == goalId && it.endTime != null }
             .sumOf { (it.endTime ?: 0L) - it.startTime }
 
@@ -152,20 +152,20 @@ class FakeDao : Dao {
     }
 
     //added for statistics
-    override fun getGoalsRaw(userId: Int): Flow<List<Goal>> {
+    override fun getGoalsRaw(userId: Int): Flow<List<GoalEntity>> {
         return goalsFlow.map { goalList ->
             goalList.filter { it.userId == userId }
         }
     }
 
     //added for statistics
-    override fun getCompletedSessionsForUser(userId: Int): Flow<List<TrackingSession>> {
+    override fun getCompletedSessionsForUser(userId: Int): Flow<List<TrackingSessionEntity>> {
         return goalsFlow.map {
-            val userGoalIds = goals
+            val userGoalIds = goalEntities
                 .filter { it.userId == userId }
                 .map { it.goalId }
 
-            trackingSessions.filter { session ->
+            trackingSessionEntities.filter { session ->
                 session.goalId in userGoalIds && session.endTime != null
             }
         }

@@ -1,6 +1,6 @@
 package com.example.purrsistence.ui.tracking
 
-import com.example.purrsistence.data.local.entity.TrackingSession
+import com.example.purrsistence.data.local.entity.TrackingSessionEntity
 import com.example.purrsistence.data.local.repository.TrackingRepository
 import com.example.purrsistence.domain.focus.FocusBlocker
 import com.example.purrsistence.domain.time.FakeTimeProvider
@@ -100,14 +100,14 @@ private class FakeTrackingRepositoryForViewModel : TrackingRepository {
     var lastStartedGoalId: Int? = null
     var lastStartedUserId: Int? = null
     val stoppedTrackingIds = mutableListOf<Int>()
-    private val sessions = mutableListOf<TrackingSession>()
+    private val sessions = mutableListOf<TrackingSessionEntity>()
 
     override suspend fun startTracking(
         goalId: Int,
         userId: Int,
         pauseReminder: Boolean
-    ): TrackingSession {
-        val session = TrackingSession(
+    ): TrackingSessionEntity {
+        val session = TrackingSessionEntity(
             trackingId = nextTrackingId++,
             goalId = goalId,
             userId = userId,
@@ -125,11 +125,11 @@ private class FakeTrackingRepositoryForViewModel : TrackingRepository {
         stoppedTrackingIds.add(trackingId)
     }
 
-    override suspend fun getTrackingSessionById(trackingId: Int): TrackingSession? {
+    override suspend fun getTrackingSessionById(trackingId: Int): TrackingSessionEntity? {
         return sessions.find { it.trackingId == trackingId }
     }
 
-    override suspend fun getActiveTrackingSession(goalId: Int): TrackingSession? {
+    override suspend fun getActiveTrackingSession(goalId: Int): TrackingSessionEntity? {
         return sessions.lastOrNull { it.goalId == goalId && it.endTime == null }
     }
 

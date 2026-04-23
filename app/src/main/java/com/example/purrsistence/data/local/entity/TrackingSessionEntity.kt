@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 @Entity(
     foreignKeys = [
         androidx.room.ForeignKey(
-            entity = Goal::class,
+            entity = GoalEntity::class,
             parentColumns = ["goalId"],
             childColumns = ["goalId"],
             onDelete = androidx.room.ForeignKey.CASCADE
@@ -16,14 +16,12 @@ import androidx.room.PrimaryKey
     indices = [androidx.room.Index(value = ["goalId"])]
 )
 
-data class TrackingSession(
+data class TrackingSessionEntity(
     @PrimaryKey(autoGenerate = true) val trackingId: Int = 0,
     val goalId: Int,
     val userId: Int,
     val pauseReminder: Boolean,
+    val deepFocus: Boolean,
     val startTime: Long,
     val endTime: Long?
-) {
-    val duration: Long
-        get() = (endTime ?: System.currentTimeMillis()) - startTime
-}
+)

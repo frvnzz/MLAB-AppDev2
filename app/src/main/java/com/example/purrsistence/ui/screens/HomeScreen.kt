@@ -48,11 +48,11 @@ fun HomeScreen(
     // Auto-select first goal if none is selected
     LaunchedEffect(goals) {
         if (selectedGoalId == null && goals.isNotEmpty()) {
-            goalViewModel.selectGoal(goals.first().goal.goalId)
+            goalViewModel.selectGoal(goals.first().goal.id)
         }
     }
 
-    val selectedGoal = goals.find { it.goal.goalId == selectedGoalId }?.goal
+    val selectedGoal = goals.find { it.goal.id == selectedGoalId }?.goal
 
     Box(
         modifier = Modifier

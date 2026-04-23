@@ -2,7 +2,7 @@ package com.example.purrsistence.data.local.repository
 
 import com.example.purrsistence.data.local.dao.FakeDao
 import com.example.purrsistence.data.local.dao.FakeUserDao
-import com.example.purrsistence.data.local.entity.User
+import com.example.purrsistence.data.local.entity.UserEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -16,7 +16,7 @@ class UserRepositoryTest {
         val repository = UserRepository(fakeDao)
 
         fakeDao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 25,
@@ -36,7 +36,7 @@ class UserRepositoryTest {
         val repository = UserRepository(fakeDao)
 
         fakeDao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 10,
@@ -58,7 +58,7 @@ class UserRepositoryTest {
         val repository = UserRepository(fakeDao)
 
         fakeDao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 100,
@@ -86,7 +86,7 @@ class UserRepositoryTest {
         val repository = UserRepository(fakeUserDao)
 
         fakeDao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 100,
@@ -114,7 +114,7 @@ class UserRepositoryTest {
         val repository = UserRepository(fakeUserDao)
 
         fakeDao.insertUser(
-            User(
+            UserEntity(
                 userId = 1,
                 username = "TestUser",
                 balance = 10,
