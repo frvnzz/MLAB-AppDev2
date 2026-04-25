@@ -1,4 +1,4 @@
-package com.example.purrsistence.ui.state
+package com.example.purrsistence.domain.model
 
 data class ShopItem(
     val id: String,

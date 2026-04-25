@@ -1,27 +1,23 @@
 package com.example.purrsistence.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.*
-import androidx.compose.foundation.Image
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.example.purrsistence.ui.viewmodel.GoalViewModel
-import com.example.purrsistence.domain.cat.CatRepository
-import androidx.compose.ui.res.painterResource
+import com.example.purrsistence.domain.cats.CatList
 import com.example.purrsistence.ui.components.DeepFocusAccessibilityDialog
 import com.example.purrsistence.ui.components.CurrencyBadge
-import com.example.purrsistence.ui.components.GoalBottomDrawer
+import com.example.purrsistence.ui.components.homeScreen.GoalBottomDrawer
 import com.example.purrsistence.ui.components.TopBar
 import com.example.purrsistence.ui.util.handleStartTrackingClick
 import com.example.purrsistence.ui.util.openAccessibilitySettings
 import com.example.purrsistence.ui.viewmodel.UserViewModel
+import com.example.purrsistence.service.RoomService
+import com.example.purrsistence.ui.components.homeScreen.RoomView
 
 @Composable
 fun HomeScreen(
@@ -37,7 +33,14 @@ fun HomeScreen(
     val balance = user?.balance ?: 0
     val collectedCats = user?.collectedCatsIds ?: emptyList()
     val ownedCats = remember(collectedCats) {
-        collectedCats.mapNotNull { CatRepository.getCatById(it) }
+        collectedCats.mapNotNull { CatList.getCatById(it) }
+    }
+
+    // get cats for the room at dedicated spots
+    val roomService = remember { RoomService() }
+    val spots = remember { roomService.getRoomSpots() }
+    val placedCats = remember(collectedCats, spots) {
+        roomService.assignCatsToSpots(collectedCats, spots)
     }
 
     val goals by goalViewModel.goals(1).collectAsState(initial = emptyList())
@@ -90,46 +93,11 @@ fun HomeScreen(
                     Text("No cats yet - go adopt some 🐱")
                 } else {
 
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(
-                            items = ownedCats,
-                            key = { it.id }
-                        ) { cat ->
-
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f)
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(12.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-
-                                    Image(
-                                        painter = painterResource(cat.imageRes),
-                                        contentDescription = cat.name,
-                                        modifier = Modifier.size(90.dp)
-                                    )
-
-                                    Spacer(modifier = Modifier.height(8.dp))
-
-                                    Text(
-                                        cat.name,
-                                        style = MaterialTheme.typography.titleSmall
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    RoomView(
+                        placedCats = placedCats,
+                        spots = spots,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
         }

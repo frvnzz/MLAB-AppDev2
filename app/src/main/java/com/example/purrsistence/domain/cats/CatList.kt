@@ -1,9 +1,9 @@
-package com.example.purrsistence.domain.cat
+package com.example.purrsistence.domain.cats
 
 import com.example.purrsistence.R
-import com.example.purrsistence.ui.state.ShopItem
+import com.example.purrsistence.domain.model.ShopItem
 
-object CatRepository {
+object CatList {
     // List of all cats the user can buy in the Shop
     val cats = listOf(
         ShopItem("cat_1", "Orange Cat", 2, R.drawable.cat_orange),
