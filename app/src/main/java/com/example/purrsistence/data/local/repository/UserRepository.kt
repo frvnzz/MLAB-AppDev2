@@ -7,25 +7,32 @@ import com.example.purrsistence.domain.model.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class UserRepository(
-    private val userDao: UserDao
-) {
+interface UserRepository {
+    fun getUser(userId: Int): Flow<User?>
+    suspend fun insertUser(user: User)
+    suspend fun updateUser(user: User)
+    suspend fun addCurrency(userId: Int, amount: Int)
+}
 
-    fun getUser(userId: Int): Flow<User?> {
+class UserRepositoryImpl (
+    private val userDao: UserDao
+) : UserRepository {
+
+    override fun getUser(userId: Int): Flow<User?> {
         return userDao.getUser(userId).map { entity ->
             entity?.toDomain()
         }
     }
 
-    suspend fun insertUser(user: User) {
+    override suspend fun insertUser(user: User) {
         userDao.insertUser(user.toEntity())
     }
 
-    suspend fun updateUser(user: User) {
+    override suspend fun updateUser(user: User) {
         userDao.updateUser(user.toEntity())
     }
 
-    suspend fun addCurrency(userId: Int, amount: Int) {
+    override suspend fun addCurrency(userId: Int, amount: Int) {
         userDao.addCurrency(userId, amount)
     }
 }

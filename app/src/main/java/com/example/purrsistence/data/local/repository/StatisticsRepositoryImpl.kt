@@ -8,19 +8,24 @@ import com.example.purrsistence.domain.model.TrackingSession
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class StatisticsRepository(
+interface StatisticsRepository {
+    fun getGoalsForUser(): Flow<List<Goal>>
+    fun getCompletedSessionsForUser(): Flow<List<TrackingSession>>
+}
+
+class StatisticsRepositoryImpl(
     private val goalDao: GoalsDao,
     private val trackingDao: TrackingDao
-) {
+) : StatisticsRepository {
     private val userId = 1
 
-    fun getGoalsForUser(): Flow<List<Goal>> {
+    override fun getGoalsForUser(): Flow<List<Goal>> {
         return goalDao.getGoalsRaw(userId).map { entities ->
             entities.map { it.toDomain() }
         }
     }
 
-    fun getCompletedSessionsForUser(): Flow<List<TrackingSession>> {
+    override fun getCompletedSessionsForUser(): Flow<List<TrackingSession>> {
         return trackingDao.getCompletedSessionsForUser(userId).map { entities ->
             entities.map { it.toDomain() }
         }

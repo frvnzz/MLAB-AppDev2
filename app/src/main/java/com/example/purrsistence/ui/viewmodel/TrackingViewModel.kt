@@ -2,7 +2,6 @@ package com.example.purrsistence.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.purrsistence.data.local.repository.TrackingRepository
 import com.example.purrsistence.domain.focus.FocusBlocker
 import com.example.purrsistence.domain.time.TimeProvider
 import com.example.purrsistence.service.TrackingService

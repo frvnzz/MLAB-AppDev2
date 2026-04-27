@@ -9,9 +9,13 @@ import com.example.purrsistence.data.local.AppDatabase
 import com.example.purrsistence.data.focus.SharedPrefsFocusBlocker
 import com.example.purrsistence.data.local.entity.UserEntity
 import com.example.purrsistence.data.local.repository.GoalRepository
+import com.example.purrsistence.data.local.repository.GoalRepositoryImpl
 import com.example.purrsistence.data.local.repository.StatisticsRepository
+import com.example.purrsistence.data.local.repository.StatisticsRepositoryImpl
+import com.example.purrsistence.data.local.repository.TrackingRepository
 import com.example.purrsistence.data.local.repository.TrackingRepositoryImpl
 import com.example.purrsistence.data.local.repository.UserRepository
+import com.example.purrsistence.data.local.repository.UserRepositoryImpl
 import com.example.purrsistence.domain.time.SystemTimeProvider
 import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.focus.DeepFocusConfig
@@ -20,6 +24,7 @@ import com.example.purrsistence.service.RewardService
 import com.example.purrsistence.service.ShopService
 import com.example.purrsistence.service.StatisticsService
 import com.example.purrsistence.service.TrackingService
+import com.example.purrsistence.service.TrackingServiceImpl
 import com.example.purrsistence.ui.screens.MainScreen
 import com.example.purrsistence.ui.viewmodel.StatisticsViewModel
 import com.example.purrsistence.ui.theme.PurrsistenceTheme
@@ -46,16 +51,16 @@ class MainActivity : ComponentActivity() {
         val userDao = db.userDao()
 
         // REPOSITORIES
-        val userRepo = UserRepository(userDao)
-        val goalRepo = GoalRepository(goalsDao) // replace with goalDao when it's implemented
+        val userRepo : UserRepository = UserRepositoryImpl(userDao)
+        val goalRepo : GoalRepository = GoalRepositoryImpl(goalsDao) // replace with goalDao when it's implemented
         val timeProvider = SystemTimeProvider()
-        val trackingRepo = TrackingRepositoryImpl(trackingDao)
-        val statisticsRepo = StatisticsRepository(goalsDao, trackingDao)
+        val trackingRepo : TrackingRepository = TrackingRepositoryImpl(trackingDao)
+        val statisticsRepo : StatisticsRepository= StatisticsRepositoryImpl(goalsDao, trackingDao)
 
         //Services
         val goalService = GoalService(goalRepo, timeProvider)
         val rewardService = RewardService()
-        val trackingService = TrackingService(trackingRepo, userRepo, rewardService, timeProvider)
+        val trackingService = TrackingServiceImpl(trackingRepo, userRepo, rewardService, timeProvider)
         val shopService = ShopService(userRepo)
         val statisticsService = StatisticsService(statisticsRepo)
 

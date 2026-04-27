@@ -8,25 +8,34 @@ import com.example.purrsistence.domain.model.GoalWithSessions
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class GoalRepository(
-    private val dao: GoalsDao
-) {
+interface GoalRepository {
+    fun getGoals(userId: Int): Flow<List<GoalWithSessions>>
+    suspend fun insertGoal(goal: Goal)
+    suspend fun deleteGoal(goalId: Int)
+    fun getGoal(goalId: Int?): Flow<Goal?>
+    suspend fun updateGoal(goal: Goal)
+    fun searchGoals(userId: Int, query: String): Flow<List<GoalWithSessions>>
+}
 
-    fun getGoals(userId: Int): Flow<List<GoalWithSessions>> {
+class GoalRepositoryImpl(
+    private val dao: GoalsDao
+) : GoalRepository {
+
+    override fun getGoals(userId: Int): Flow<List<GoalWithSessions>> {
         return dao.getGoals(userId).map { list ->
             list.map { it.toDomain() }
         }
     }
 
-    suspend fun insertGoal(goal: Goal) {
+    override suspend fun insertGoal(goal: Goal) {
         dao.insertGoal(goal.toEntity())
     }
 
-    suspend fun deleteGoal(goalId: Int) {
+    override suspend fun deleteGoal(goalId: Int) {
         dao.deleteGoal(goalId)
     }
 
-    fun getGoal(goalId: Int?): Flow<Goal?> {
+    override fun getGoal(goalId: Int?): Flow<Goal?> {
         return if (goalId == null) {
             kotlinx.coroutines.flow.flowOf(null)
         } else {
@@ -36,7 +45,7 @@ class GoalRepository(
         }
     }
 
-    suspend fun updateGoal(goal: Goal) {
+    override suspend fun updateGoal(goal: Goal) {
         dao.updateGoal(
             goalId = goal.id,
             title = goal.title,
@@ -46,7 +55,7 @@ class GoalRepository(
         )
     }
 
-    fun searchGoals(userId: Int, query: String): Flow<List<GoalWithSessions>> {
+    override fun searchGoals(userId: Int, query: String): Flow<List<GoalWithSessions>> {
         return dao.searchGoalsWithSessions(userId, query).map { list ->
             list.map { it.toDomain() }
         }

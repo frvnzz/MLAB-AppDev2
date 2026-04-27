@@ -8,18 +8,23 @@ import com.example.purrsistence.domain.time.TimeProvider
 import java.time.Duration
 import java.time.Instant
 
-class TrackingService(
+interface TrackingService{
+    suspend fun startTracking(goalId: Int, userId: Int, pauseReminder: Boolean = false, deepFocus: Boolean = false): TrackingSession
+    suspend fun stopTracking(trackingId: Int): TrackingStopResult?
+}
+
+class TrackingServiceImpl(
     private val trackingRepository: TrackingRepository,
     private val userRepository: UserRepository,
     private val rewardService: RewardService,
     private val timeProvider: TimeProvider
-) {
+) : TrackingService{
 
-    suspend fun startTracking(
+    override suspend fun startTracking(
         goalId: Int,
         userId: Int,
-        pauseReminder: Boolean = false,
-        deepFocus: Boolean = false
+        pauseReminder: Boolean,
+        deepFocus: Boolean
     ): TrackingSession {
         val session = TrackingSession(
             goalId = goalId,
@@ -33,7 +38,7 @@ class TrackingService(
         return trackingRepository.insertTrackingSession(session)
     }
 
-    suspend fun stopTracking(trackingId: Int): TrackingStopResult? {
+    override suspend fun stopTracking(trackingId: Int): TrackingStopResult? {
         val finishedSession = trackingRepository.finishTrackingSession(
             trackingId = trackingId,
             endTimeMillis = timeProvider.now().toEpochMilli()

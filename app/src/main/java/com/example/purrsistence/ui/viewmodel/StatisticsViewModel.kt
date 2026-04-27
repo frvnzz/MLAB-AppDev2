@@ -2,7 +2,6 @@ package com.example.purrsistence.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.purrsistence.data.local.repository.StatisticsRepository
 import com.example.purrsistence.service.StatisticsService
 import com.example.purrsistence.ui.state.StatisticsUiState
 import kotlinx.coroutines.Job

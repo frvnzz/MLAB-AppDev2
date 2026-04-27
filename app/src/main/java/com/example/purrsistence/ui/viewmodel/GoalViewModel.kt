@@ -5,7 +5,6 @@ import androidx.compose.runtime.*
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.purrsistence.data.local.repository.GoalRepository
 import com.example.purrsistence.domain.model.types.GoalType
 import com.example.purrsistence.service.GoalService
 import kotlinx.coroutines.launch
