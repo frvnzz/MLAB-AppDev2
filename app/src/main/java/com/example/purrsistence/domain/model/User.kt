@@ -5,5 +5,6 @@ data class User(
     val username: String,
     val balance: Int,
     val friends: List<String>,
-    val collectedCatsIds: List<String>
+    val collectedCatsIds: List<String>,
+    val selectedCatIds: List<String>
 )

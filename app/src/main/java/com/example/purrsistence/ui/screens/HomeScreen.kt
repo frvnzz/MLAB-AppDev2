@@ -1,6 +1,7 @@
 package com.example.purrsistence.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
@@ -18,6 +19,10 @@ import com.example.purrsistence.ui.util.openAccessibilitySettings
 import com.example.purrsistence.ui.viewmodel.UserViewModel
 import com.example.purrsistence.service.RoomService
 import com.example.purrsistence.ui.components.homeScreen.RoomView
+import com.example.purrsistence.ui.components.homeScreen.CatSelectionDialog
+import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pets
 
 @Composable
 fun HomeScreen(
@@ -27,11 +32,23 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     var showAccessibilityDialog by remember { mutableStateOf(false) }
+    var showCatSelectionDialog by remember { mutableStateOf(false) }
 
     // Get current user data (balance, collected cats)
     val user by userViewModel.user.collectAsState()
     val balance = user?.balance ?: 0
     val collectedCats = user?.collectedCatsIds ?: emptyList()
+    val selectedCatIds = user?.selectedCatIds ?: emptyList()
+
+    val catsToDisplay = remember(collectedCats, selectedCatIds) {
+        if (selectedCatIds.isNotEmpty()) {
+            // Ensure selected cats are still owned
+            selectedCatIds.filter { it in collectedCats }
+        } else {
+            collectedCats.take(5)
+        }
+    }
+
     val ownedCats = remember(collectedCats) {
         collectedCats.mapNotNull { CatList.getCatById(it) }
     }
@@ -39,8 +56,8 @@ fun HomeScreen(
     // get cats for the room at dedicated spots
     val roomService = remember { RoomService() }
     val spots = remember { roomService.getRoomSpots() }
-    val placedCats = remember(collectedCats, spots) {
-        roomService.assignCatsToSpots(collectedCats, spots)
+    val placedCats = remember(catsToDisplay, spots) {
+        roomService.assignCatsToSpots(catsToDisplay, spots)
     }
 
     val goals by goalViewModel.goals(1).collectAsState(initial = emptyList())
@@ -80,7 +97,6 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 TopBar(
                     title = "Your Cats",
@@ -91,8 +107,25 @@ fun HomeScreen(
 
                 if (ownedCats.isEmpty()) {
                     Text("No cats yet - go adopt some 🐱")
-                } else {
 
+                } else {
+                    // Select Cats Button -> opens CatSelectionDialog
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        if (collectedCats.isNotEmpty()) {
+                            IconButton(onClick = { showCatSelectionDialog = true }) {
+                                Icon(
+                                    imageVector = Icons.Default.Pets,
+                                    contentDescription = "Select Cats",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
+
+                    // Isometric Room
                     RoomView(
                         placedCats = placedCats,
                         spots = spots,
@@ -108,6 +141,18 @@ fun HomeScreen(
                 onOpenSettings = {
                     showAccessibilityDialog = false
                     openAccessibilitySettings(context)
+                }
+            )
+        }
+
+        if (showCatSelectionDialog) {
+            CatSelectionDialog(
+                collectedCatIds = collectedCats,
+                initiallySelectedIds = selectedCatIds,
+                onDismiss = { showCatSelectionDialog = false },
+                onConfirm = { newSelection ->
+                    userViewModel.updateSelectedCats(newSelection)
+                    showCatSelectionDialog = false
                 }
             )
         }
