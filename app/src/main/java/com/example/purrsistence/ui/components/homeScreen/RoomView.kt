@@ -81,7 +81,10 @@ fun RoomView(
                         )
                         .zIndex(spot.yPercent)
                 ) {
-                    CatImage(catId = placedCat.catId)
+                    CatImage(
+                        catId = placedCat.catId,
+                        isMirrored = placedCat.isMirrored
+                    )
                 }
             }
         }
