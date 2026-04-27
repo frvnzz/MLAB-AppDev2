@@ -4,9 +4,11 @@ import com.example.purrsistence.data.local.repository.FakeUserRepository
 import com.example.purrsistence.domain.model.User
 import com.example.purrsistence.service.ShopService
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class ShopServiceTest {
@@ -76,4 +78,46 @@ class ShopServiceTest {
         assertEquals(10, updated.first()?.balance)
         assertTrue(updated.first()?.collectedCatsIds?.isEmpty() == true)
     }
+
+    @Test
+    fun buyCat_doesNothing_whenUserDoesNotExist() = runBlocking {
+        val userRepository = FakeUserRepository()
+        val service = ShopService(userRepository)
+
+        service.buyCat(
+            userId = 999,
+            catId = "cat_white",
+            price = 30
+        )
+
+        val missingUser = userRepository.getUser(999).firstOrNull()
+        assertNull(missingUser)
+    }
+
+    @Test
+    fun buyCat_doesNothing_whenBalanceIsTooLow() = runBlocking {
+        val userRepository = FakeUserRepository()
+        val service = ShopService(userRepository)
+
+        userRepository.insertUser(
+            User(
+                id = 1,
+                username = "TestUser",
+                balance = 10,
+                friends = emptyList(),
+                collectedCatsIds = emptyList()
+            )
+        )
+
+        service.buyCat(
+            userId = 1,
+            catId = "cat_lucky",
+            price = 30
+        )
+
+        val updatedUser = userRepository.getUser(1).firstOrNull()
+        assertEquals(10, updatedUser!!.balance)
+        assertTrue(updatedUser.collectedCatsIds.isEmpty())
+    }
+
 }
