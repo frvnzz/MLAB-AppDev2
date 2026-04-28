@@ -24,7 +24,8 @@ class ShopServiceTest {
                 username = "TestUser",
                 balance = 100,
                 friends = emptyList(),
-                collectedCatsIds = emptyList()
+                collectedCatsIds = emptyList(),
+                selectedCatIds = emptyList()
             )
         )
 
@@ -46,7 +47,8 @@ class ShopServiceTest {
                 username = "TestUser",
                 balance = 100,
                 friends = emptyList(),
-                collectedCatsIds = listOf("cat_lucky")
+                collectedCatsIds = listOf("cat_lucky"),
+                selectedCatIds = listOf("cat_lucky")
             )
         )
 
@@ -68,7 +70,8 @@ class ShopServiceTest {
                 username = "TestUser",
                 balance = 10,
                 friends = emptyList(),
-                collectedCatsIds = emptyList()
+                collectedCatsIds = emptyList(),
+                selectedCatIds = emptyList()
             )
         )
 
@@ -105,7 +108,8 @@ class ShopServiceTest {
                 username = "TestUser",
                 balance = 10,
                 friends = emptyList(),
-                collectedCatsIds = emptyList()
+                collectedCatsIds = emptyList(),
+                selectedCatIds = emptyList()
             )
         )
 

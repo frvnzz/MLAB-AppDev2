@@ -14,6 +14,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
 import java.time.Instant
+import kotlin.collections.listOf
 
 class TrackingServiceTest {
 
@@ -56,7 +57,8 @@ class TrackingServiceTest {
                 username = "TestUser",
                 balance = 0,
                 friends = emptyList(),
-                collectedCatsIds = emptyList()
+                collectedCatsIds = emptyList(),
+                selectedCatIds =  emptyList()
             )
         )
 
@@ -118,7 +120,8 @@ class TrackingServiceTest {
                 username = "TestUser",
                 balance = 50,
                 friends = emptyList(),
-                collectedCatsIds = emptyList()
+                collectedCatsIds = emptyList(),
+                selectedCatIds =  emptyList()
             )
         )
 
@@ -160,7 +163,8 @@ class TrackingServiceTest {
                 username = "TestUser",
                 balance = 0,
                 friends = emptyList(),
-                collectedCatsIds = emptyList()
+                collectedCatsIds = emptyList(),
+                selectedCatIds =  emptyList()
             )
         )
 
@@ -202,7 +206,8 @@ class TrackingServiceTest {
                 username = "TestUser",
                 balance = 0,
                 friends = emptyList(),
-                collectedCatsIds = emptyList()
+                collectedCatsIds = emptyList(),
+                selectedCatIds =  emptyList()
             )
         )
 

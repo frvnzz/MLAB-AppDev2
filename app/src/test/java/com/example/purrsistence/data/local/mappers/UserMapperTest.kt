@@ -16,7 +16,8 @@ class UserMapperTest {
             username = "TestUser",
             balance = 120,
             friends = listOf(""),
-            collectedCatsIds = listOf("cat_grey", "cat_lucky")
+            collectedCatsIds = listOf("cat_grey", "cat_lucky"),
+            selectedCatIds =  listOf("cat_grey", "cat_lucky")
         )
 
         val domain = entity.toDomain()
@@ -35,7 +36,8 @@ class UserMapperTest {
             username = "TestUser",
             balance = 120,
             friends = listOf(""),
-            collectedCatsIds = listOf("cat_grey", "cat_lucky")
+            collectedCatsIds = listOf("cat_grey", "cat_lucky"),
+            selectedCatIds =  listOf("cat_grey", "cat_lucky")
         )
 
         val entity = domain.toEntity()
