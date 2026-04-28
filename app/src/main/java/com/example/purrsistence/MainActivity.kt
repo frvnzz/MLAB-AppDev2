@@ -82,7 +82,8 @@ class MainActivity : ComponentActivity() {
                     username = "testuser",
                     balance = 100,
                     friends = listOf("alice", "bob"),
-                    collectedCatsIds = listOf("cat1", "cat2")
+                    collectedCatsIds = listOf("cat_1"),
+                    selectedCatIds = listOf("cat_1")
                 )
                 userDao.insertUser(exampleUserEntity)
             }

@@ -19,7 +19,9 @@ import com.example.purrsistence.data.local.dao.UserDao
         GoalEntity::class,
         TrackingSessionEntity::class
     ],
-    version = 1,
+    // increment version if the following error occurs:
+    // java.lang.IllegalStateException: Room cannot verify the data integrity.
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(StringListConverter::class)
@@ -40,7 +42,8 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "app_db"
-                ).build().also { INSTANCE = it }
+                ).fallbackToDestructiveMigration(false)
+                    .build().also { INSTANCE = it }
             }
     }
 }

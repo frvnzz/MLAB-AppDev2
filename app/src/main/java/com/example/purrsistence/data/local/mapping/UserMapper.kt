@@ -9,7 +9,8 @@ fun UserEntity.toDomain(): User =
         username = username,
         balance = balance,
         friends = friends,
-        collectedCatsIds = collectedCatsIds
+        collectedCatsIds = collectedCatsIds,
+        selectedCatIds = selectedCatIds
     )
 
 fun User.toEntity(): UserEntity =
@@ -18,5 +19,6 @@ fun User.toEntity(): UserEntity =
         username = username,
         balance = balance,
         friends = friends,
-        collectedCatsIds = collectedCatsIds
+        collectedCatsIds = collectedCatsIds,
+        selectedCatIds = selectedCatIds
     )

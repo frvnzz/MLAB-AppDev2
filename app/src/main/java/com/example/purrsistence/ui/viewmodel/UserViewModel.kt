@@ -2,7 +2,6 @@ package com.example.purrsistence.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.purrsistence.data.local.repository.UserRepository
 import com.example.purrsistence.service.ShopService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,6 +26,12 @@ class UserViewModel(
     fun buyCat(catId: String, price: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             shopService.buyCat(currentUserId, catId, price)
+        }
+    }
+
+    fun updateSelectedCats(selectedIds: List<String>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            shopService.updateSelectedCats(currentUserId, selectedIds)
         }
     }
 }
