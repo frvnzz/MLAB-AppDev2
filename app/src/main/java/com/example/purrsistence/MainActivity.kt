@@ -23,7 +23,6 @@ import com.example.purrsistence.service.GoalService
 import com.example.purrsistence.service.RewardService
 import com.example.purrsistence.service.ShopService
 import com.example.purrsistence.service.StatisticsService
-import com.example.purrsistence.service.TrackingService
 import com.example.purrsistence.service.TrackingServiceImpl
 import com.example.purrsistence.ui.screens.MainScreen
 import com.example.purrsistence.ui.viewmodel.StatisticsViewModel
@@ -52,7 +51,7 @@ class MainActivity : ComponentActivity() {
 
         // REPOSITORIES
         val userRepo : UserRepository = UserRepositoryImpl(userDao)
-        val goalRepo : GoalRepository = GoalRepositoryImpl(goalsDao) // replace with goalDao when it's implemented
+        val goalRepo : GoalRepository = GoalRepositoryImpl(goalsDao)
         val timeProvider = SystemTimeProvider()
         val trackingRepo : TrackingRepository = TrackingRepositoryImpl(trackingDao)
         val statisticsRepo : StatisticsRepository= StatisticsRepositoryImpl(goalsDao, trackingDao)
