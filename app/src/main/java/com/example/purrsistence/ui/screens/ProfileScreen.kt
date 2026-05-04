@@ -7,21 +7,27 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.purrsistence.ui.components.TopBar
+import com.example.purrsistence.ui.state.TopBarState
 import com.example.purrsistence.ui.viewmodel.UserViewModel
 
 @Composable
 fun ProfileScreen(
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    setTopBar: (TopBarState) -> Unit
 ) {
+    // set TopBar content (header only)
+    setTopBar(
+        TopBarState(
+            title = "Profile"
+        )
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        TopBar(
-            title = "Profile"
-        )
 
         // PLACEHOLDER - Replace with actual Profile UI
         Text(

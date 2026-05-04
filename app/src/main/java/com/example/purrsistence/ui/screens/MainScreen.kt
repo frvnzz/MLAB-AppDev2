@@ -7,13 +7,16 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.ui.components.BottomNavBar
+import com.example.purrsistence.ui.components.TopBar
 import com.example.purrsistence.ui.navigation.AppNavHost
+import com.example.purrsistence.ui.state.TopBarState
 import com.example.purrsistence.ui.viewmodel.StatisticsViewModel
 import com.example.purrsistence.ui.viewmodel.TrackingViewModel
 import com.example.purrsistence.ui.viewmodel.UserViewModel
@@ -25,8 +28,10 @@ fun MainScreen(
     trackingViewModel: TrackingViewModel,
     statisticsViewModel: StatisticsViewModel,
 ) {
+    // remember states
     val navController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
+    val topBarState = remember { mutableStateOf(TopBarState()) }
 
     val currentRoute = navController
         .currentBackStackEntryAsState()
@@ -42,10 +47,17 @@ fun MainScreen(
             SnackbarHost(snackbarHostState) { data ->
                 Snackbar(
                     snackbarData = data,
-                    containerColor = MaterialTheme.colorScheme.primary, // background
-                    contentColor = MaterialTheme.colorScheme.onPrimary  // text color
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary
                 )
             }
+        },
+        // TOP BAR
+        topBar = {
+            TopBar(
+                title = topBarState.value.title,
+                actions = topBarState.value.actions
+            )
         },
         // NAV BAR
         bottomBar = {
@@ -55,6 +67,7 @@ fun MainScreen(
         }
     ) { padding ->
         AppNavHost(
+            setTopBar = { topBarState.value = it },
             navController = navController,
             userViewModel = userViewModel,
             goalViewModel = goalViewModel,

@@ -11,16 +11,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.purrsistence.R
+import com.example.purrsistence.ui.theme.Elevation
+import com.example.purrsistence.ui.theme.Spacing
 
 @Composable
 fun CurrencyBadge(balance: Int) {
     Surface(
         modifier = Modifier.height(40.dp),
         shape = MaterialTheme.shapes.large,
-        tonalElevation = 4.dp
+        color = MaterialTheme.colorScheme.tertiaryContainer,
+        tonalElevation = Elevation.Lvl2
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp),
+            modifier = Modifier.padding(horizontal = Spacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
@@ -30,11 +33,12 @@ fun CurrencyBadge(balance: Int) {
                 modifier = Modifier.size(24.dp)
             )
 
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(Spacing.xs))
 
             Text(
                 text = balance.toString(),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
             )
         }
     }

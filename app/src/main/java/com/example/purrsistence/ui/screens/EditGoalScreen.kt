@@ -13,7 +13,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -32,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.example.purrsistence.domain.model.types.GoalType
 import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.focus.DeepFocusAccessibilityState
+import com.example.purrsistence.ui.state.TopBarState
 import java.util.Locale
 import kotlin.math.roundToInt
 
@@ -39,7 +39,8 @@ import kotlin.math.roundToInt
 fun EditGoalScreen(
     goalId: Int?,
     viewModel: GoalViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    setTopBar: (TopBarState) -> Unit
 ) {
     val context = LocalContext.current
     val goal by viewModel.getGoal(goalId).collectAsState(initial = null)
@@ -59,6 +60,13 @@ fun EditGoalScreen(
 
         var deepFocus by remember { mutableStateOf(currentGoal.deepFocus) }
 
+        // set TopBar content (header only)
+        setTopBar(
+            TopBarState(
+                title = "Edit Goal"
+            )
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -66,8 +74,6 @@ fun EditGoalScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            Text("Edit Goal", style = MaterialTheme.typography.titleLarge)
 
             OutlinedTextField(
                 value = title,

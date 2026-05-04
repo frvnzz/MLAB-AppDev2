@@ -13,9 +13,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.purrsistence.ui.components.goalsScreen.GoalSearchBar
-import com.example.purrsistence.ui.components.TopBar
 import com.example.purrsistence.ui.components.goalsScreen.DeleteGoalDialog
 import com.example.purrsistence.ui.components.goalsScreen.GoalCard
+import com.example.purrsistence.ui.state.TopBarState
 import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.ui.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
@@ -26,7 +26,8 @@ fun GoalsScreen(
     goalViewModel: GoalViewModel,
     onAddGoalClick: () -> Unit = {},
     onGoalClick: (Int) -> Unit = {},
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    setTopBar: (TopBarState) -> Unit
 ) {
     val goals by goalViewModel
         .searchedGoals(userViewModel.currentUserId)
@@ -50,63 +51,32 @@ fun GoalsScreen(
         }
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            TopBar(
-                title = "Your Goals",
-                actions = if (goals.isNotEmpty()) {
-                    {
-                        Row {
-                            if (isEditMode) {
-                                Button(
-                                    onClick = {
-                                        if (selectedGoals.isEmpty()) {
-                                            scope.launch {
-                                                snackbarHostState.showSnackbar(
-                                                    "Select at least one goal to delete"
-                                                )
-                                            }
-                                        } else {
-                                            showDeleteDialog = true
-                                        }
-                                    },
-                                    shape = MaterialTheme.shapes.large,
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp),
-                                        contentColor = MaterialTheme.colorScheme.error
-                                    ),
-                                    contentPadding = PaddingValues(
-                                        horizontal = 12.dp,
-                                        vertical = 8.dp
-                                    ),
-                                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
-                                    modifier = Modifier.height(40.dp)
-                                ) {
-                                    Text(
-                                        "Delete (${selectedGoals.size})",
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.width(8.dp))
-                            }
-
+    // set TopBar content (header & edit button)
+    setTopBar(
+        TopBarState(
+            title = "Your Goals",
+            actions = if (goals.isNotEmpty()) {
+                {
+                    Row {
+                        if (isEditMode) {
                             Button(
                                 onClick = {
-                                    isEditMode = !isEditMode
-                                    selectedGoals = emptySet()
+                                    if (selectedGoals.isEmpty()) {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                "Select at least one goal to delete"
+                                            )
+                                        }
+                                    } else {
+                                        showDeleteDialog = true
+                                    }
                                 },
                                 shape = MaterialTheme.shapes.large,
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp),
-                                    contentColor = MaterialTheme.colorScheme.primary
+                                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                        4.dp
+                                    ),
+                                    contentColor = MaterialTheme.colorScheme.error
                                 ),
                                 contentPadding = PaddingValues(
                                     horizontal = 12.dp,
@@ -116,16 +86,53 @@ fun GoalsScreen(
                                 modifier = Modifier.height(40.dp)
                             ) {
                                 Text(
-                                    if (isEditMode) "Cancel" else "Edit",
+                                    "Delete (${selectedGoals.size})",
                                     style = MaterialTheme.typography.titleMedium
                                 )
                             }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+
+                        Button(
+                            onClick = {
+                                isEditMode = !isEditMode
+                                selectedGoals = emptySet()
+                            },
+                            shape = MaterialTheme.shapes.large,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp),
+                                contentColor = MaterialTheme.colorScheme.primary
+                            ),
+                            contentPadding = PaddingValues(
+                                horizontal = 12.dp,
+                                vertical = 8.dp
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+                            modifier = Modifier.height(40.dp)
+                        ) {
+                            Text(
+                                if (isEditMode) "Cancel" else "Edit",
+                                style = MaterialTheme.typography.titleMedium
+                            )
                         }
                     }
-                } else {
-                    null
                 }
-            )
+            } else {
+                null
+            }
+        )
+    )
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
 
             GoalSearchBar(
                 query = goalViewModel.searchQuery,
