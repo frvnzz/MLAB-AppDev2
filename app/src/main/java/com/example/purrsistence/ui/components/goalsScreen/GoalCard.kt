@@ -3,12 +3,14 @@ package com.example.purrsistence.ui.components.goalsScreen
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.purrsistence.data.local.relation.GoalWithSessionsEntity
 import com.example.purrsistence.domain.model.GoalWithSessions
+import java.time.ZonedDateTime
 import java.util.Locale
 
 @Composable
@@ -20,6 +22,8 @@ fun GoalCard(
     onCheckedChange: (Boolean) -> Unit
 ) {
     val goal = goalWithSessions.goal
+    val now = ZonedDateTime.now()
+    val progress = goalWithSessions.currentProgress(now)
 
     Card(
         modifier = Modifier
@@ -55,6 +59,15 @@ fun GoalCard(
                 Text("Inactive: ${if (goal.inactive) "YES" else "NO"}")
                 Text("Created: ${goal.createdAt}")
                 Text("Completed: ${if (goal.isCompleted) "YES" else "NO"}")
+
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = ProgressIndicatorDefaults.linearColor,
+                    trackColor = ProgressIndicatorDefaults.linearTrackColor,
+                    strokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
+                )
+                Text("${(progress * 100).toInt()}%")
             }
 
             if (isEditMode) {
