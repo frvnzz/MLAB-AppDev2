@@ -11,7 +11,7 @@ val AppFont = FontFamily.Default
 
 val Typography = Typography(
 
-    // Title large → 22 / 28
+    // Title large 22 / 28
     titleLarge = TextStyle(
         fontFamily = AppFont,
         fontWeight = FontWeight.Medium,
@@ -20,48 +20,48 @@ val Typography = Typography(
         letterSpacing = 0.sp
     ),
 
-    // Title medium → 16 / 24
+    // Title medium 16 / 24
     titleMedium = TextStyle(
         fontFamily = AppFont,
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.sp
+        letterSpacing = 0.15.sp
     ),
 
-    // Body large → 16 / 24
+    // Body large 16 / 24
     bodyLarge = TextStyle(
         fontFamily = AppFont,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.sp
+        letterSpacing = 0.5.sp
     ),
 
-    // Body medium → 14 / 20
+    // Body medium 14 / 20
     bodyMedium = TextStyle(
         fontFamily = AppFont,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 20.sp,
-        letterSpacing = 0.sp
+        letterSpacing = 0.25.sp
     ),
 
-    // Label large → 14 / 20 (buttons)
+    // Label large 14 / 20 (buttons)
     labelLarge = TextStyle(
         fontFamily = AppFont,
         fontWeight = FontWeight.Medium,
         fontSize = 14.sp,
         lineHeight = 20.sp,
-        letterSpacing = 0.sp
+        letterSpacing = 0.1.sp
     ),
 
-    // Label medium → 12 / 16 (nav / secondary)
+    // Label medium 12 / 16 (nav / secondary)
     labelMedium = TextStyle(
         fontFamily = AppFont,
         fontWeight = FontWeight.Medium,
         fontSize = 12.sp,
         lineHeight = 16.sp,
-        letterSpacing = 0.5.sp // from your Figma
+        letterSpacing = 0.5.sp
     )
 )
