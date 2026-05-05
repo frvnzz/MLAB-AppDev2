@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.purrsistence.domain.model.GoalStat
 import com.example.purrsistence.ui.theme.Spacing
+import com.example.purrsistence.ui.util.formatMinutes
 
 @Composable
 fun GoalStatsList(goals: List<GoalStat>) {
@@ -37,7 +38,7 @@ fun GoalStatsList(goals: List<GoalStat>) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(goal.goalName)
-                        Text("${goal.totalMinutes} min")
+                        Text(formatMinutes(goal.totalMinutes))
                     }
 
                     LinearProgressIndicator(
