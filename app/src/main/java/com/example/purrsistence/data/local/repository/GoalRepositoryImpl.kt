@@ -51,7 +51,9 @@ class GoalRepositoryImpl(
             title = goal.title,
             type = goal.type.name,
             hours = goal.targetDuration.toMinutes().toInt(),
-            deepFocus = goal.deepFocus
+            deepFocus = goal.deepFocus,
+            lastCompletedAt = goal.lastCompletedAt?.toEpochMilli(), //for updating the last completed time when marking as completed
+            isCompleted = goal.isCompleted //for showing the completed status in the UI
         )
     }
 

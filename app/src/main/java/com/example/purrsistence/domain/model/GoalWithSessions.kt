@@ -6,6 +6,7 @@ import com.example.purrsistence.ui.util.currentDayWindow
 import com.example.purrsistence.ui.util.currentMonthWindow
 import com.example.purrsistence.ui.util.currentWeekWindow
 import java.time.Duration
+import java.time.ZoneId
 import java.time.ZonedDateTime
 
 data class GoalWithSessions(
@@ -41,6 +42,23 @@ data class GoalWithSessions(
 
         return (tracked.toMillis().toFloat() / target.toMillis())
             .coerceIn(0f, 1f)
+    }
+
+    fun hasCompletedCurrentWindow(now: ZonedDateTime): Boolean { // Check if the goal has been completed in the current time window by comparing the last completed time with the start of the current window
+        if(goal.lastCompletedAt == null) return false //never completed before
+
+        val window = when (goal.type) {
+            GoalType.DAILY -> currentDayWindow(now)
+            GoalType.WEEKLY -> currentWeekWindow(now)
+            GoalType.MONTHLY -> currentMonthWindow(now)
+        }
+
+        val completedTime = goal.lastCompletedAt.atZone(ZoneId.systemDefault())
+        return completedTime.toInstant() >= window.start && completedTime.toInstant() < window.end
+    }
+
+    fun isCurrentlyAtOrAboveTarget(now: ZonedDateTime): Boolean {
+        return currentProgress(now) >= 1.0f
     }
 
 }

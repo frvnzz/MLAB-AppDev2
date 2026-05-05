@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.example.purrsistence.data.local.entity.GoalEntity
 import com.example.purrsistence.data.local.relation.GoalWithSessionsEntity
+import com.example.purrsistence.ui.navigation.GoalEvent
 import kotlinx.coroutines.flow.Flow
 
 // TODO: SPLIT DAO
@@ -36,7 +37,9 @@ interface GoalsDao {
     SET title = :title,
         type = :type,
         targetDuration = :hours,
-        deepFocus = :deepFocus
+        deepFocus = :deepFocus,
+        lastCompletedAt = :lastCompletedAt,
+        isCompleted = :isCompleted
     WHERE goalId = :goalId
     """
     )
@@ -45,7 +48,9 @@ interface GoalsDao {
         title: String,
         type: String,
         hours: Int,
-        deepFocus: Boolean
+        deepFocus: Boolean,
+        lastCompletedAt: Long?,
+        isCompleted: Boolean
     )
 
     @Transaction
@@ -61,5 +66,10 @@ interface GoalsDao {
         userId: Int,
         query: String
     ): Flow<List<GoalWithSessionsEntity>>
+
+    @Query(
+        """    UPDATE GoalEntity     SET lastCompletedAt = :completedAt    WHERE goalId = :goalId    """
+    )
+    suspend fun updateLastCompletedAt(goalId: Int, completedAt: Long)
 
 }

@@ -2,11 +2,14 @@ package com.example.purrsistence.ui.components.goalsScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.purrsistence.data.local.relation.GoalWithSessionsEntity
 import com.example.purrsistence.domain.model.GoalWithSessions
@@ -42,6 +45,16 @@ fun GoalCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(goal.title, style = MaterialTheme.typography.titleMedium)
+
+                if (goal.isCompleted) { //show a checkmark icon if the goal is completed
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "Goal Completed",
+                        tint = Color(0xFF4CAF50), // Green color for completed goals
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
                 Text("Type: ${goal.type}")
 
                 val minutes = goal.targetDuration.toMinutes().toInt()
