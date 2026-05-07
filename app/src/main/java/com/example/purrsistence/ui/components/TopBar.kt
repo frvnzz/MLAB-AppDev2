@@ -1,9 +1,11 @@
 package com.example.purrsistence.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,36 +16,59 @@ import com.example.purrsistence.ui.theme.Spacing
 fun TopBar(
     title: String,
     modifier: Modifier = Modifier,
+    onBackClick: (() -> Unit)? = null,
     actions: @Composable (() -> Unit)? = null
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant
-            )
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .statusBarsPadding()
-            .padding(horizontal = Spacing.lg, vertical = Spacing.md),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            .padding(
+                horizontal = Spacing.lg,
+                vertical = Spacing.md
+            ),
+
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
 
-        // RIGHT SLOT (fixed size to avoid different layouts)
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Back Button
+            if (onBackClick != null) {
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clickable(onClick = onBackClick),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+
+                Spacer(
+                    modifier = Modifier.width(Spacing.md)
+                )
+            }
+            // Screen Header
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        // Right slot (fixed size to avoid different layouts when empty)
         Box(
-            modifier = Modifier
-                .height(IntrinsicSize.Min),
-            contentAlignment = Alignment.CenterEnd
+            contentAlignment = Alignment.CenterEnd,
+            modifier = Modifier.height(40.dp)
         ) {
             if (actions != null) {
                 actions()
-            } else {
-                // Placeholder keeps layout identical when empty
-                Spacer(modifier = Modifier.height(40.dp))
             }
         }
     }

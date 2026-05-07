@@ -92,12 +92,7 @@ fun AppNavHost(
                 onEditClick = { selectedGoalId ->
                     navController.navigate("edit_goal/$selectedGoalId")
                 },
-                // TODO: Back Button on GoalDetailsScreen + EditGoalScreen
-                /*
-                onBack = {
-                    navController.popBackStack()
-                },
-                */
+                onBack = { navController.popBackStack() },
                 setTopBar = setTopBar
             )
         }

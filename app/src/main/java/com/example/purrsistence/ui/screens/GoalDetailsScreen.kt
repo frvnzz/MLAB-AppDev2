@@ -23,6 +23,7 @@ fun GoalDetailsScreen(
     goalId: Int?,
     goalViewModel: GoalViewModel,
     onEditClick: (Int) -> Unit,
+    onBack: () -> Unit,
     setTopBar: (TopBarState) -> Unit
 ) {
 
@@ -32,6 +33,18 @@ fun GoalDetailsScreen(
 
     val currentGoal = goal ?: return
 
+    // formate targetDuration of the goal
+    val totalMinutesDuration = currentGoal.targetDuration.toMinutes()
+    val displayHours = totalMinutesDuration / 60
+    val displayMinutes = totalMinutesDuration % 60
+
+    val formattedDuration =
+        if (displayMinutes == 0L) {
+            "${displayHours}h"
+        } else {
+            "${displayHours}h ${displayMinutes}m"
+        }
+    // format type of the goal
     val formattedType =
         currentGoal.type
             .name
@@ -42,7 +55,8 @@ fun GoalDetailsScreen(
 
     setTopBar(
         TopBarState(
-            title = "Goal Details"
+            title = "Goal Details",
+            onBackClick = onBack
         )
     )
 
@@ -77,20 +91,9 @@ fun GoalDetailsScreen(
                     Column(
                         modifier = Modifier.weight(1f)
                     ) {
-
                         Text(
                             text = currentGoal.title,
                             style = MaterialTheme.typography.titleLarge
-                        )
-
-                        Spacer(
-                            modifier = Modifier.height(Spacing.xs)
-                        )
-
-                        Text(
-                            text = "${currentGoal.targetDuration.toHours()}h $formattedType",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
@@ -123,7 +126,7 @@ fun GoalDetailsScreen(
                     )
 
                     Text(
-                        text = "Target Duration: ${currentGoal.targetDuration.toHours()}h",
+                        text = "Target Duration: $formattedDuration",
                         style = MaterialTheme.typography.bodyLarge
                     )
 

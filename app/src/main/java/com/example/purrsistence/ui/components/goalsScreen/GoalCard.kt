@@ -27,7 +27,19 @@ fun GoalCard(
 ) {
     val goal = goalWithSessions.goal
 
-    val targetMinutes = goal.targetDuration.toMinutes().toFloat()
+    // format targetDuration of the goal
+    val totalMinutesDuration = goal.targetDuration.toMinutes()
+    val displayHours = totalMinutesDuration / 60
+    val displayMinutes = totalMinutesDuration % 60
+
+    val formattedDuration =
+        if (displayMinutes == 0L) {
+            "${displayHours}h"
+        } else {
+            "${displayHours}h ${displayMinutes}m"
+        }
+
+    // already tracked minutes (for progress bar)
     val trackedMinutes = goalWithSessions.totalTrackedDuration().toMinutes().toFloat()
 
     val formattedType =
@@ -39,8 +51,9 @@ fun GoalCard(
             }
 
     val progress =
-        if (targetMinutes > 0) {
-            (trackedMinutes / targetMinutes).coerceIn(0f, 1f)
+        if (totalMinutesDuration > 0) {
+            (trackedMinutes / totalMinutesDuration.toFloat())
+                .coerceIn(0f, 1f)
         } else {
             0f
         }
@@ -87,7 +100,7 @@ fun GoalCard(
                     Spacer(modifier = Modifier.height(Spacing.xs))
 
                     Text(
-                        text = "Target: ${goal.targetDuration.toHours()}h $formattedType",
+                        text = "$formattedDuration $formattedType",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

@@ -56,6 +56,7 @@ fun MainScreen(
         topBar = {
             TopBar(
                 title = topBarState.value.title,
+                onBackClick = topBarState.value.onBackClick,
                 actions = topBarState.value.actions
             )
         },
