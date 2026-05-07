@@ -18,6 +18,7 @@ import com.example.purrsistence.domain.model.DailyStat
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisLabelComponent
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.compose.cartesian.data.columnSeries
 import com.patrykandpatrick.vico.compose.cartesian.layer.ColumnCartesianLayer
@@ -28,11 +29,18 @@ import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
+import androidx.compose.ui.text.TextStyle as ComposeTextStyle
 
 @Composable
 fun WeeklyChart(dailyStats: List<DailyStat>) {
 
     val modelProducer = remember { CartesianChartModelProducer() }
+
+    val axisLabelComponent = rememberAxisLabelComponent(
+        style = ComposeTextStyle(
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    )
 
     LaunchedEffect(dailyStats) {
         modelProducer.runTransaction {
@@ -92,12 +100,14 @@ fun WeeklyChart(dailyStats: List<DailyStat>) {
                     ),
                     startAxis = VerticalAxis.rememberStart(
                         guideline = null,
+                        label = axisLabelComponent,
                         valueFormatter = { _, y, _ ->
                             // Format Y-axis to show hours
                             "${y.toInt()}h"
                         }
                     ),
                     bottomAxis = HorizontalAxis.rememberBottom(
+                        label = axisLabelComponent,
                         valueFormatter = { _, x, _ ->
                             val dayIndex = x.toInt()
                             val day = DayOfWeek.of(dayIndex + 1)
@@ -113,6 +123,4 @@ fun WeeklyChart(dailyStats: List<DailyStat>) {
             )
         }
     }
-
-
 }
