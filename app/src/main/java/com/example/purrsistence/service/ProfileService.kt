@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import java.net.URL
 
 class ProfileService(
@@ -59,13 +58,13 @@ class ProfileService(
             userId = id,
             supabaseUserId = supabaseUserId,
             username = username,
-            profileImageUrl = profileImageUrl as String?,
+            profileImageUrl = profileImageUrl?.toString(),
             balance = balance,
             friends = friends.map {
                 FriendProfile(
                     userId = it.id,
                     username = it.username,
-                    profileImageUrl = it.profileImageUrl as String?
+                    profileImageUrl = it.profileImageUrl?.toString()
                 )
             },
             collectedCatIds = collectedCatsIds,

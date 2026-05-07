@@ -8,7 +8,9 @@ fun UserEntity.toDomain(): User =
     User(
         id = userId,
         username = username,
-        profileImageUrl = profileImageUrl?.let { URL(it) },
+        profileImageUrl = profileImageUrl
+            ?.takeIf { it.isNotBlank() }
+            ?.let { runCatching { URL(it) }.getOrNull() },
         balance = balance,
         friends = friends,
         isSupabaseLinked = isSupabaseLinked,
@@ -23,7 +25,7 @@ fun User.toEntity(): UserEntity =
         username = username,
         supabaseUserId = supabaseUserId,
         isSupabaseLinked = isSupabaseLinked,
-        profileImageUrl = profileImageUrl.toString(),
+        profileImageUrl = profileImageUrl?.toString(),
         balance = balance,
         friends = friends,
         collectedCatsIds = collectedCatsIds,

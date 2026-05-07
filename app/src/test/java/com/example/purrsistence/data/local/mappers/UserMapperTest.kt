@@ -63,6 +63,26 @@ class UserMapperTest {
         assertEquals(true, entity.isSupabaseLinked)
         assertEquals("supabase-123", entity.supabaseUserId)
     }
+
+    @Test
+    fun user_toEntity_preservesNullProfileImageUrl() {
+        val domain = User(
+            id = 3,
+            username = "NoAvatar",
+            balance = 10,
+            friends = emptyList(),
+            collectedCatsIds = emptyList(),
+            selectedCatIds = emptyList(),
+            profileImageUrl = null,
+            isSupabaseLinked = false,
+            supabaseUserId = null
+        )
+
+        val entity = domain.toEntity()
+
+        assertEquals(null, entity.profileImageUrl)
+    }
+
     @Test
     fun userEntity_toDomain_mapsNullProfileFieldsCorrectly() {
         val entity = UserEntity(

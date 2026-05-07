@@ -1,19 +1,40 @@
 package com.example.purrsistence.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Camera
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.purrsistence.ui.components.TopBar
+import com.example.purrsistence.R
+import com.example.purrsistence.domain.cats.CatList
 import com.example.purrsistence.ui.state.TopBarState
+import com.example.purrsistence.ui.theme.Shapes
+import com.example.purrsistence.ui.theme.Spacing
 import com.example.purrsistence.ui.viewmodel.UserViewModel
 
 @Composable
 fun ProfileScreen(
     userViewModel: UserViewModel,
-    setTopBar: (TopBarState) -> Unit
+    setTopBar: (TopBarState) -> Unit,
+    onNavigateToSettings: () -> Unit = {},
+    onNavigateToFriends: () -> Unit = {}
 ) {
     // set TopBar content (header only)
     setTopBar(
@@ -22,17 +43,350 @@ fun ProfileScreen(
         )
     )
 
+    val user by userViewModel.user.collectAsState()
+    var isEditingName by remember { mutableStateOf(false) }
+    var editedUsername by remember(user?.username) { mutableStateOf(user?.username ?: "") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(Spacing.lg)
     ) {
-
-        // PLACEHOLDER - Replace with actual Profile UI
-        Text(
-            text = "Your Profile is here :)",
-            style = MaterialTheme.typography.bodyLarge
+        // PROFILE HEADER SECTION
+        ProfileHeaderSection(
+            user = user,
+            username = editedUsername,
+            onUsernameChange = { editedUsername = it },
+            isEditing = isEditingName,
+            onEditingChange = { isEditingName = it },
+            onSaveUsername = {
+                userViewModel.updateUsername(editedUsername)
+                isEditingName = false
+            }
         )
+
+        Spacer(modifier = Modifier.height(Spacing.xl))
+
+        // ACTION BUTTONS SECTION
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.md)
+        ) {
+            ActionButton(
+                label = "Settings",
+                icon = Icons.Outlined.Edit,
+                onClick = onNavigateToSettings,
+                modifier = Modifier.weight(1f)
+            )
+            ActionButton(
+                label = "Friends",
+                icon = Icons.Outlined.Edit,
+                onClick = onNavigateToFriends,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(Spacing.xl))
+
+        // INVENTORY SECTION HEADER
+        Text(
+            text = "Inventory",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = Spacing.md)
+        )
+
+        // CAT INVENTORY GRID
+        if (user != null && user!!.collectedCatsIds.isNotEmpty()) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 500.dp),
+                verticalArrangement = Arrangement.spacedBy(Spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.md)
+            ) {
+                items(
+                    items = user!!.collectedCatsIds,
+                    key = { it }
+                ) { catId ->
+                    val cat = CatList.getCatById(catId)
+                    if (cat != null) {
+                        CatInventoryCard(cat = cat)
+                    }
+                }
+            }
+        } else {
+            // Empty state
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = Shapes.cards
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No cats in inventory yet.\nVisit the Shop to adopt some!",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(Spacing.md),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(Spacing.xl))
+    }
+}
+
+@Composable
+private fun ProfileHeaderSection(
+    user: com.example.purrsistence.domain.model.User?,
+    username: String,
+    onUsernameChange: (String) -> Unit,
+    isEditing: Boolean,
+    onEditingChange: (Boolean) -> Unit,
+    onSaveUsername: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = Shapes.cards
+            )
+            .padding(Spacing.lg),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+        verticalAlignment = Alignment.Top
+    ) {
+        // Profile Picture
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.secondary),
+            contentAlignment = Alignment.Center
+        ) {
+            // Display default camera icon (placeholder for profile picture)
+            Icon(
+                imageVector = Icons.Default.Camera,
+                contentDescription = "Profile Picture",
+                modifier = Modifier.size(40.dp),
+                tint = MaterialTheme.colorScheme.onSecondary
+            )
+
+            // Camera icon overlay
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(CircleShape)
+                    .clickable { /* TODO: Image picker */ }
+                    .background(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                    ),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Camera,
+                    contentDescription = "Edit Profile Picture",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .padding(Spacing.xs)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = CircleShape
+                        )
+                        .padding(Spacing.xs),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
+
+        // Username Section
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .align(Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(Spacing.sm)
+        ) {
+            if (isEditing) {
+                // Edit mode
+                TextField(
+                    value = username,
+                    onValueChange = onUsernameChange,
+                    singleLine = true,
+                    maxLines = 1,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = Shapes.inputs,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    textStyle = MaterialTheme.typography.titleMedium
+                )
+
+                // Save/Cancel buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
+                ) {
+                    Button(
+                        onClick = onSaveUsername,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(32.dp),
+                        shape = Shapes.buttons
+                    ) {
+                        Text("Save", style = MaterialTheme.typography.labelSmall)
+                    }
+
+                    OutlinedButton(
+                        onClick = { onEditingChange(false) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(32.dp),
+                        shape = Shapes.buttons
+                    ) {
+                        Text("Cancel", style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+            } else {
+                // View mode
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = user?.username ?: "Username",
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    IconButton(
+                        onClick = { onEditingChange(true) },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Edit,
+                            contentDescription = "Edit Username",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+
+                // Additional info
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${user?.collectedCatsIds?.size ?: 0} Cats",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    if (user?.isSupabaseLinked == true) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.tertiary,
+                            shape = Shapes.buttons,
+                            modifier = Modifier.size(width = 60.dp, height = 20.dp)
+                        ) {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                Text(
+                                    text = "Linked",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onTertiary
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ActionButton(
+    label: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ElevatedButton(
+        onClick = onClick,
+        modifier = modifier.fillMaxHeight(),
+        shape = Shapes.buttons,
+        colors = ButtonDefaults.elevatedButtonColors(
+            containerColor = MaterialTheme.colorScheme.secondary
+        )
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(Spacing.xs)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onSecondary
+            )
+            Text(
+                label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSecondary
+            )
+        }
+    }
+}
+
+@Composable
+private fun CatInventoryCard(
+    cat: com.example.purrsistence.domain.model.ShopItem,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .aspectRatio(1f)
+            .clip(Shapes.cards),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 4.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(Spacing.sm),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            androidx.compose.foundation.Image(
+                painter = painterResource(id = cat.imageRes),
+                contentDescription = cat.name,
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(Shapes.cards)
+            )
+
+            Spacer(modifier = Modifier.height(Spacing.xs))
+
+            Text(
+                text = cat.name,
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
