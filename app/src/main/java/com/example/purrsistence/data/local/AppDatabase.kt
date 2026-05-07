@@ -21,13 +21,12 @@ import com.example.purrsistence.data.local.dao.UserDao
     ],
     // increment version if the following error occurs:
     // java.lang.IllegalStateException: Room cannot verify the data integrity.
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(StringListConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
-    // TODO: Split Dao and add all of them
     abstract fun goalsDao(): GoalsDao
     abstract fun trackingDao(): TrackingDao
     abstract fun userDao(): UserDao

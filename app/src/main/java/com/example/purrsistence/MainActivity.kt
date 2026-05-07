@@ -16,6 +16,12 @@ import com.example.purrsistence.data.local.repository.TrackingRepository
 import com.example.purrsistence.data.local.repository.TrackingRepositoryImpl
 import com.example.purrsistence.data.local.repository.UserRepository
 import com.example.purrsistence.data.local.repository.UserRepositoryImpl
+import com.example.purrsistence.data.remote.repository.ProfileRepository
+import com.example.purrsistence.data.remote.supabase.SupabaseClientProvider
+import com.example.purrsistence.data.remote.supabase.datasource.SupabaseAuthRemoteDataSource
+import com.example.purrsistence.data.remote.supabase.datasource.SupabaseCatRemoteDataSource
+import com.example.purrsistence.data.remote.supabase.datasource.SupabaseFriendshipRemoteDataSource
+import com.example.purrsistence.data.remote.supabase.datasource.SupabaseProfileRemoteDataSource
 import com.example.purrsistence.domain.preferences.SharedPrefCleanupPreferences
 import com.example.purrsistence.domain.time.SystemTimeProvider
 import com.example.purrsistence.ui.viewmodel.GoalViewModel
@@ -25,6 +31,7 @@ import com.example.purrsistence.service.GoalService
 import com.example.purrsistence.service.RewardService
 import com.example.purrsistence.service.ShopService
 import com.example.purrsistence.service.StatisticsService
+import com.example.purrsistence.service.SupabaseSyncService
 import com.example.purrsistence.service.TrackingCleanupService
 import com.example.purrsistence.service.TrackingServiceImpl
 import com.example.purrsistence.ui.screens.MainScreen
@@ -72,8 +79,32 @@ class MainActivity : ComponentActivity() {
         val focusBlocker = SharedPrefsFocusBlocker(focusPrefs)
         val cleanupPrefs = SharedPrefCleanupPreferences(getSharedPreferences("app_prefs", MODE_PRIVATE))
 
+        val supabase = SupabaseClientProvider.create()
+
+        val supabaseAuthRemoteDataSource =
+            SupabaseAuthRemoteDataSource(supabase)
+
+        val supabaseProfileRemoteDataSource =
+            SupabaseProfileRemoteDataSource(supabase)
+
+        val supabaseCatRemoteDataSource =
+            SupabaseCatRemoteDataSource(supabase)
+
+        val supabaseFriendshipRemoteDataSource =
+            SupabaseFriendshipRemoteDataSource(supabase)
+
+        val supabaseSyncService =
+            SupabaseSyncService(
+                userDao = userDao,
+                authRemoteDataSource = supabaseAuthRemoteDataSource,
+                profileRemoteDataSource = supabaseProfileRemoteDataSource,
+                catRemoteDataSource = supabaseCatRemoteDataSource,
+                friendshipRemoteDataSource = supabaseFriendshipRemoteDataSource,
+                localUserId = 1
+            )
+
         // create ViewModel instances for this activity
-        userViewModel = UserViewModel(shopService)
+        userViewModel = UserViewModel(shopService, supabaseSyncService)
         goalViewModel = GoalViewModel(goalService, focusPrefs)
         trackingViewModel = TrackingViewModel(trackingService, timeProvider, focusBlocker)
         statisticsViewModel = StatisticsViewModel(statisticsService)
