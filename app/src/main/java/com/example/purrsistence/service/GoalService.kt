@@ -87,7 +87,7 @@ class GoalService(
 
         // goal reached, set last completed at
         val updatedGoal = goalWithSessions.goal.copy(
-            lastCompletedAt = Instant.now(),
+            lastCompletedAt = timeProvider.now(),
             isCompleted = true
         )
 

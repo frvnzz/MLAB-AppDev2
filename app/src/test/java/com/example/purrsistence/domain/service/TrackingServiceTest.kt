@@ -5,6 +5,7 @@ import com.example.purrsistence.data.local.repository.FakeTrackingRepository
 import com.example.purrsistence.data.local.repository.FakeUserRepository
 import com.example.purrsistence.domain.model.User
 import com.example.purrsistence.domain.time.FakeTimeProvider
+import com.example.purrsistence.service.GoalService
 import com.example.purrsistence.service.RewardService
 import com.example.purrsistence.service.TrackingServiceImpl
 import kotlinx.coroutines.flow.first
@@ -31,6 +32,7 @@ class TrackingServiceTest {
             trackingRepository = trackingRepository,
             userRepository = userRepository,
             goalRepository = goalRepository,
+            goalService = GoalService(goalRepository, timeProvider),
             rewardService = rewardService,
             timeProvider = timeProvider
         )
@@ -70,6 +72,7 @@ class TrackingServiceTest {
             trackingRepository = trackingRepository,
             userRepository = userRepository,
             goalRepository = goalRepository,
+            goalService = GoalService(goalRepository, timeProvider),
             rewardService = rewardService,
             timeProvider = timeProvider
         )
@@ -105,6 +108,7 @@ class TrackingServiceTest {
             trackingRepository = trackingRepository,
             userRepository = userRepository,
             goalRepository = goalRepository,
+            goalService = GoalService(goalRepository, timeProvider),
             rewardService = rewardService,
             timeProvider = timeProvider
         )
@@ -137,6 +141,7 @@ class TrackingServiceTest {
             trackingRepository = trackingRepository,
             userRepository = userRepository,
             goalRepository = goalRepository,
+            goalService = GoalService(goalRepository, timeProvider),
             rewardService = rewardService,
             timeProvider = timeProvider
         )
@@ -182,6 +187,7 @@ class TrackingServiceTest {
             trackingRepository = trackingRepository,
             userRepository = userRepository,
             goalRepository = goalRepository,
+            goalService = GoalService(goalRepository, timeProvider),
             rewardService = rewardService,
             timeProvider = timeProvider
         )
@@ -227,6 +233,7 @@ class TrackingServiceTest {
             trackingRepository = trackingRepository,
             userRepository = userRepository,
             goalRepository = goalRepository,
+            goalService = GoalService(goalRepository, timeProvider),
             rewardService = rewardService,
             timeProvider = timeProvider
         )
