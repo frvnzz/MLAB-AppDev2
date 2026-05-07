@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.purrsistence.data.local.AppDatabase
 import com.example.purrsistence.data.focus.SharedPrefsFocusBlocker
@@ -29,6 +30,7 @@ import com.example.purrsistence.service.TrackingCleanupService
 import com.example.purrsistence.service.TrackingServiceImpl
 import com.example.purrsistence.ui.screens.MainScreen
 import com.example.purrsistence.ui.viewmodel.StatisticsViewModel
+import com.example.purrsistence.ui.viewmodel.StatisticsViewModelFactory
 import com.example.purrsistence.ui.theme.PurrsistenceTheme
 import com.example.purrsistence.ui.viewmodel.TrackingViewModel
 import com.example.purrsistence.ui.viewmodel.UserViewModel
@@ -76,7 +78,11 @@ class MainActivity : ComponentActivity() {
         userViewModel = UserViewModel(shopService)
         goalViewModel = GoalViewModel(goalService, focusPrefs)
         trackingViewModel = TrackingViewModel(trackingService, timeProvider, focusBlocker)
-        statisticsViewModel = StatisticsViewModel(statisticsService)
+        // Use factory for StatisticsViewModel to preserve week offset across configuration changes
+        statisticsViewModel = ViewModelProvider(
+            this,
+            StatisticsViewModelFactory(statisticsService)
+        ).get(StatisticsViewModel::class.java)
 
         val cleanupScheduler = CleanupScheduler(cleanupPrefs, timeProvider, trackingCleanupService)
 
