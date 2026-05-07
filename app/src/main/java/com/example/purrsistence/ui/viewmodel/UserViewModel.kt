@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.service.ProfileService
 import com.example.purrsistence.service.ShopService
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -27,19 +26,19 @@ class UserViewModel(
         )
 
     fun buyCat(catId: String, price: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             shopService.buyCat(currentUserId, catId, price)
         }
     }
 
     fun updateSelectedCats(selectedIds: List<String>) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             shopService.updateSelectedCats(currentUserId, selectedIds)
         }
     }
 
     fun updateUsername(newUsername: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             profileService?.updateProfile(
                 userId = currentUserId,
                 username = newUsername,
@@ -49,7 +48,7 @@ class UserViewModel(
     }
 
     fun updateProfileImage(imageUrl: URL?) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             profileService?.updateProfilePicture(
                 userId = currentUserId,
                 profileImageUrl = imageUrl
