@@ -10,12 +10,13 @@ import androidx.compose.ui.unit.dp
 import com.example.purrsistence.domain.cats.CatList
 import com.example.purrsistence.ui.components.CurrencyBadge
 import com.example.purrsistence.ui.components.ShopItemCard
-import com.example.purrsistence.ui.components.TopBar
+import com.example.purrsistence.ui.state.TopBarState
 import com.example.purrsistence.ui.viewmodel.UserViewModel
 
 @Composable
 fun ShopScreen(
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    setTopBar: (TopBarState) -> Unit
 ) {
     // Get current user data (balance, collected cats)
     val user by userViewModel.user.collectAsState()
@@ -25,19 +26,20 @@ fun ShopScreen(
     // Get list of all cats (+ details) available
     val shopItems = CatList.cats
 
+    // set TopBar content (header & CurrencyBadge)
+    setTopBar(
+        TopBarState(
+            title = "Your Cats",
+            actions = { CurrencyBadge(balance = balance) }
+        )
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-
-        TopBar(
-            title = "Cat Shop",
-            actions = {
-                CurrencyBadge(balance = balance)
-            }
-        )
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),

@@ -13,13 +13,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.purrsistence.ui.components.GoalStatsList
-import com.example.purrsistence.ui.components.TopBar
 import com.example.purrsistence.ui.viewmodel.StatisticsViewModel
 import com.example.purrsistence.ui.components.WeekSelector
 import com.example.purrsistence.ui.components.WeeklyChart
+import com.example.purrsistence.ui.state.TopBarState
 
 @Composable
-fun StatisticsScreen(viewModel: StatisticsViewModel) {
+fun StatisticsScreen(
+        viewModel: StatisticsViewModel,
+        setTopBar: (TopBarState) -> Unit
+    ) {
 
     val state by viewModel.uiState.collectAsState()
 
@@ -28,15 +31,19 @@ fun StatisticsScreen(viewModel: StatisticsViewModel) {
         return
     }
 
+    // set TopBar content (header only)
+    setTopBar(
+        TopBarState(
+            title = "Statistics"
+        )
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        TopBar(
-            title = "Statistics"
-        )
 
         WeekSelector(viewModel, state)
 

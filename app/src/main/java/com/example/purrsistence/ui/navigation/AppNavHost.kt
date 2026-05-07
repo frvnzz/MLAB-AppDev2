@@ -17,18 +17,20 @@ import com.example.purrsistence.ui.screens.ShopScreen
 import com.example.purrsistence.ui.screens.StatisticsScreen
 import com.example.purrsistence.ui.viewmodel.StatisticsViewModel
 import com.example.purrsistence.ui.screens.TrackingScreen
+import com.example.purrsistence.ui.state.TopBarState
 import com.example.purrsistence.ui.viewmodel.TrackingViewModel
 import com.example.purrsistence.ui.viewmodel.UserViewModel
 
 @Composable
 fun AppNavHost(
+    setTopBar: (TopBarState) -> Unit,
     navController: NavHostController,
     userViewModel: UserViewModel,
     goalViewModel: GoalViewModel,
     trackingViewModel: TrackingViewModel,
     statisticsViewModel: StatisticsViewModel,
     modifier: Modifier = Modifier,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
 ) {
     LaunchedEffect(Unit) {
         trackingViewModel.events.collect { event ->
@@ -52,12 +54,14 @@ fun AppNavHost(
         // TODO: Maybe replace with single source of truth for routes (screen model) in the future
 
         // HOME
-        composable("home") { HomeScreen(
-            userViewModel = userViewModel,
-            goalViewModel = goalViewModel,
-            onStartTracking = { goalId, userId, deepFocus ->
-                trackingViewModel.startTrack(goalId, userId, deepFocus)
-            }
+        composable("home") {
+            HomeScreen(
+                userViewModel = userViewModel,
+                goalViewModel = goalViewModel,
+                onStartTracking = { goalId, userId, deepFocus ->
+                    trackingViewModel.startTrack(goalId, userId, deepFocus)
+                },
+                setTopBar = setTopBar
         ) }
         // GOALS
         composable("goals") {
@@ -70,7 +74,8 @@ fun AppNavHost(
                 onGoalClick = { goalId ->
                     navController.navigate("edit_goal/$goalId")
                 },
-                snackbarHostState = snackbarHostState
+                snackbarHostState = snackbarHostState,
+                setTopBar = setTopBar
             )
         }
         // -> edit goal
@@ -82,7 +87,8 @@ fun AppNavHost(
             EditGoalScreen(
                 goalId = goalId,
                 viewModel = goalViewModel,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                setTopBar = setTopBar
             )
         }
         // -> add goal
@@ -99,7 +105,8 @@ fun AppNavHost(
                         isCompleted = false
                     )
                 },
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                setTopBar = setTopBar
             )
         }
         // TRACKING
@@ -115,18 +122,21 @@ fun AppNavHost(
         composable("statistics") {
             StatisticsScreen(
                 viewModel = statisticsViewModel,
+                setTopBar = setTopBar
             )
         }
         // SHOP
         composable("shop") {
             ShopScreen(
-                userViewModel = userViewModel
+                userViewModel = userViewModel,
+                setTopBar = setTopBar
             )
         }
         // PROFILE
         composable("profile") {
             ProfileScreen(
-                userViewModel = userViewModel
+                userViewModel = userViewModel,
+                setTopBar = setTopBar
             )
         }
     }

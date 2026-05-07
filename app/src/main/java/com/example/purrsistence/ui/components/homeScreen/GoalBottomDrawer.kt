@@ -2,126 +2,156 @@ package com.example.purrsistence.ui.components.homeScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import com.example.purrsistence.domain.model.GoalWithSessions
-import kotlinx.coroutines.launch
-import java.util.Locale
+import com.example.purrsistence.ui.theme.Elevation
+import com.example.purrsistence.ui.theme.Spacing
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GoalBottomDrawer(
     goals: List<GoalWithSessions>,
     selectedGoalId: Int?,
     onGoalSelected: (Int) -> Unit,
     onStartClick: (Int) -> Unit,
-    content: @Composable () -> Unit
+    modifier: Modifier = Modifier
 ) {
-    val scaffoldState = rememberBottomSheetScaffoldState()
-    val scope = rememberCoroutineScope()
-
     val selectedGoal = goals.find { it.goal.id == selectedGoalId }?.goal
 
-    BottomSheetScaffold(
-        scaffoldState = scaffoldState,
-        sheetPeekHeight = 80.dp,
-        sheetDragHandle = null,
-        sheetContent = {
-            Column(modifier = Modifier.fillMaxWidth()) {
+    // TODO: change this to be responsible (hardcoded height of the drawer)
+    val collapsedHeight = 108.dp
+    val expandedHeight = 500.dp
 
-                Row(
+    val density = LocalDensity.current
+
+    var progress by remember { mutableFloatStateOf(0f) }
+    // 0f = collapsed, 1f = expanded
+
+    val height = lerp(collapsedHeight, expandedHeight, progress)
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(height)
+            .background(
+                MaterialTheme.colorScheme.secondary,
+                shape = RoundedCornerShape(
+                    topStart = 16.dp,
+                    topEnd = 16.dp
+                )
+            )
+            .draggable(
+                orientation = Orientation.Vertical,
+                state = rememberDraggableState { delta ->
+                    val heightPx = with(density) { (expandedHeight - collapsedHeight).toPx() }
+
+                    progress -= delta / heightPx
+                    progress = progress.coerceIn(0f, 1f)
+                },
+                onDragStopped = {
+                    progress = if (progress > 0.5f) 1f else 0f
+                }
+            )
+    ) {
+
+        Column {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = Spacing.md),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .clickable {
-                            scope.launch {
-                                scaffoldState.bottomSheetState.expand()
-                            }
-                        }
-                        .padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            if (goals.isEmpty()) "Create a Goal to track"
-                            else selectedGoal?.title ?: "Select a Goal",
-                            style = MaterialTheme.typography.titleMedium
+                        .width(40.dp)
+                        .height(4.dp)
+                        .background(
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(2.dp)
                         )
+                )
+            }
 
-                        selectedGoal?.let {
-                            val totalMinutes = it.targetDuration.toMinutes()
-                            val displayHours = String.format(
-                                Locale.GERMANY,
-                                "%.1f",
-                                totalMinutes / 60.0
-                            )
-
-                            Text(
-                                "$displayHours h (${totalMinutes} min)",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
+            // HEADER (always visible)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        progress = if (progress > 0f) 0f else 1f
                     }
+                    .padding(horizontal = Spacing.lg),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
+                GoalListItem(
+                    title = selectedGoal?.title ?: "Select Goal",
+                    durationText = selectedGoal?.let {
+                        "${it.targetDuration.toMinutes()} min"
+                    } ?: "",
+                    backgroundColor = MaterialTheme.colorScheme.background,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(modifier = Modifier.width(Spacing.lg))
+
+                // Play Button
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primary,
+                    tonalElevation = Elevation.Lvl2
+                ) {
                     IconButton(
                         onClick = {
                             selectedGoal?.let { onStartClick(it.id) }
                         }
                     ) {
-                        Icon(Icons.Default.PlayArrow, contentDescription = "Start")
-                    }
-                }
-
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                    items(goals) { goalWithSessions ->
-                        val goal = goalWithSessions.goal
-                        val isSelected = goal.id == selectedGoalId
-
-                        val totalMinutes = goal.targetDuration.toMinutes()
-                        val displayHours = String.format(
-                            Locale.GERMANY,
-                            "%.1f",
-                            totalMinutes / 60.0
+                        Icon(
+                            Icons.Default.PlayArrow,
+                            contentDescription = "Start",
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    if (isSelected) {
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                                    } else {
-                                        MaterialTheme.colorScheme.background
-                                    }
-                                )
-                                .clickable {
-                                    onGoalSelected(goal.id)
-                                    scope.launch {
-                                        scaffoldState.bottomSheetState.partialExpand()
-                                    }
-                                }
-                                .padding(16.dp)
-                        ) {
-                            Text(goal.title, style = MaterialTheme.typography.titleMedium)
-                            Text("Type: ${goal.type}")
-                            Text("Duration: ${displayHours}h (${totalMinutes} min)")
-                        }
                     }
                 }
             }
-        }
-    ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            content()
+
+            // CONTENT (only visible when expanded)
+            if (progress > 0.5f) {
+                LazyColumn(
+                    contentPadding = PaddingValues(Spacing.lg),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.sm)
+                ) {
+                    items(goals) { goalWithSessions ->
+                        val goal = goalWithSessions.goal
+
+                        GoalListItem(
+                            title = goal.title,
+                            durationText = "${goal.targetDuration.toMinutes()} min",
+                            backgroundColor = MaterialTheme.colorScheme.surface,
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                onGoalSelected(goal.id)
+                                progress = 0f // collapse drawer after selecting goal
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }

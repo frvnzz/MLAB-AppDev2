@@ -13,7 +13,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -29,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.purrsistence.focus.DeepFocusAccessibilityState
+import com.example.purrsistence.ui.state.TopBarState
 import kotlin.math.roundToInt
 
 @Composable
@@ -39,7 +39,8 @@ fun AddGoalScreen(
         Int,
         Boolean
     ) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    setTopBar: (TopBarState) -> Unit
 ) {
     val context = LocalContext.current
     var title by remember { mutableStateOf("") }
@@ -48,6 +49,13 @@ fun AddGoalScreen(
     var deepFocus by remember { mutableStateOf(false) }
     var showAccessibilityDialog by remember { mutableStateOf(false) }
 
+    // set TopBar content (header only)
+    setTopBar(
+        TopBarState(
+            title = "Add Goal"
+        )
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -55,8 +63,6 @@ fun AddGoalScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        Text("Add Goal", style = MaterialTheme.typography.titleLarge)
 
         // title
         OutlinedTextField(
