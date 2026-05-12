@@ -10,8 +10,16 @@ data class TrackingSession(
     val pauseReminder: Boolean,
     val deepFocus: Boolean,
     val startTime: Instant,
-    val endTime: Instant?
+    val endTime: Instant?,
+    val pausedTimeMillis: Long = 0L, //total paused time
+    val currentPauseStart: Instant? = null, //when current pause has started, for ongoing pauses
+    val pauseIntervals: List<Pair<Instant, Instant>> = emptyList(), //list of pause intervals (start, end)
 ) {
+    fun effectiveDuration(now: Instant): Duration { //total duration minus paused time
+        val totalDuration = duration(now)
+        return totalDuration.minusMillis(pausedTimeMillis)
+    }
+
     fun duration(now: Instant): Duration {
         return Duration.between(startTime, endTime ?: now)
     }

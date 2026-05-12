@@ -13,8 +13,9 @@ interface TrackingRepository {
     suspend fun finishTrackingSession(trackingId: Int, endTimeMillis: Long): TrackingSession?
     suspend fun getTrackingSessionById(trackingId: Int): TrackingSession?
     suspend fun getActiveTrackingSession(goalId: Int): TrackingSession?
-    suspend fun deleteFinishedSessionsForGoalBefore(goalId: Int, cutoff: java.time.Instant)
+    suspend fun deleteFinishedSessionsForGoalBefore(goalId: Int, cutoff: Instant)
     suspend fun countSessionsForGoal(goalId: Int): Int
+    suspend fun updateTrackingSession(session: TrackingSession)
 }
 
 class TrackingRepositoryImpl(
@@ -55,5 +56,10 @@ class TrackingRepositoryImpl(
 
     override suspend fun countSessionsForGoal(goalId: Int): Int {
         return trackingDao.countSessionsForGoal(goalId)
+    }
+
+    override suspend fun updateTrackingSession(session: TrackingSession) {
+        val entity = session.toEntity()
+        trackingDao.updatePauseData(entity.trackingId, entity.pausedTimeMillis, entity.currentPauseStart)
     }
 }

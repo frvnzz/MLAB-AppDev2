@@ -25,8 +25,9 @@ data class GoalWithSessions(
                 val start = session.startTime
                 start >= window.start && start < window.end
             }
-            .fold(Duration.ZERO) { acc, session ->
-                acc.plus(session.finishedDuration())
+            .mapNotNull { it.finishedDuration() }
+            .fold(Duration.ZERO) { acc, duration ->
+                acc.plus(duration)
             }
     }
 

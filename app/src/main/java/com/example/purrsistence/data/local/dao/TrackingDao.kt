@@ -66,4 +66,7 @@ interface TrackingDao {
 
     @Query("SELECT COUNT(*) FROM TrackingSessionEntity WHERE goalId = :goalId")
     suspend fun countSessionsForGoal(goalId: Int): Int
+
+    @Query("UPDATE TrackingSessionEntity SET pausedTimeMillis = :paused, currentPauseStart = :pauseStart WHERE trackingId = :id")
+    suspend fun updatePauseData(id: Int, paused: Long, pauseStart: Long?)
 }
