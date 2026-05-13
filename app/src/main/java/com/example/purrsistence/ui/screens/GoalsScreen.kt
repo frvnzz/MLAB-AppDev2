@@ -19,7 +19,6 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -38,6 +37,7 @@ import com.example.purrsistence.ui.components.goalsScreen.DeleteGoalDialog
 import com.example.purrsistence.ui.components.goalsScreen.DeleteGoalsButton
 import com.example.purrsistence.ui.components.goalsScreen.GoalCard
 import com.example.purrsistence.ui.components.goalsScreen.GoalSearchBar
+import com.example.purrsistence.ui.components.goalsScreen.GoalsEmptyState
 import com.example.purrsistence.ui.components.goalsScreen.GoalsSortMenu
 import com.example.purrsistence.ui.components.goalsScreen.sortGoals
 import com.example.purrsistence.ui.state.TopBarState
@@ -190,18 +190,12 @@ fun GoalsScreen(
             ) {
                 if (displayGoals.isEmpty()) {
                     item {
-                        val message = if (isSearching) {
-                            "No results for \"$query\""
-                        } else {
-                            "No goals yet - Add one! 🐱"
-                        }
-
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(message)
-                        }
+                        GoalsEmptyState(
+                            isSearching = isSearching,
+                            query = query,
+                            onClearSearch = { goalViewModel.onSearchQueryChange("") },
+                            onAddGoalClick = onAddGoalClick
+                        )
                     }
                 } else {
                     items(
