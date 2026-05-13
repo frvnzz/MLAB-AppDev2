@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.domain.focus.FocusBlocker
 import com.example.purrsistence.domain.time.TimeProvider
+import com.example.purrsistence.service.SupabaseSyncService
 import com.example.purrsistence.service.TrackingService
 import com.example.purrsistence.ui.navigation.TrackingEvent
 import com.example.purrsistence.ui.state.TrackingUiState
@@ -21,7 +22,8 @@ import java.time.Instant
 class TrackingViewModel(
     private val trackingService: TrackingService,
     private val timeProvider: TimeProvider,
-    private val focusBlocker: FocusBlocker
+    private val focusBlocker: FocusBlocker,
+    private val supabaseSyncService: SupabaseSyncService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TrackingUiState())
@@ -83,6 +85,7 @@ class TrackingViewModel(
                 elapsedMillis = stopResult.sessionDurationMillis,
                 goalCompletionReward = stopResult.goalCompletionReward  //added to show goal completion reward in UI if applicable
             )
+            supabaseSyncService.syncAfterLocalTrackingSessionChanged()
         }
     }
 

@@ -15,6 +15,11 @@ interface TrackingRepository {
     suspend fun getActiveTrackingSession(goalId: Int): TrackingSession?
     suspend fun deleteFinishedSessionsForGoalBefore(goalId: Int, cutoff: java.time.Instant)
     suspend fun countSessionsForGoal(goalId: Int): Int
+    suspend fun getTrackingSessionsForSync(userId: Int): List<TrackingSession>
+    suspend fun replaceTrackingSessionsFromRemoteSync(
+        userId: Int,
+        sessions: List<TrackingSession>
+    )
 }
 
 class TrackingRepositoryImpl(
@@ -55,5 +60,25 @@ class TrackingRepositoryImpl(
 
     override suspend fun countSessionsForGoal(goalId: Int): Int {
         return trackingDao.countSessionsForGoal(goalId)
+    }
+
+    override suspend fun getTrackingSessionsForSync(
+        userId: Int
+    ): List<TrackingSession> {
+        return trackingDao
+            .getTrackingSessionEntitiesForUser(userId)
+            .map { it.toDomain() }
+    }
+
+    override suspend fun replaceTrackingSessionsFromRemoteSync(
+        userId: Int,
+        sessions: List<TrackingSession>
+    ) {
+        trackingDao.replaceTrackingSessionsForUser(
+            userId = userId,
+            sessions = sessions.map { session ->
+                session.copy(userId = userId).toEntity()
+            }
+        )
     }
 }

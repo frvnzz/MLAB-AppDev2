@@ -21,6 +21,7 @@ import com.example.purrsistence.data.remote.supabase.SupabaseClientProvider
 import com.example.purrsistence.data.remote.supabase.datasource.SupabaseAuthRemoteDataSource
 import com.example.purrsistence.data.remote.supabase.datasource.SupabaseCatRemoteDataSource
 import com.example.purrsistence.data.remote.supabase.datasource.SupabaseFriendshipRemoteDataSource
+import com.example.purrsistence.data.remote.supabase.datasource.SupabaseGoalTrackingRemoteDataSource
 import com.example.purrsistence.data.remote.supabase.datasource.SupabaseProfileRemoteDataSource
 import com.example.purrsistence.domain.preferences.SharedPrefCleanupPreferences
 import com.example.purrsistence.domain.time.SystemTimeProvider
@@ -96,6 +97,9 @@ class MainActivity : ComponentActivity() {
         val supabaseFriendshipRemoteDataSource =
             SupabaseFriendshipRemoteDataSource(supabase)
 
+        val supabaseGoalTrackingRemoteDataSource =
+            SupabaseGoalTrackingRemoteDataSource(supabase)
+
         val supabaseSyncService =
             SupabaseSyncService(
                 userRepository = userRepo,
@@ -103,13 +107,16 @@ class MainActivity : ComponentActivity() {
                 profileRemoteDataSource = supabaseProfileRemoteDataSource,
                 catRemoteDataSource = supabaseCatRemoteDataSource,
                 friendshipRemoteDataSource = supabaseFriendshipRemoteDataSource,
+                goalTrackingRemoteDataSource = supabaseGoalTrackingRemoteDataSource,
+                goalRepository = goalRepo,
+                trackingRepository = trackingRepo,
                 localUserId = 1
             )
 
         // create ViewModel instances for this activity
         userViewModel = UserViewModel(shopService, supabaseSyncService, profileService)
-        goalViewModel = GoalViewModel(goalService, focusPrefs)
-        trackingViewModel = TrackingViewModel(trackingService, timeProvider, focusBlocker)
+        goalViewModel = GoalViewModel(goalService, focusPrefs, supabaseSyncService)
+        trackingViewModel = TrackingViewModel(trackingService, timeProvider, focusBlocker, supabaseSyncService)
         // Use factory for StatisticsViewModel to preserve week offset across configuration changes
         statisticsViewModel = ViewModelProvider(
             this,
@@ -142,6 +149,9 @@ class MainActivity : ComponentActivity() {
             //    now = ZonedDateTime.now()
             //)
             cleanupScheduler.runIfDue()
+//            if (supabaseSyncService.isSignedIn()) {
+//                supabaseSyncService.checkAndSyncIfNeeded()
+//            }
         }
 
         setContent {
