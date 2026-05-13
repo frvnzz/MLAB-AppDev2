@@ -3,6 +3,7 @@ package com.example.purrsistence.data.remote.supabase.datasource
 import com.example.purrsistence.data.remote.supabase.dto.ProfileDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
+import com.example.purrsistence.data.remote.supabase.dto.UserSyncStateDto
 
 interface ProfileRemoteDataSource {
     suspend fun fetchProfile(userId: String): ProfileDto
@@ -57,5 +58,16 @@ class SupabaseProfileRemoteDataSource(
                     eq("id", userId)
                 }
             }
+    }
+
+    suspend fun fetchUserSyncState(userId: String): UserSyncStateDto {
+        return supabase
+            .from("user_sync_state")
+            .select {
+                filter {
+                    eq("user_id", userId)
+                }
+            }
+            .decodeSingle<UserSyncStateDto>()
     }
 }

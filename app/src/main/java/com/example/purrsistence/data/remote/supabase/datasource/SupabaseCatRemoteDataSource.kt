@@ -1,5 +1,6 @@
 package com.example.purrsistence.data.remote.supabase.datasource
 
+import com.example.purrsistence.data.remote.supabase.dto.SelectedCatDto
 import com.example.purrsistence.data.remote.supabase.dto.UserCatDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -47,5 +48,49 @@ class SupabaseCatRemoteDataSource(
                 catId = catId
             )
         }
+    }
+
+    suspend fun fetchSelectedCatIds(userId: String): List<String> {
+        return fetchSelectedCatRows(userId)
+            .sortedBy { it.slot }
+            .map { it.catId }
+    }
+
+    suspend fun fetchSelectedCatRows(userId: String): List<SelectedCatDto> {
+        return supabase
+            .from("selected_cats")
+            .select {
+                filter {
+                    eq("user_id", userId)
+                }
+            }
+            .decodeList<SelectedCatDto>()
+    }
+
+    suspend fun replaceSelectedCats(
+        userId: String,
+        selectedCatIds: List<String>
+    ) {
+        supabase
+            .from("selected_cats")
+            .delete {
+                filter {
+                    eq("user_id", userId)
+                }
+            }
+
+        selectedCatIds
+            .take(3)
+            .forEachIndexed { index, catId ->
+                supabase
+                    .from("selected_cats")
+                    .insert(
+                        SelectedCatDto(
+                            userId = userId,
+                            slot = index + 1,
+                            catId = catId
+                        )
+                    )
+            }
     }
 }

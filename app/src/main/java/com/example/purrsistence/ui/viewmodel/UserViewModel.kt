@@ -38,14 +38,15 @@ class UserViewModel(
     fun buyCat(catId: String, price: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                // Local purchase remains the primary app behavior:
+                // Local purchase remains the primary app
+                // behavior:
                 // balance deduction + local collectedCatsIds update.
                 shopService.buyCat(currentUserId, catId, price)
 
                 // If the user is signed in to Supabase, mirror the cat remotely.
                 // If not signed in, the local app still works.
                 if (supabaseSyncService.currentSupabaseUserId() != null) {
-                    supabaseSyncService.uploadLocalCatsToSupabase()
+                    supabaseSyncService.forceUploadLocalToSupabase()
                 }
             } catch (exception: Exception) {
                 _supabaseError.value = exception.message
@@ -144,7 +145,7 @@ class UserViewModel(
 
             try {
                 if (supabaseSyncService.currentSupabaseUserId() != null) {
-                    supabaseSyncService.syncEverythingFromSupabase()
+                    supabaseSyncService.checkAndSyncIfNeeded()
                 }
             } catch (exception: Exception) {
                 _supabaseError.value = exception.message

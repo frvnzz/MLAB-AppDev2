@@ -64,9 +64,9 @@ class MainActivity : ComponentActivity() {
         val userDao = db.userDao()
 
         // REPOSITORIES
-        val userRepo : UserRepository = UserRepositoryImpl(userDao)
-        val goalRepo : GoalRepository = GoalRepositoryImpl(goalsDao) // replace with goalDao when it's implemented
         val timeProvider = SystemTimeProvider()
+        val userRepo : UserRepository = UserRepositoryImpl(userDao, timeProvider)
+        val goalRepo : GoalRepository = GoalRepositoryImpl(goalsDao)
         val trackingRepo : TrackingRepository = TrackingRepositoryImpl(trackingDao)
         val statisticsRepo : StatisticsRepository= StatisticsRepositoryImpl(goalsDao, trackingDao)
 
@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
         val rewardService = RewardService()
         val trackingService = TrackingServiceImpl(trackingRepo, userRepo, goalRepo, goalService, rewardService, timeProvider)
         val shopService = ShopService(userRepo)
-        val profileService = ProfileService(this, userRepo)
+        val profileService = ProfileService(this, userRepo, timeProvider, null)
         val statisticsService = StatisticsService(statisticsRepo)
         val trackingCleanupService = TrackingCleanupService(goalRepo,trackingRepo, timeProvider)
 
@@ -100,7 +100,7 @@ class MainActivity : ComponentActivity() {
 
         val supabaseSyncService =
             SupabaseSyncService(
-                userDao = userDao,
+                userRepository = userRepo,
                 authRemoteDataSource = supabaseAuthRemoteDataSource,
                 profileRemoteDataSource = supabaseProfileRemoteDataSource,
                 catRemoteDataSource = supabaseCatRemoteDataSource,
@@ -109,7 +109,7 @@ class MainActivity : ComponentActivity() {
             )
 
         // create ViewModel instances for this activity
-        userViewModel = UserViewModel(shopService, profileService)
+        userViewModel = UserViewModel(shopService, supabaseSyncService, profileService)
         goalViewModel = GoalViewModel(goalService, focusPrefs)
         trackingViewModel = TrackingViewModel(trackingService, timeProvider, focusBlocker)
         // Use factory for StatisticsViewModel to preserve week offset across configuration changes
