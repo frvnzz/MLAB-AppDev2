@@ -1,12 +1,7 @@
 package com.example.purrsistence.ui.components.goalsScreen
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
@@ -20,11 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.purrsistence.domain.model.GoalWithSessions
-import com.example.purrsistence.ui.theme.Spacing
 import java.time.Instant
 import java.util.Locale
 
@@ -44,62 +37,54 @@ fun GoalsSortMenu(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = Spacing.sm),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text("Sort:", style = MaterialTheme.typography.bodyMedium)
+    Box(modifier = modifier) {
+        TextButton(
+            onClick = { expanded = true },
+            modifier = Modifier.padding(horizontal = 4.dp)
+        ) {
+            Text(selectedSort.label, style = MaterialTheme.typography.labelMedium)
+            Icon(
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = "Open sort menu",
+                modifier = Modifier.padding(start = 4.dp)
+            )
+        }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text(SortOption.LAST_TRACKED.label) },
+                onClick = {
+                    onSortChange(SortOption.LAST_TRACKED)
+                    expanded = false
+                }
+            )
 
-        Box {
-            TextButton(onClick = { expanded = true }) {
-                Text(selectedSort.label)
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "Open sort menu"
-                )
-            }
+            DropdownMenuItem(
+                text = { Text(SortOption.DATE_CREATED.label) },
+                onClick = {
+                    onSortChange(SortOption.DATE_CREATED)
+                    expanded = false
+                }
+            )
 
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text(SortOption.LAST_TRACKED.label) },
-                    onClick = {
-                        onSortChange(SortOption.LAST_TRACKED)
-                        expanded = false
-                    }
-                )
+            DropdownMenuItem(
+                text = { Text(SortOption.ALPHA_ASC.label) },
+                onClick = {
+                    onSortChange(SortOption.ALPHA_ASC)
+                    expanded = false
+                }
+            )
 
-                DropdownMenuItem(
-                    text = { Text(SortOption.DATE_CREATED.label) },
-                    onClick = {
-                        onSortChange(SortOption.DATE_CREATED)
-                        expanded = false
-                    }
-                )
-
-                DropdownMenuItem(
-                    text = { Text(SortOption.ALPHA_ASC.label) },
-                    onClick = {
-                        onSortChange(SortOption.ALPHA_ASC)
-                        expanded = false
-                    }
-                )
-
-                DropdownMenuItem(
-                    text = { Text(SortOption.ALPHA_DESC.label) },
-                    onClick = {
-                        onSortChange(SortOption.ALPHA_DESC)
-                        expanded = false
-                    }
-                )
-            }
+            DropdownMenuItem(
+                text = { Text(SortOption.ALPHA_DESC.label) },
+                onClick = {
+                    onSortChange(SortOption.ALPHA_DESC)
+                    expanded = false
+                }
+            )
         }
     }
 }

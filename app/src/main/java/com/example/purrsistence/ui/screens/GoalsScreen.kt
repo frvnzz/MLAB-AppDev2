@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -130,27 +131,37 @@ fun GoalsScreen(
                 .fillMaxSize()
                 .padding(horizontal = Spacing.lg)
         ) {
-            GoalSearchBar(
-                query = goalViewModel.searchQuery,
-                onQueryChange = goalViewModel::onSearchQueryChange
-            )
-
-
             // currently visible item when the user changes sort (to preserve scroll position)
             val displayGoals = remember(goals, selectedSort) {
                 sortGoals(goals, selectedSort)
             }
 
-            GoalsSortMenu(
-                selectedSort = selectedSort,
-                onSortChange = { newSort ->
-                    // capture currently visible goal id + offset so we can restore view after reordering
-                    pendingVisibleGoalId =
-                        displayGoals.getOrNull(listState.firstVisibleItemIndex)?.goal?.id
-                    pendingVisibleScrollOffset = listState.firstVisibleItemScrollOffset
-                    selectedSort = newSort
+            // SEARCH BAR AND SORT MENU IN A SINGLE ROW
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = Spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    GoalSearchBar(
+                        query = goalViewModel.searchQuery,
+                        onQueryChange = goalViewModel::onSearchQueryChange
+                    )
                 }
-            )
+
+                GoalsSortMenu(
+                    selectedSort = selectedSort,
+                    onSortChange = { newSort ->
+                        // capture currently visible goal id + offset so we can restore view after reordering
+                        pendingVisibleGoalId =
+                            displayGoals.getOrNull(listState.firstVisibleItemIndex)?.goal?.id
+                        pendingVisibleScrollOffset = listState.firstVisibleItemScrollOffset
+                        selectedSort = newSort
+                    }
+                )
+            }
 
             // GOAL CARDS LIST (sorted according to selectedSort)
             LaunchedEffect(selectedSort) {
