@@ -11,22 +11,25 @@ import java.time.ZonedDateTime
 
 data class GoalWithSessions(
     val goal: Goal,
-    val sessions: List<TrackingSession>
+    val sessions: List<TrackingSession>,
 ) {
     fun totalTrackedDuration(): Duration {
         return sessions
+            .asSequence()
             .mapNotNull { it.finishedDuration() }
-            .fold(Duration.ZERO) { acc, duration -> acc.plus(duration) }
+            .fold(Duration.ZERO) { acc, duration -> acc + duration }
     }
 
-    fun trackedDurationInWindow(window: TimeWindow): Duration{ // Calculate the total tracked duration for sessions that started within the given time window
+    fun trackedDurationInWindow(window: TimeWindow): Duration { // Calculate the total tracked duration for sessions that started within the given time window
         return sessions
+            .asSequence()
             .filter { session ->
                 val start = session.startTime
-                start >= window.start && start < window.end
+                (start >= window.start) && (start < window.end)
             }
-            .fold(Duration.ZERO) { acc, session ->
-                acc.plus(session.finishedDuration())
+            .mapNotNull { it.finishedDuration() }
+            .fold(Duration.ZERO) { acc, duration ->
+                acc + duration
             }
     }
 
@@ -45,7 +48,7 @@ data class GoalWithSessions(
     }
 
     fun hasCompletedCurrentWindow(now: ZonedDateTime): Boolean { // Check if the goal has been completed in the current time window by comparing the last completed time with the start of the current window
-        if(goal.lastCompletedAt == null) return false //never completed before
+        if (goal.lastCompletedAt == null) return false //never completed before
 
         val window = when (goal.type) {
             GoalType.DAILY -> currentDayWindow(now)

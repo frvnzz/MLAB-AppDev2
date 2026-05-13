@@ -36,6 +36,9 @@ fun AppNavHost(
     snackbarHostState: SnackbarHostState,
 ) {
     LaunchedEffect(Unit) {
+        if (trackingViewModel.uiState.value.isTracking) {
+            navController.navigate("tracking")
+        }
         trackingViewModel.events.collect { event ->
             when (event) {
                 TrackingEvent.NavigateToTrackingScreen -> {

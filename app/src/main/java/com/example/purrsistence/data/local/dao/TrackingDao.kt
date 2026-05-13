@@ -66,4 +66,12 @@ interface TrackingDao {
 
     @Query("SELECT COUNT(*) FROM TrackingSessionEntity WHERE goalId = :goalId")
     suspend fun countSessionsForGoal(goalId: Int): Int
+
+    //WIDGET QUERY
+    @Query("""
+        SELECT * FROM TrackingSessionEntity
+        WHERE userId = :userId AND endTime IS NULL
+        LIMIT 1
+    """)
+    suspend fun getRunningSession(userId: Int): TrackingSessionEntity?
 }

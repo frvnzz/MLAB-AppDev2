@@ -6,7 +6,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.example.purrsistence.data.local.entity.GoalEntity
 import com.example.purrsistence.data.local.relation.GoalWithSessionsEntity
-import com.example.purrsistence.ui.navigation.GoalEvent
 import kotlinx.coroutines.flow.Flow
 
 // TODO: SPLIT DAO
@@ -79,5 +78,19 @@ interface GoalsDao {
     suspend fun updateLastCompletedAt(goalId: Int, completedAt: Long)
     @Query("SELECT * FROM GoalEntity WHERE inactive = 1")
     suspend fun getInactiveGoals(): List<GoalEntity>
+
+    //WIDGETS QUERY
+    @Query(
+        """
+        SELECT g.* FROM GoalEntity g
+        INNER JOIN TrackingSessionEntity ts
+            ON g.goalId = ts.goalId
+        WHERE g.userId = :userId
+          AND g.inactive = 0
+        ORDER BY ts.startTime DESC
+        LIMIT 1
+    """
+    )
+    suspend fun getMostRecentlyTrackedGoal(userId: Int): GoalEntity?
 
 }

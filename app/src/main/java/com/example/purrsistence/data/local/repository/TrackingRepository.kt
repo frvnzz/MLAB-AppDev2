@@ -15,6 +15,7 @@ interface TrackingRepository {
     suspend fun getActiveTrackingSession(goalId: Int): TrackingSession?
     suspend fun deleteFinishedSessionsForGoalBefore(goalId: Int, cutoff: java.time.Instant)
     suspend fun countSessionsForGoal(goalId: Int): Int
+    suspend fun getRunningSession(userId: Int): TrackingSession?
 }
 
 class TrackingRepositoryImpl(
@@ -55,5 +56,9 @@ class TrackingRepositoryImpl(
 
     override suspend fun countSessionsForGoal(goalId: Int): Int {
         return trackingDao.countSessionsForGoal(goalId)
+    }
+
+    override suspend fun getRunningSession(userId: Int): TrackingSession? {
+        return trackingDao.getRunningSession(userId)?.toDomain()
     }
 }

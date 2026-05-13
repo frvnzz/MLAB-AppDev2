@@ -17,6 +17,7 @@ interface GoalRepository {
     suspend fun updateGoal(goal: Goal)
     fun searchGoals(userId: Int, query: String): Flow<List<GoalWithSessions>>
     suspend fun getInactiveGoals(): List<Goal>
+    suspend fun getMostRecentlyTrackedGoal(userId: Int): Goal?
 }
 
 class GoalRepositoryImpl(
@@ -74,6 +75,14 @@ class GoalRepositoryImpl(
 
     override suspend fun getInactiveGoals(): List<Goal> {
         return dao.getInactiveGoals().map { it.toDomain() }
+    }
+
+    override suspend fun getMostRecentlyTrackedGoal(
+        userId: Int
+    ): Goal? {
+        return dao
+            .getMostRecentlyTrackedGoal(userId)
+            ?.toDomain()
     }
 }
 

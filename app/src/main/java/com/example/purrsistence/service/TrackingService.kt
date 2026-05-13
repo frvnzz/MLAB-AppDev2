@@ -16,6 +16,7 @@ import java.time.ZoneId
 interface TrackingService{
     suspend fun startTracking(goalId: Int, userId: Int, pauseReminder: Boolean = false, deepFocus: Boolean = false): TrackingSession
     suspend fun stopTracking(trackingId: Int): TrackingStopResult?
+    suspend fun getRunningSession(userId: Int): TrackingSession?
 }
 
 class TrackingServiceImpl(
@@ -79,6 +80,10 @@ class TrackingServiceImpl(
             sessionDurationMillis = sessionDurationMillis,
             goalCompletionReward = goalCompletionReward,
         )
+    }
+
+    override suspend fun getRunningSession(userId: Int): TrackingSession? {
+        return trackingRepository.getRunningSession(userId)
     }
 
     private fun calculateGoalCompletionReward(goal: Goal): Int {

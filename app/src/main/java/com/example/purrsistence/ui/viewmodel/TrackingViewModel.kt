@@ -1,5 +1,7 @@
 package com.example.purrsistence.ui.viewmodel
 
+import android.app.Application
+import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.domain.focus.FocusBlocker
@@ -7,6 +9,7 @@ import com.example.purrsistence.domain.time.TimeProvider
 import com.example.purrsistence.service.TrackingService
 import com.example.purrsistence.ui.navigation.TrackingEvent
 import com.example.purrsistence.ui.state.TrackingUiState
+import com.example.purrsistence.widget.WidgetTracking
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,6 +22,7 @@ import java.time.Duration
 import java.time.Instant
 
 class TrackingViewModel(
+    private val application: Application,
     private val trackingService: TrackingService,
     private val timeProvider: TimeProvider,
     private val focusBlocker: FocusBlocker
@@ -32,6 +36,27 @@ class TrackingViewModel(
 
     private var timerJob: Job? = null
     private var isDeepFocusSession = false
+
+    init {
+        resumeActiveSession()
+    }
+
+    fun resumeActiveSession() {
+        viewModelScope.launch {
+            val session = trackingService.getRunningSession(1) // TODO: Get actual userId
+            if (session != null) {
+                _uiState.value = TrackingUiState(
+                    trackingId = session.id,
+                    goalId = session.goalId,
+                    startTime = session.startTime,
+                    elapsedMillis = Duration.between(session.startTime, timeProvider.now()).toMillis(),
+                    isTracking = true
+                )
+                startTicker(session.startTime)
+                _events.emit(TrackingEvent.NavigateToTrackingScreen)
+            }
+        }
+    }
 
     fun startTrack(goalId: Int, userId: Int, deepFocus: Boolean) {
         viewModelScope.launch{
@@ -56,6 +81,7 @@ class TrackingViewModel(
             )
 
             startTicker(session.startTime)
+            WidgetTracking().updateAll(application)
             _events.emit(TrackingEvent.NavigateToTrackingScreen)
         }
     }
@@ -83,6 +109,7 @@ class TrackingViewModel(
                 elapsedMillis = stopResult.sessionDurationMillis,
                 goalCompletionReward = stopResult.goalCompletionReward  //added to show goal completion reward in UI if applicable
             )
+            WidgetTracking().updateAll(application)
         }
     }
 

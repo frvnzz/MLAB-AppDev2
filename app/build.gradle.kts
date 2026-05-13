@@ -211,4 +211,7 @@ dependencies {
     implementation(libs.vico.compose)
     implementation(libs.vico.compose.m3)
     implementation(libs.coil.compose)
+
+    //Widgets
+    implementation("androidx.glance:glance-appwidget:1.1.1")
 }

@@ -1,16 +1,22 @@
 package com.example.purrsistence.ui.viewmodel
 
+import android.app.Application
 import android.content.SharedPreferences
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.edit
+import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.purrsistence.domain.model.types.GoalType
 import com.example.purrsistence.service.GoalService
+import com.example.purrsistence.widget.WidgetTracking
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 
 class GoalViewModel(
+    private val application: Application,
     private val goalService: GoalService,
     private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
@@ -60,12 +66,14 @@ class GoalViewModel(
                 inactive = inactive,
                 isCompleted = isCompleted
             )
+            WidgetTracking().updateAll(application)
         }
     }
 
     fun deleteGoal(goalId: Int) {
         viewModelScope.launch {
             goalService.deleteGoal(goalId)
+            WidgetTracking().updateAll(application)
         }
     }
 
@@ -81,6 +89,7 @@ class GoalViewModel(
     ) {
         viewModelScope.launch {
             goalService.updateGoal(goalId, title, type, hours, deepFocus)
+            WidgetTracking().updateAll(application)
         }
     }
 

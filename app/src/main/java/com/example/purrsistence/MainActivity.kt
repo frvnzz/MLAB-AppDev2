@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.purrsistence.data.focus.SharedPrefsFocusBlocker
@@ -29,15 +30,15 @@ import com.example.purrsistence.service.StatisticsService
 import com.example.purrsistence.service.TrackingCleanupService
 import com.example.purrsistence.service.TrackingServiceImpl
 import com.example.purrsistence.ui.screens.MainScreen
-import com.example.purrsistence.ui.viewmodel.StatisticsViewModel
-import com.example.purrsistence.ui.viewmodel.StatisticsViewModelFactory
 import com.example.purrsistence.ui.theme.PurrsistenceTheme
 import com.example.purrsistence.ui.viewmodel.GoalViewModel
+import com.example.purrsistence.ui.viewmodel.StatisticsViewModel
+import com.example.purrsistence.ui.viewmodel.StatisticsViewModelFactory
 import com.example.purrsistence.ui.viewmodel.TrackingViewModel
 import com.example.purrsistence.ui.viewmodel.UserViewModel
+import com.example.purrsistence.widget.WidgetTracking
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import java.time.ZonedDateTime
 
 class MainActivity : ComponentActivity() {
 
@@ -79,8 +80,8 @@ class MainActivity : ComponentActivity() {
 
         // create ViewModel instances for this activity
         userViewModel = UserViewModel(shopService, profileService)
-        goalViewModel = GoalViewModel(goalService, focusPrefs)
-        trackingViewModel = TrackingViewModel(trackingService, timeProvider, focusBlocker)
+        goalViewModel = GoalViewModel(application, goalService, focusPrefs)
+        trackingViewModel = TrackingViewModel(application, trackingService, timeProvider, focusBlocker)
         // Use factory for StatisticsViewModel to preserve week offset across configuration changes
         statisticsViewModel = ViewModelProvider(
             this,
@@ -125,6 +126,13 @@ class MainActivity : ComponentActivity() {
                     statisticsViewModel = statisticsViewModel,
                 )
             }
+        }
+    }
+
+    override fun onStop() { //TODO update widget where needed not just here
+        super.onStop()
+        lifecycleScope.launch {
+            WidgetTracking().updateAll(applicationContext)
         }
     }
 }
