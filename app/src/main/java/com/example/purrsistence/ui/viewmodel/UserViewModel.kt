@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 class UserViewModel(
     private val shopService: ShopService,
-    private val supabaseSyncService: SupabaseSyncService,
+    private val supabaseSyncService: SupabaseSyncService?,
     private val profileService: ProfileService? = null
 ) : ViewModel() {
 
@@ -45,7 +45,7 @@ class UserViewModel(
 
                 // If the user is signed in to Supabase, mirror the cat remotely.
                 // If not signed in, the local app still works.
-                if (supabaseSyncService.currentSupabaseUserId() != null) {
+                if (supabaseSyncService?.currentSupabaseUserId() != null) {
                     supabaseSyncService.forceUploadLocalToSupabase()
                 }
             } catch (exception: Exception) {
@@ -89,7 +89,7 @@ class UserViewModel(
             _supabaseError.value = null
 
             try {
-                supabaseSyncService.signUp(
+                supabaseSyncService?.signUp(
                     email = email,
                     password = password,
                     username = username
@@ -111,7 +111,7 @@ class UserViewModel(
             _supabaseError.value = null
 
             try {
-                supabaseSyncService.signIn(
+                supabaseSyncService?.signIn(
                     email = email,
                     password = password
                 )
@@ -129,7 +129,7 @@ class UserViewModel(
             _supabaseError.value = null
 
             try {
-                supabaseSyncService.signOut()
+                supabaseSyncService?.signOut()
             } catch (exception: Exception) {
                 _supabaseError.value = exception.message
             } finally {
@@ -144,7 +144,7 @@ class UserViewModel(
             _supabaseError.value = null
 
             try {
-                if (supabaseSyncService.currentSupabaseUserId() != null) {
+                if (supabaseSyncService?.currentSupabaseUserId() != null) {
                     supabaseSyncService.checkAndSyncIfNeeded()
                 }
             } catch (exception: Exception) {
@@ -161,7 +161,7 @@ class UserViewModel(
             _supabaseError.value = null
 
             try {
-                supabaseSyncService.updateUsername(username)
+                supabaseSyncService?.updateUsername(username)
             } catch (exception: Exception) {
                 _supabaseError.value = exception.message
             } finally {
@@ -176,7 +176,7 @@ class UserViewModel(
             _supabaseError.value = null
 
             try {
-                supabaseSyncService.updateAvatarPath(avatarPath)
+                supabaseSyncService?.updateAvatarPath(avatarPath)
             } catch (exception: Exception) {
                 _supabaseError.value = exception.message
             } finally {

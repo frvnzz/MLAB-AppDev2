@@ -30,4 +30,12 @@ class FakeUserRepository : UserRepository {
         users[userId] = updated
         userFlows.getOrPut(userId) { MutableStateFlow(null) }.value = updated
     }
+
+    override suspend fun updateUserFromRemoteSync(user: User) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun markUserSynced(userId: Int) {
+        TODO("Not yet implemented")
+    }
 }

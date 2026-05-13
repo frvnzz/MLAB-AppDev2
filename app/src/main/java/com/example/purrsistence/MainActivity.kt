@@ -17,7 +17,6 @@ import com.example.purrsistence.data.local.repository.TrackingRepository
 import com.example.purrsistence.data.local.repository.TrackingRepositoryImpl
 import com.example.purrsistence.data.local.repository.UserRepository
 import com.example.purrsistence.data.local.repository.UserRepositoryImpl
-import com.example.purrsistence.data.remote.repository.ProfileRepository
 import com.example.purrsistence.data.remote.supabase.SupabaseClientProvider
 import com.example.purrsistence.data.remote.supabase.datasource.SupabaseAuthRemoteDataSource
 import com.example.purrsistence.data.remote.supabase.datasource.SupabaseCatRemoteDataSource
@@ -44,7 +43,6 @@ import com.example.purrsistence.ui.viewmodel.TrackingViewModel
 import com.example.purrsistence.ui.viewmodel.UserViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import java.time.ZonedDateTime
 
 class MainActivity : ComponentActivity() {
 
