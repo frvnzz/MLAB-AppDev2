@@ -29,11 +29,23 @@ class UserViewModel(
             null
         )
 
+    // Centralized source of truth of remote user (sign up / in / out)
+    private val _isSupabaseSignedIn = MutableStateFlow(supabaseSyncService.isSignedIn())
+    val isSupabaseSignedIn: StateFlow<Boolean> = _isSupabaseSignedIn
+
     private val _supabaseError = MutableStateFlow<String?>(null)
     val supabaseError: StateFlow<String?> = _supabaseError
 
     private val _isSupabaseLoading = MutableStateFlow(false)
     val isSupabaseLoading: StateFlow<Boolean> = _isSupabaseLoading
+
+    // Check if account creation was a success so user can log in safely
+    private val _signUpSuccess = MutableStateFlow(false)
+    val signUpSuccess: StateFlow<Boolean> = _signUpSuccess
+    // used to reset the state after redirecting to login page
+    fun resetSignUpSuccess() {
+        _signUpSuccess.value = false
+    }
 
     fun buyCat(catId: String, price: Int) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -94,7 +106,10 @@ class UserViewModel(
                     password = password,
                     username = username
                 )
+                // set to false because user is not logged in yet
+                _signUpSuccess.value = true
             } catch (exception: Exception) {
+                _signUpSuccess.value = false
                 _supabaseError.value = exception.message
             } finally {
                 _isSupabaseLoading.value = false
@@ -115,7 +130,9 @@ class UserViewModel(
                     email = email,
                     password = password
                 )
+                _isSupabaseSignedIn.value = true
             } catch (exception: Exception) {
+                _isSupabaseSignedIn.value = false
                 _supabaseError.value = exception.message
             } finally {
                 _isSupabaseLoading.value = false
@@ -133,6 +150,7 @@ class UserViewModel(
             } catch (exception: Exception) {
                 _supabaseError.value = exception.message
             } finally {
+                _isSupabaseSignedIn.value = false
                 _isSupabaseLoading.value = false
             }
         }

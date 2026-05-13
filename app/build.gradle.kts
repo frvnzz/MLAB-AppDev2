@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     id("com.google.devtools.ksp")
     jacoco
 }
@@ -229,11 +230,9 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    val room_version = "2.8.4"
-
-    implementation("androidx.room:room-runtime:$room_version")
-    ksp("androidx.room:room-compiler:$room_version")
-    implementation("androidx.room:room-ktx:$room_version")
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
     //Vico Compose Graphs
     implementation(libs.vico.compose)
@@ -241,10 +240,11 @@ dependencies {
     implementation(libs.coil.compose)
 
     //--------------- Supabase --------------
-    implementation(platform("io.github.jan-tennert.supabase:bom:3.6.0"))
-
-    implementation("io.github.jan-tennert.supabase:auth-kt")
-    implementation("io.github.jan-tennert.supabase:postgrest-kt")
-    implementation("io.github.jan-tennert.supabase:storage-kt")
-    implementation("io.ktor:ktor-client-okhttp:3.3.0")
+    implementation(platform(libs.bom))
+    implementation(libs.auth.kt)
+    implementation(libs.postgrest.kt)
+    implementation(libs.storage.kt)
+    implementation(libs.ktor.client.okhttp)
+    // serialization
+    implementation(libs.kotlinx.serialization.json)
 }

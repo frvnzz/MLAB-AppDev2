@@ -1,7 +1,5 @@
 package com.example.purrsistence.service
 
-import com.example.purrsistence.data.local.dao.UserDao
-import com.example.purrsistence.data.local.entity.UserEntity
 import com.example.purrsistence.data.local.repository.UserRepository
 import com.example.purrsistence.data.remote.supabase.datasource.SupabaseAuthRemoteDataSource
 import com.example.purrsistence.data.remote.supabase.datasource.SupabaseCatRemoteDataSource
@@ -37,10 +35,6 @@ class SupabaseSyncService(
             password = password,
             username = username
         )
-
-        if (isSignedIn()) {
-            checkAndSyncIfNeeded()
-        }
     }
 
     suspend fun signIn(
