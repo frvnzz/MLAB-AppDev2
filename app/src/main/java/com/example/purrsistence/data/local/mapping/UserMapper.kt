@@ -3,21 +3,22 @@ package com.example.purrsistence.data.local.mapping
 import com.example.purrsistence.data.local.entity.UserEntity
 import com.example.purrsistence.domain.model.User
 import java.net.URL
-import java.time.Instant
 
 fun UserEntity.toDomain(): User =
     User(
         id = userId,
         username = username,
-        profileImageUrl = profileImageUrl?.takeIf { it.isNotBlank() }?.let { URL(it) },
+        profileImageUrl = profileImageUrl
+            ?.takeIf { it.isNotBlank() }
+            ?.let { URL(it) },
         balance = balance,
         friends = friends,
         isSupabaseLinked = isSupabaseLinked,
         supabaseUserId = supabaseUserId,
         collectedCatsIds = collectedCatsIds,
         selectedCatIds = selectedCatIds,
-        localUpdatedAt = localUpdatedAt as Instant?,
-        lastSyncedAt = lastSyncedAt as Instant?,
+        localUpdatedAt = localUpdatedAt,
+        lastSyncedAt = lastSyncedAt,
         hasPendingLocalChanges = hasPendingLocalChanges
     )
 
@@ -32,7 +33,7 @@ fun User.toEntity(): UserEntity =
         friends = friends,
         collectedCatsIds = collectedCatsIds,
         selectedCatIds = selectedCatIds,
-        localUpdatedAt = localUpdatedAt as Long?,
-        lastSyncedAt = lastSyncedAt as Long?,
+        localUpdatedAt = localUpdatedAt,
+        lastSyncedAt = lastSyncedAt,
         hasPendingLocalChanges = hasPendingLocalChanges
     )

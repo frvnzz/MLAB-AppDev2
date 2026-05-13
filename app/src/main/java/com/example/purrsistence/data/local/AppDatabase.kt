@@ -8,6 +8,7 @@ import com.example.purrsistence.data.local.entity.GoalEntity
 import com.example.purrsistence.data.local.entity.TrackingSessionEntity
 import com.example.purrsistence.data.local.entity.UserEntity
 import androidx.room.TypeConverters
+import com.example.purrsistence.data.local.converter.InstantConverter
 import com.example.purrsistence.data.local.converter.StringListConverter
 import com.example.purrsistence.data.local.dao.GoalsDao
 import com.example.purrsistence.data.local.dao.TrackingDao
@@ -24,7 +25,10 @@ import com.example.purrsistence.data.local.dao.UserDao
     version = 3,
     exportSchema = false
 )
-@TypeConverters(StringListConverter::class)
+@TypeConverters(
+    StringListConverter::class,
+    InstantConverter::class
+)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun goalsDao(): GoalsDao
