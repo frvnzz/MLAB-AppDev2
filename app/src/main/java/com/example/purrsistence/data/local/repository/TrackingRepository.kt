@@ -32,8 +32,23 @@ class TrackingRepositoryImpl(
         trackingId: Int,
         endTimeMillis: Long
     ): TrackingSession? {
-        trackingDao.stopTrackingSession(trackingId, endTimeMillis)
-        return trackingDao.getTrackingSessionById(trackingId)?.toDomain()
+        val sessionEntity = trackingDao.getTrackingSessionById(trackingId) ?: return null
+        val endTime = Instant.ofEpochMilli(endTimeMillis)
+
+        val updatedEntity = if (sessionEntity.currentPauseStart != null) {
+            val pauseStart = Instant.ofEpochMilli(sessionEntity.currentPauseStart)
+            val pauseDuration = java.time.Duration.between(pauseStart, endTime).toMillis()
+            sessionEntity.copy(
+                endTime = endTimeMillis,
+                pausedTimeMillis = sessionEntity.pausedTimeMillis + pauseDuration,
+                currentPauseStart = null
+            )
+        } else {
+            sessionEntity.copy(endTime = endTimeMillis)
+        }
+
+        trackingDao.updateTrackingSession(updatedEntity)
+        return updatedEntity.toDomain()
     }
 
     override suspend fun getTrackingSessionById(trackingId: Int): TrackingSession? {

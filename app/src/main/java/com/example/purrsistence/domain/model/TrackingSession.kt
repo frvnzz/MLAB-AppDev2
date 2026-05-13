@@ -16,8 +16,14 @@ data class TrackingSession(
     val pauseIntervals: List<Pair<Instant, Instant>> = emptyList(), //list of pause intervals (start, end)
 ) {
     fun effectiveDuration(now: Instant): Duration { //total duration minus paused time
-        val totalDuration = duration(now)
-        return totalDuration.minusMillis(pausedTimeMillis)
+        val end = endTime ?: now
+        val totalDuration = Duration.between(startTime, end)
+
+        val currentPauseDuration = currentPauseStart?.let {
+            Duration.between(it, end)
+        } ?: Duration.ZERO
+
+        return totalDuration.minusMillis(pausedTimeMillis).minus(currentPauseDuration).coerceAtLeast(Duration.ZERO)
     }
 
     fun duration(now: Instant): Duration {
@@ -26,6 +32,6 @@ data class TrackingSession(
 
     fun finishedDuration(): Duration? {
         val finishedAt = endTime ?: return null
-        return Duration.between(startTime, finishedAt)
+        return effectiveDuration(finishedAt)
     }
 }

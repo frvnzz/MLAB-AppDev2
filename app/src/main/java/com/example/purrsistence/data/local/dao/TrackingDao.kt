@@ -3,6 +3,7 @@ package com.example.purrsistence.data.local.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.example.purrsistence.data.local.entity.TrackingSessionEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -13,6 +14,9 @@ interface TrackingDao {
 
     @Insert
     suspend fun insertTrackingSession(session: TrackingSessionEntity): Long
+
+    @Update
+    suspend fun updateTrackingSession(session: TrackingSessionEntity)
 
     @Query(
         """
@@ -39,9 +43,9 @@ interface TrackingDao {
     // -> Observe total time spent on a goal
     @Query(
         """
-    SELECT SUM(endTime - startTime) 
+    SELECT SUM(endTime - startTime - pausedTimeMillis) 
     FROM TrackingSessionEntity 
-    WHERE goalId = :goalId
+    WHERE goalId = :goalId AND endTime IS NOT NULL
     """
     )
     fun observeTotalTime(goalId: Int): Flow<Long?>
