@@ -31,34 +31,34 @@ class UserRepositoryImpl (
 
 
     override suspend fun insertUser(user: User) {
-        val nowMillis = timeProvider.now().toEpochMilli()
-        val localUpdatedAt = user.toEntity().localUpdatedAt
+        val now = timeProvider.now()
+        val localUpdatedAt = user.localUpdatedAt
         userDao.insertUser(
             user.toEntity().copy(
-                localUpdatedAt = localUpdatedAt.takeIf { it!! > 0 } ?: nowMillis,
-                lastSyncedAt = user.lastSyncedAt as Long?,
+                localUpdatedAt = localUpdatedAt ?: now,
+                lastSyncedAt = user.lastSyncedAt,
                 hasPendingLocalChanges = user.hasPendingLocalChanges
             )
         )
     }
 
     override suspend fun updateUserFromLocalAction(user: User) {
-        val nowMillis = timeProvider.now().toEpochMilli()
+        val now = timeProvider.now()
 
         userDao.updateUser(
             user.toEntity().copy(
-                localUpdatedAt = nowMillis,
+                localUpdatedAt = now,
                 hasPendingLocalChanges = true
             )
         )
     }
 
     override suspend fun updateUserFromRemoteSync(user: User) {
-        val nowMillis = timeProvider.now().toEpochMilli()
+        val now = timeProvider.now()
 
         userDao.updateUser(
             user.toEntity().copy(
-                lastSyncedAt = nowMillis,
+                lastSyncedAt = now,
                 hasPendingLocalChanges = false
             )
         )
@@ -66,11 +66,11 @@ class UserRepositoryImpl (
 
     override suspend fun markUserSynced(userId: Int) {
         val user = getUser(userId).firstOrNull() ?: return
-        val nowMillis = timeProvider.now().toEpochMilli()
+        val now = timeProvider.now()
 
         userDao.updateUser(
             user.toEntity().copy(
-                lastSyncedAt = nowMillis,
+                lastSyncedAt = now,
                 hasPendingLocalChanges = false
             )
         )
