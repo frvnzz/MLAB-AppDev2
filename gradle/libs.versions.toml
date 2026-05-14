@@ -14,6 +14,7 @@ material3 = "1.4.0"
 room = "2.8.4"
 vico = "3.1.0"
 coil = "2.7.0"
+mockk = "1.13.17"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,6 +44,7 @@ vico-compose = { group = "com.patrykandpatrick.vico", name = "compose", version.
 # Material 3 theming in Compose Multiplatform
 vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -1,6 +1,7 @@
 package com.example.purrsistence.ui.tracking
 
 
+import androidx.glance.appwidget.updateAll
 import com.example.purrsistence.domain.focus.FakeFocusBlocker
 import com.example.purrsistence.domain.service.fakes.FakeTrackingService
 import com.example.purrsistence.domain.time.FakeTimeProvider
@@ -27,11 +28,14 @@ class TrackingViewModelDeepFocusTest {
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
+        io.mockk.mockkStatic("androidx.glance.appwidget.GlanceAppWidgetKt")
+        io.mockk.coEvery { any<androidx.glance.appwidget.GlanceAppWidget>().updateAll(any()) } returns Unit
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+        io.mockk.unmockkAll()
     }
 
     @Test
@@ -39,8 +43,10 @@ class TrackingViewModelDeepFocusTest {
         val trackingService = FakeTrackingService()
         val blocker = FakeFocusBlocker()
         val timeProvider = FakeTimeProvider(Instant.ofEpochMilli(1_000L))
+        val application = io.mockk.mockk<android.app.Application>(relaxed = true)
 
         val viewModel = TrackingViewModel(
+            application = application,
             trackingService = trackingService,
             timeProvider = timeProvider,
             focusBlocker = blocker
@@ -63,8 +69,10 @@ class TrackingViewModelDeepFocusTest {
         val trackingService = FakeTrackingService()
         val blocker = FakeFocusBlocker()
         val timeProvider = FakeTimeProvider(Instant.ofEpochMilli(1_000L))
+        val application = io.mockk.mockk<android.app.Application>(relaxed = true)
 
         val viewModel = TrackingViewModel(
+            application = application,
             trackingService = trackingService,
             timeProvider = timeProvider,
             focusBlocker = blocker
@@ -87,8 +95,10 @@ class TrackingViewModelDeepFocusTest {
         val trackingService = FakeTrackingService()
         val blocker = FakeFocusBlocker()
         val timeProvider = FakeTimeProvider(Instant.ofEpochMilli(1_000L))
+        val application = io.mockk.mockk<android.app.Application>(relaxed = true)
 
         val viewModel = TrackingViewModel(
+            application = application,
             trackingService = trackingService,
             timeProvider = timeProvider,
             focusBlocker = blocker

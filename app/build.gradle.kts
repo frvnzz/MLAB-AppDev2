@@ -190,6 +190,7 @@ dependencies {
     // ─────────── Unit tests ───────────
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
 
     // ─────────── Android tests ───────────
     androidTestImplementation(libs.androidx.junit)

@@ -58,6 +58,10 @@ class FakeTrackingRepository : TrackingRepository {
         return sessions.count { it.goalId == goalId }
     }
 
+    override suspend fun getRunningSession(userId: Int): TrackingSession? {
+        return sessions.find { it.userId == userId && it.endTime == null }
+    }
+
     fun seedSession(session: TrackingSession) {
         sessions.add(session)
         nextId = maxOf(nextId, session.id + 1)

@@ -8,12 +8,15 @@ import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.updateAll
 import com.example.purrsistence.MainActivity
 import com.example.purrsistence.data.local.AppDatabase
+import com.example.purrsistence.data.local.repository.GoalRepository
 import com.example.purrsistence.data.local.repository.GoalRepositoryImpl
+import com.example.purrsistence.data.local.repository.TrackingRepository
 import com.example.purrsistence.data.local.repository.TrackingRepositoryImpl
 import com.example.purrsistence.data.local.repository.UserRepositoryImpl
 import com.example.purrsistence.domain.time.SystemTimeProvider
 import com.example.purrsistence.service.GoalService
 import com.example.purrsistence.service.RewardService
+import com.example.purrsistence.service.TrackingService
 import com.example.purrsistence.service.TrackingServiceImpl
 
 class StartTrackingAction : ActionCallback {
@@ -23,16 +26,16 @@ class StartTrackingAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-
         val db = AppDatabase.getInstance(context)
 
         val trackingRepo = TrackingRepositoryImpl(db.trackingDao())
         val goalRepo = GoalRepositoryImpl(db.goalsDao())
         val goalService = GoalService(
             goalRepository = goalRepo,
-            timeProvider = SystemTimeProvider())
+            timeProvider = SystemTimeProvider()
+        )
 
-        val service = TrackingServiceImpl(
+        val trackingService = TrackingServiceImpl(
             trackingRepository = trackingRepo,
             userRepository = UserRepositoryImpl(db.userDao()),
             goalRepository = goalRepo,
@@ -41,24 +44,45 @@ class StartTrackingAction : ActionCallback {
             timeProvider = SystemTimeProvider()
         )
 
+        performAction(
+            context = context,
+            trackingRepo = trackingRepo,
+            goalRepo = goalRepo,
+            trackingService = trackingService,
+            onStartActivity = { intent ->
+                context.startActivity(intent)
+            },
+            onUpdateWidget = {
+                WidgetTracking().updateAll(context)
+            }
+        )
+    }
+
+    internal suspend fun performAction(
+        context: Context,
+        trackingRepo: TrackingRepository,
+        goalRepo: GoalRepository,
+        trackingService: TrackingService,
+        onStartActivity: (Intent) -> Unit,
+        onUpdateWidget: suspend () -> Unit
+    ) {
         val userId = 1
 
         val running = trackingRepo.getRunningSession(userId)
 
-        val session = if(running != null) {
+        val session = if (running != null) {
             running
         } else {
-            val recentGoal =
-                goalRepo.getMostRecentlyTrackedGoal(userId)
-                    ?: return
+            val recentGoal = goalRepo.getMostRecentlyTrackedGoal(userId)
+                ?: return
 
-            service.startTracking(
+            trackingService.startTracking(
                 goalId = recentGoal.id,
                 userId = userId
             )
         }
 
-        //open app
+        // open app
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -66,7 +90,7 @@ class StartTrackingAction : ActionCallback {
             putExtra("tracking_session_id", session.id)
         }
 
-        context.startActivity(intent)
-        WidgetTracking().updateAll(context)
+        onStartActivity(intent)
+        onUpdateWidget()
     }
 }

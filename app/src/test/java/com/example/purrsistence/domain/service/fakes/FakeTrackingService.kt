@@ -46,4 +46,8 @@ class FakeTrackingService : TrackingService {
             sessionDurationMillis = 60_000L
         )
     }
+
+    override suspend fun getRunningSession(userId: Int): TrackingSession? {
+        return null
+    }
 }

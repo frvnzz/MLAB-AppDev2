@@ -67,6 +67,10 @@ class FakeGoalRepository : GoalRepository {
         return goals.filter { it.inactive }
     }
 
+    override suspend fun getMostRecentlyTrackedGoal(userId: Int): Goal? {
+        return goals.filter { it.userId == userId }.lastOrNull()
+    }
+
     fun seedGoal(goal: Goal) {
         goals.removeAll { it.id == goal.id }
         goals.add(goal)
