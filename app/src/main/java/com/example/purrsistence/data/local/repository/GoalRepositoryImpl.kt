@@ -14,6 +14,7 @@ interface GoalRepository {
     suspend fun insertGoal(goal: Goal)
     suspend fun deleteGoal(goalId: Int)
     fun getGoal(goalId: Int?): Flow<Goal?>
+    fun getGoalWithSessions(goalId: Int?): Flow<GoalWithSessions?>
     suspend fun updateGoal(goal: Goal)
     fun searchGoals(userId: Int, query: String): Flow<List<GoalWithSessions>>
     suspend fun getInactiveGoals(): List<Goal>
@@ -48,6 +49,16 @@ class GoalRepositoryImpl(
             kotlinx.coroutines.flow.flowOf(null)
         } else {
             dao.getGoal(goalId).map { entity ->
+                entity?.toDomain()
+            }
+        }
+    }
+
+    override fun getGoalWithSessions(goalId: Int?): Flow<GoalWithSessions?> {
+        return if (goalId == null) {
+            kotlinx.coroutines.flow.flowOf(null)
+        } else {
+            dao.getGoalWithSessions(goalId).map { entity ->
                 entity?.toDomain()
             }
         }

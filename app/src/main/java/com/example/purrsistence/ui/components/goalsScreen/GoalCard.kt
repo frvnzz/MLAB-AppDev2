@@ -1,10 +1,12 @@
 package com.example.purrsistence.ui.components.goalsScreen
 
+import java.time.ZonedDateTime
 import java.util.Locale
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -39,8 +41,7 @@ fun GoalCard(
             "${displayHours}h ${displayMinutes}m"
         }
 
-    // already tracked minutes (for progress bar)
-    val trackedMinutes = goalWithSessions.totalTrackedDuration().toMinutes().toFloat()
+    val progress = goalWithSessions.currentProgress(ZonedDateTime.now())
 
     val formattedType =
         goal.type
@@ -49,14 +50,6 @@ fun GoalCard(
             .replaceFirstChar {
                 it.titlecase(Locale.ROOT)
             }
-
-    val progress =
-        if (totalMinutesDuration > 0) {
-            (trackedMinutes / totalMinutesDuration.toFloat())
-                .coerceIn(0f, 1f)
-        } else {
-            0f
-        }
 
     ElevatedCard(
         modifier = Modifier
@@ -150,10 +143,18 @@ fun GoalCard(
 
                 Spacer(modifier = Modifier.width(Spacing.md))
 
-                Text(
-                    text = "${(progress * 100).toInt()}%",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                if (goal.isCompleted) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Completed",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                } else {
+                    Text(
+                        text = "${(progress * 100).toInt()}%",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
             }
         }
     }
