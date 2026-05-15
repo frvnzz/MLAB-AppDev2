@@ -41,6 +41,8 @@ fun MainScreen(
 
     val topLevelRoutes = listOf("statistics", "goals", "home", "shop", "profile")
 
+    val routesWithoutTopBar = listOf("tracking", "rewards")
+
     Scaffold(
         // SNACK BAR (for alerts / warnings / errors)
         snackbarHost = {
@@ -54,8 +56,8 @@ fun MainScreen(
         },
         // TOP BAR
         topBar = {
-            // is visible in every screen except TrackingScreen
-            if (currentRoute != "tracking") {
+            // show TopBar only in screens where it's needed
+            if (currentRoute !in routesWithoutTopBar) {
                 TopBar(
                     title = topBarState.value.title,
                     actions = topBarState.value.actions,
