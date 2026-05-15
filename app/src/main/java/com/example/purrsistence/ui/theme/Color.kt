@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 val Primary = Color(0xFF1D5472)
 val Secondary = Color(0xFFAFC6CF)
 val Tertiary = Color(0xFFC7B2BD)
+val DarkTertiary = Color(0xFF8E677C) // use onPrimary as onColor here
 val Accent = Color(0xFFDDD1BA)
 
 // Background / surfaces

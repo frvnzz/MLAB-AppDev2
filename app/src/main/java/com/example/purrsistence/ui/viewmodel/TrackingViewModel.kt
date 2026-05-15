@@ -97,6 +97,8 @@ class TrackingViewModel(
                 goalCompletionReward = stopResult.goalCompletionReward,  //show goal completion reward in UI if applicable
                 pauseAutoStopWarning = null
             )
+
+            _events.emit(TrackingEvent.NavigateToRewardsScreen)
         }
     }
 

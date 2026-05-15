@@ -2,7 +2,6 @@ package com.example.purrsistence.ui.components.tracking
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -14,7 +13,9 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.purrsistence.ui.theme.DarkTertiary
 import com.example.purrsistence.ui.theme.Elevation
+import com.example.purrsistence.ui.theme.Shapes
 import com.example.purrsistence.ui.theme.Spacing
 import com.example.purrsistence.ui.util.formatDuration
 
@@ -27,24 +28,24 @@ fun FocusTimerProgress(
     isPaused: Boolean,
     modifier: Modifier = Modifier
 ) {
-    // Multiplier Progress Ring:
-    // 1.0 -> 0%
-    // 2.0 -> 100%
-    val progress = multiplierProgress
 
     val primaryColor = MaterialTheme.colorScheme.primary
     val secondaryColor = MaterialTheme.colorScheme.surfaceVariant
 
     val density = LocalDensity.current
-
     val strokeWidth = with(density) { 18.dp.toPx() }
 
-    val canvasSize = 320.dp
-
-    Box(
-        modifier = modifier.size(canvasSize),
+    BoxWithConstraints(
+        modifier = modifier.aspectRatio(1f),
         contentAlignment = Alignment.Center
     ) {
+
+        val timerTextStyle =
+            if (maxWidth < 300.dp) {
+                MaterialTheme.typography.displayMedium
+            } else {
+                MaterialTheme.typography.displayLarge
+            }
 
         Canvas(
             modifier = Modifier.fillMaxSize()
@@ -55,15 +56,18 @@ fun FocusTimerProgress(
                 startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
-                style = Stroke(
-                    width = strokeWidth
-                )
+                style = Stroke(width = strokeWidth)
             )
 
             drawArc(
-                color = primaryColor,
+                color =
+                    if (multiplier >= 2f) {
+                        DarkTertiary
+                    } else {
+                        primaryColor
+                    },
                 startAngle = -90f,
-                sweepAngle = 360f * progress,
+                sweepAngle = 360f * multiplierProgress,
                 useCenter = false,
                 style = Stroke(
                     width = strokeWidth,
@@ -79,7 +83,7 @@ fun FocusTimerProgress(
             // Elapsed Time for this tracking session
             Text(
                 text = formatDuration(elapsedMillis),
-                style = MaterialTheme.typography.displayLarge,
+                style = timerTextStyle,
                 color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
@@ -98,14 +102,19 @@ fun FocusTimerProgress(
                         "x${"%.2f".format(multiplier)} Multiplier"
                     },
                 style = MaterialTheme.typography.titleMedium,
-                color = primaryColor
+                color =
+                    if (multiplier >= 2f) {
+                        DarkTertiary
+                    } else {
+                        primaryColor
+                    }
             )
         }
 
         if (isPaused) {
             Surface(
                 modifier = Modifier.align(Alignment.BottomCenter),
-                shape = CircleShape,
+                shape = Shapes.cards,
                 color = MaterialTheme.colorScheme.secondary,
                 contentColor = MaterialTheme.colorScheme.onSecondary,
                 tonalElevation = Elevation.Lvl3
