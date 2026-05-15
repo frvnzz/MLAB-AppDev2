@@ -33,9 +33,11 @@ class TrackingViewModel(
     val events: SharedFlow<TrackingEvent> = _events
 
     private var timerJob: Job? = null
-    private var isDeepFocusSession = false
-
     private var pauseJob: Job? = null //for auto stop
+
+    init {
+        restoreTrackingSession()
+    }
 
     fun startTrack(
         goalId: Int,
@@ -51,8 +53,7 @@ class TrackingViewModel(
                 deepFocus = deepFocus
             )
 
-            isDeepFocusSession = deepFocus
-            if (isDeepFocusSession) {
+            if (session.deepFocus) {
                 focusBlocker.startBlocking()
             }
 
@@ -83,10 +84,7 @@ class TrackingViewModel(
             pauseJob?.cancel()  //cancel auto-stop timer when stopping manually
             pauseJob = null
 
-            if (isDeepFocusSession) {
-                focusBlocker.stopBlocking()
-                isDeepFocusSession = false
-            }
+            focusBlocker.stopBlocking()
 
             _uiState.value = state.copy(
                 isTracking = false,
@@ -109,13 +107,58 @@ class TrackingViewModel(
         }
     }
 
+    private fun restoreTrackingSession() {
+        viewModelScope.launch {
+
+            val session = trackingService.getActiveTrackingSession() ?: return@launch
+
+            val goalTitle = trackingService.getTrackingGoalTitle(session.goalId)
+
+            val now = timeProvider.now()
+
+            val effectiveElapsed = session.effectiveDuration(now).toMillis()
+
+            val trackedMinutes = Duration.ofMillis(effectiveElapsed).toMinutes().toInt()
+
+            val liveMultiplier = rewardService.calculateRewardMultiplier(trackedMinutes)
+
+            val progressToNextMultiplier =
+                if (liveMultiplier >= 2.0) {
+                    1f
+                } else {
+                    (trackedMinutes % 15) / 15f
+                }
+
+            _uiState.value = TrackingUiState(
+                trackingId = session.id,
+                goalId = session.goalId,
+                goalTitle = goalTitle,
+                startTime = session.startTime,
+                elapsedMillis = effectiveElapsed,
+                isTracking = true,
+                liveMultiplier = liveMultiplier,
+                multiplierProgress = progressToNextMultiplier,
+                isPaused = session.currentPauseStart != null,
+                totalPausedMillis = session.pausedTimeMillis,
+                currentPauseStart = session.currentPauseStart
+            )
+
+            if (session.deepFocus) {
+                focusBlocker.startBlocking()
+            }
+
+            startTicker(session.startTime)
+
+            if (session.currentPauseStart != null) {
+                startPauseTimer()
+            }
+        }
+    }
+
     override fun onCleared() {
         timerJob?.cancel()
         pauseJob?.cancel()  //cancel auto-stop timer on ViewModel clear
-        if (isDeepFocusSession) {
-            focusBlocker.stopBlocking()
-            isDeepFocusSession = false
-        }
+        focusBlocker.stopBlocking()
         super.onCleared()
     }
 

@@ -13,6 +13,7 @@ interface TrackingRepository {
     suspend fun finishTrackingSession(trackingId: Int, endTimeMillis: Long): TrackingSession?
     suspend fun getTrackingSessionById(trackingId: Int): TrackingSession?
     suspend fun getActiveTrackingSession(goalId: Int): TrackingSession?
+    suspend fun getAnyActiveTrackingSession(): TrackingSession?
     suspend fun deleteFinishedSessionsForGoalBefore(goalId: Int, cutoff: Instant)
     suspend fun countSessionsForGoal(goalId: Int): Int
     suspend fun updateTrackingSession(session: TrackingSession)
@@ -57,6 +58,11 @@ class TrackingRepositoryImpl(
 
     override suspend fun getActiveTrackingSession(goalId: Int): TrackingSession? {
         return trackingDao.getActiveTrackingSession(goalId)?.toDomain()
+    }
+
+    // check if there is ANY currently active TrackingSession (for restoring purposes)
+    override suspend fun getAnyActiveTrackingSession(): TrackingSession? {
+        return trackingDao.getAnyActiveTrackingSession()?.toDomain()
     }
 
     override suspend fun deleteFinishedSessionsForGoalBefore(

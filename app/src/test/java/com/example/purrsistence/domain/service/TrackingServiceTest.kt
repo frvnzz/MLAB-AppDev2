@@ -41,7 +41,8 @@ class TrackingServiceTest {
         val session = service.startTracking(
             goalId = 7,
             userId = 1,
-            pauseReminder = false
+            pauseReminder = false,
+            deepFocus = false
         )
 
         assertEquals(7, session.goalId)
@@ -84,7 +85,8 @@ class TrackingServiceTest {
         val session = service.startTracking(
             goalId = 7,
             userId = 1,
-            pauseReminder = false
+            pauseReminder = false,
+            deepFocus = false
         )
 
         timeProvider.setNow(Instant.ofEpochMilli(901000L))
@@ -156,7 +158,8 @@ class TrackingServiceTest {
         val session = service.startTracking(
             goalId = 7,
             userId = 1,
-            pauseReminder = false
+            pauseReminder = false,
+            deepFocus = false
         )
 
         timeProvider.setNow(Instant.ofEpochMilli(1_000L))
@@ -205,7 +208,8 @@ class TrackingServiceTest {
         val session = service.startTracking(
             goalId = 7,
             userId = 1,
-            pauseReminder = false
+            pauseReminder = false,
+            deepFocus = false
         )
 
         timeProvider.setNow(Instant.ofEpochMilli(841_000L)) // 14 minutes after 1_000
@@ -254,7 +258,8 @@ class TrackingServiceTest {
         val session = service.startTracking(
             goalId = 7,
             userId = 1,
-            pauseReminder = false
+            pauseReminder = false,
+            deepFocus = false
         )
 
         timeProvider.setNow(Instant.ofEpochMilli(9_001_000L)) // 150 minutes
@@ -286,7 +291,12 @@ class TrackingServiceTest {
             timeProvider = timeProvider
         )
 
-        val session = service.startTracking(goalId = 1, userId = 1)
+        val session = service.startTracking(
+            goalId = 1,
+            userId = 1,
+            pauseReminder = false,
+            deepFocus = false
+        )
         timeProvider.setNow(Instant.ofEpochMilli(2000L))
 
         val success = service.pauseTracking(session.id)
@@ -313,7 +323,12 @@ class TrackingServiceTest {
             timeProvider = timeProvider
         )
 
-        val session = service.startTracking(goalId = 1, userId = 1)
+        val session = service.startTracking(
+            goalId = 1,
+            userId = 1,
+            pauseReminder = false,
+            deepFocus = false
+        )
         timeProvider.setNow(Instant.ofEpochMilli(2000L))
         service.pauseTracking(session.id)
 
@@ -345,7 +360,12 @@ class TrackingServiceTest {
             timeProvider = timeProvider
         )
 
-        val session = service.startTracking(goalId = 1, userId = 1)
+        val session = service.startTracking(
+            goalId = 1,
+            userId = 1,
+            pauseReminder = false,
+            deepFocus = false
+        )
 
         // Track 20 mins
         timeProvider.setNow(Instant.ofEpochMilli(Duration.ofMinutes(20).toMillis()))

@@ -34,6 +34,7 @@ import com.example.purrsistence.ui.viewmodel.StatisticsViewModelFactory
 import com.example.purrsistence.ui.theme.PurrsistenceTheme
 import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.ui.viewmodel.TrackingViewModel
+import com.example.purrsistence.ui.viewmodel.TrackingViewModelFactory
 import com.example.purrsistence.ui.viewmodel.UserViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -79,7 +80,16 @@ class MainActivity : ComponentActivity() {
         // create ViewModel instances for this activity
         userViewModel = UserViewModel(shopService, profileService)
         goalViewModel = GoalViewModel(goalService, focusPrefs)
-        trackingViewModel = TrackingViewModel(trackingService, rewardService, timeProvider, focusBlocker)
+        // Factory for TrackingViewModel to preserve states across configuration changes
+        trackingViewModel = ViewModelProvider(
+            this,
+            TrackingViewModelFactory(
+                trackingService = trackingService,
+                rewardService = rewardService,
+                timeProvider = timeProvider,
+                focusBlocker = focusBlocker
+            )
+        )[TrackingViewModel::class.java]
         // Use factory for StatisticsViewModel to preserve week offset across configuration changes
         statisticsViewModel = ViewModelProvider(
             this,

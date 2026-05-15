@@ -30,6 +30,16 @@ interface TrackingDao {
 
     @Query(
         """
+    SELECT * FROM TrackingSessionEntity
+    WHERE endTime IS NULL
+    ORDER BY startTime DESC
+    LIMIT 1
+    """
+    )
+    suspend fun getAnyActiveTrackingSession(): TrackingSessionEntity?
+
+    @Query(
+        """
         UPDATE TrackingSessionEntity
         SET endTime = :endTime
         WHERE trackingId = :trackingId

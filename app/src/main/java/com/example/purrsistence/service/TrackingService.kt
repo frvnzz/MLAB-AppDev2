@@ -10,10 +10,11 @@ import com.example.purrsistence.domain.model.types.GoalType
 import com.example.purrsistence.domain.time.TimeProvider
 import kotlinx.coroutines.flow.firstOrNull
 import java.time.Duration
-import java.time.Instant
 import java.time.ZoneId
 
 interface TrackingService{
+    suspend fun getActiveTrackingSession(): TrackingSession?
+    suspend fun getTrackingGoalTitle(goalId: Int): String
     suspend fun startTracking(goalId: Int, userId: Int, pauseReminder: Boolean = false, deepFocus: Boolean = false): TrackingSession
     suspend fun stopTracking(trackingId: Int): TrackingStopResult?
     suspend fun pauseTracking(trackingId: Int): Boolean
@@ -28,6 +29,19 @@ class TrackingServiceImpl(
     private val rewardService: RewardService,
     private val timeProvider: TimeProvider
 ) : TrackingService{
+
+    // check if there is ANY currently active TrackingSession (for restoring purposes)
+    override suspend fun getActiveTrackingSession(): TrackingSession? {
+        return trackingRepository.getAnyActiveTrackingSession()
+    }
+
+    override suspend fun getTrackingGoalTitle(goalId: Int): String {
+        return goalRepository
+            .getGoal(goalId)
+            .firstOrNull()
+            ?.title
+            ?: ""
+    }
 
     override suspend fun startTracking(
         goalId: Int,
@@ -54,10 +68,9 @@ class TrackingServiceImpl(
             endTimeMillis = now.toEpochMilli()
         ) ?: return null
 
-        val totalDuration = finishedSession.duration(now)
-        val sessionDurationMillis = totalDuration.toMillis()
-
         val effectiveDuration = finishedSession.finishedDuration() ?: Duration.ZERO
+        val sessionDurationMillis = effectiveDuration.toMillis()
+
         val (coins, multiplier) = rewardService.calculateReward(
             duration = effectiveDuration,
             pausedMillis = finishedSession.pausedTimeMillis

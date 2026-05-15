@@ -26,12 +26,10 @@ fun RewardsScreen(
     val state by viewModel.uiState.collectAsState()
 
     val configuration = LocalConfiguration.current
-    val isLandscape =
-        configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    // subtract the paused Millis from the total tracked duration
-    val effectiveSessionMillis =
-        (state.sessionDurationMillis ?: 0L) - state.totalPausedMillis
+    // get the session duration (without paused duration)
+    val effectiveSessionMillis = state.sessionDurationMillis ?: 0L
 
     if (isLandscape) {
         // LANDSCAPE

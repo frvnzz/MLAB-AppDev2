@@ -17,6 +17,14 @@ class FakeTrackingService : TrackingService {
 
     val stoppedTrackingIds = mutableListOf<Int>()
 
+    override suspend fun getActiveTrackingSession(): TrackingSession? {
+        return null
+    }
+
+    override suspend fun getTrackingGoalTitle(goalId: Int): String {
+        return "Fake Goal Title"
+    }
+
     override suspend fun startTracking(
         goalId: Int,
         userId: Int,
@@ -38,7 +46,7 @@ class FakeTrackingService : TrackingService {
         )
     }
 
-    override suspend fun stopTracking(trackingId: Int): TrackingStopResult? {
+    override suspend fun stopTracking(trackingId: Int): TrackingStopResult {
         stopCalls++
         stoppedTrackingIds += trackingId
 
