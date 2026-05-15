@@ -47,6 +47,12 @@ class FakeGoalRepository : GoalRepository {
         return goalsFlow.map { list -> list.find { it.id == goalId } }
     }
 
+    override fun getGoalWithSessions(goalId: Int?): Flow<GoalWithSessions?> {
+        return goalsFlow.map { list ->
+            list.find { it.id == goalId }?.let { GoalWithSessions(it, emptyList()) }
+        }
+    }
+
     override suspend fun updateGoal(goal: Goal) {
         updateCalls++
         val index = goals.indexOfFirst { it.id == goal.id }

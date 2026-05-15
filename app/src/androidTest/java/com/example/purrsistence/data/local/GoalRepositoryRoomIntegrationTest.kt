@@ -131,4 +131,18 @@ class GoalRepositoryRoomIntegrationTest : RoomIntegrationTestBase() {
         assertTrue(stored.inactive)
         assertTrue(stored.isCompleted)
     }
+
+    @Test
+    fun getGoalWithSessions_returnsGoalWithAssociatedSessions() = runBlocking {
+        seedUserEntity(userId = 1)
+        seedGoalEntity(goalId = 1, userId = 1)
+        seedTrackingSessionEntity(sessionId = 1, goalId = 1, userId = 1, duration = 1000)
+        seedTrackingSessionEntity(sessionId = 2, goalId = 1, userId = 1, duration = 2000)
+
+        val result = goalRepository.getGoalWithSessions(1).first()
+
+        assertNotNull(result)
+        assertEquals(1, result!!.goal.id)
+        assertEquals(2, result.sessions.size)
+    }
 }

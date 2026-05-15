@@ -46,6 +46,26 @@ class GoalServiceTest {
         assertEquals(Instant.ofEpochMilli(1000L), goal.createdAt)
     }
 
+    @Test
+    fun getGoalWithSessions_returnsGoalWithSessions() = runBlocking {
+        val repository = FakeGoalRepository()
+        val timeProvider = FakeTimeProvider(Instant.now())
+        val service = GoalService(repository, timeProvider)
+
+        val goal = Goal(
+            id = 1, userId = 1, title = "Test", type = GoalType.DAILY,
+            targetDuration = Duration.ofMinutes(60), deepFocus = false,
+            inactive = false, createdAt = Instant.now(), isCompleted = false,
+            lastCompletedAt = null
+        )
+        repository.seedGoal(goal)
+
+        val result = service.getGoalWithSessions(1).first()
+
+        assertNotNull(result)
+        assertEquals(1, result!!.goal.id)
+    }
+
 
     //Goal Completion Tests
 
