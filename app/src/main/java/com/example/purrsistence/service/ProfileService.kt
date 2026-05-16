@@ -77,9 +77,9 @@ class ProfileService(
             balance = balance,
             friends = friends.map { friend ->
                 FriendProfile(
-                    userId = friend.id,
+                    id = friend.id.toString(),
                     username = friend.username,
-                    profileImageUrl = friend.profileImageUrl?.toString()
+                    avatarPath = friend.profileImageUrl?.toString()
                 )
             },
             collectedCatIds = collectedCatsIds,

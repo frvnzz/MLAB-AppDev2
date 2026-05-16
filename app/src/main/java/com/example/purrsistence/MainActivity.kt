@@ -23,6 +23,18 @@ import com.example.purrsistence.data.remote.supabase.datasource.SupabaseCatRemot
 import com.example.purrsistence.data.remote.supabase.datasource.SupabaseFriendshipRemoteDataSource
 import com.example.purrsistence.data.remote.supabase.datasource.SupabaseGoalTrackingRemoteDataSource
 import com.example.purrsistence.data.remote.supabase.datasource.SupabaseProfileRemoteDataSource
+import com.example.purrsistence.data.remote.supabase.repository.AuthRepository
+import com.example.purrsistence.data.remote.supabase.repository.AuthRepositoryImpl
+import com.example.purrsistence.data.remote.supabase.repository.CatCollectionRepository
+import com.example.purrsistence.data.remote.supabase.repository.CatCollectionRepositoryImpl
+import com.example.purrsistence.data.remote.supabase.repository.FriendshipRepository
+import com.example.purrsistence.data.remote.supabase.repository.FriendshipRepositoryImpl
+import com.example.purrsistence.data.remote.supabase.repository.GoalTrackingRepository
+import com.example.purrsistence.data.remote.supabase.repository.GoalTrackingRepositoryImpl
+import com.example.purrsistence.data.remote.supabase.repository.ProfileRepository
+import com.example.purrsistence.data.remote.supabase.repository.ProfileRepositoryImpl
+import com.example.purrsistence.data.remote.supabase.repository.SyncSnapshotRepository
+import com.example.purrsistence.data.remote.supabase.repository.SyncSnapshotRepositoryImpl
 import com.example.purrsistence.domain.preferences.SharedPrefCleanupPreferences
 import com.example.purrsistence.domain.time.SystemTimeProvider
 import com.example.purrsistence.focus.DeepFocusConfig
@@ -100,18 +112,39 @@ class MainActivity : ComponentActivity() {
         val supabaseGoalTrackingRemoteDataSource =
             SupabaseGoalTrackingRemoteDataSource(supabase)
 
-        val supabaseSyncService =
-            SupabaseSyncService(
-                userRepository = userRepo,
-                authRemoteDataSource = supabaseAuthRemoteDataSource,
-                profileRemoteDataSource = supabaseProfileRemoteDataSource,
-                catRemoteDataSource = supabaseCatRemoteDataSource,
-                friendshipRemoteDataSource = supabaseFriendshipRemoteDataSource,
-                goalTrackingRemoteDataSource = supabaseGoalTrackingRemoteDataSource,
-                goalRepository = goalRepo,
-                trackingRepository = trackingRepo,
-                localUserId = 1
+        val supabaseAuthRepository: AuthRepository =
+            AuthRepositoryImpl(remoteDataSource = supabaseAuthRemoteDataSource)
+
+        val supabaseProfileRepository: ProfileRepository =
+            ProfileRepositoryImpl(remoteDataSource = supabaseProfileRemoteDataSource)
+
+        val supabaseCatRepository: CatCollectionRepository =
+            CatCollectionRepositoryImpl(catRemoteDataSource = supabaseCatRemoteDataSource)
+
+        val supabaseFriendshipRepository: FriendshipRepository =
+            FriendshipRepositoryImpl(friendshipRemoteDataSource = supabaseFriendshipRemoteDataSource)
+
+        val supabaseGoalTrackingRepository: GoalTrackingRepository =
+            GoalTrackingRepositoryImpl(remoteDataSource = supabaseGoalTrackingRemoteDataSource)
+
+        val supabaseSyncSnapshotRepository: SyncSnapshotRepository =
+            SyncSnapshotRepositoryImpl(
+                profileRepository = supabaseProfileRepository,
+                catRepository = supabaseCatRepository,
+                goalTrackingRepository = supabaseGoalTrackingRepository
             )
+
+
+        val supabaseSyncService = SupabaseSyncService(
+            userRepository = userRepo,
+            goalRepository = goalRepo,
+            trackingRepository = trackingRepo,
+            authRepository = supabaseAuthRepository,
+            profileRepository = supabaseProfileRepository,
+            catRepository = supabaseCatRepository,
+            friendshipRepository = supabaseFriendshipRepository,
+            syncSnapshotRepository = supabaseSyncSnapshotRepository
+        )
 
         // create ViewModel instances for this activity
         userViewModel = UserViewModel(shopService, supabaseSyncService, profileService)

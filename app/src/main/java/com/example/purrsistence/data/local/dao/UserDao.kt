@@ -62,11 +62,11 @@ interface UserDao {
             supabaseUserId = :supabaseUserId,
             username = :username,
             profileImageUrl = :avatarPath
-        WHERE userId = :localUserId
+        WHERE userId = :userId
         """
     )
     suspend fun linkSupabaseProfileToLocalUser(
-        localUserId: Long,
+        userId: Int,
         supabaseUserId: String,
         username: String,
         avatarPath: String?

@@ -9,6 +9,7 @@ interface ProfileRemoteDataSource {
     suspend fun fetchProfile(userId: String): ProfileDto
     suspend fun updateUsername(userId: String, username: String)
     suspend fun updateAvatarPath(userId: String, avatarPath: String?)
+    suspend fun fetchUserSyncState(userId: String): UserSyncStateDto
 }
 
 class SupabaseProfileRemoteDataSource(
@@ -60,7 +61,7 @@ class SupabaseProfileRemoteDataSource(
             }
     }
 
-    suspend fun fetchUserSyncState(userId: String): UserSyncStateDto {
+    override suspend fun fetchUserSyncState(userId: String): UserSyncStateDto {
         return supabase
             .from("user_sync_state")
             .select {
