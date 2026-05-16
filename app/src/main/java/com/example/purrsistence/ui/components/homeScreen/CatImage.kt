@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.purrsistence.domain.cats.CatList
+import com.example.purrsistence.ui.components.animation.SpriteAnimation
 
 @Composable
 fun CatImage(
@@ -17,16 +18,27 @@ fun CatImage(
 ) {
     val cat = CatList.getCatById(catId)
     if (cat != null) {
-        Image(
-            painter = painterResource(cat.imageRes),
-            contentDescription = cat.name,
-            modifier = modifier
-                .size(100.dp)
-                .graphicsLayer {
-                    if (isMirrored) {
-                        scaleX = -1f
-                    }
+        val finalModifier = modifier
+            .size(100.dp)
+            .graphicsLayer {
+                if (isMirrored) {
+                    scaleX = -1f
                 }
-        )
+            }
+
+        if (cat.animationData != null) {
+            SpriteAnimation(
+                spriteSheetRes = cat.imageRes,
+                data = cat.animationData,
+                modifier = finalModifier,
+                contentDescription = cat.name
+            )
+        } else {
+            Image(
+                painter = painterResource(cat.imageRes),
+                contentDescription = cat.name,
+                modifier = finalModifier
+            )
+        }
     }
 }
