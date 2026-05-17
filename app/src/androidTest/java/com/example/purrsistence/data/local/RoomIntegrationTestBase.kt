@@ -6,6 +6,7 @@ import com.example.purrsistence.data.local.dao.GoalsDao
 import com.example.purrsistence.data.local.dao.TrackingDao
 import com.example.purrsistence.data.local.dao.UserDao
 import com.example.purrsistence.data.local.entity.GoalEntity
+import com.example.purrsistence.data.local.entity.TrackingSessionEntity
 import com.example.purrsistence.data.local.entity.UserEntity
 import com.example.purrsistence.data.local.repository.GoalRepository
 import com.example.purrsistence.data.local.repository.GoalRepositoryImpl
@@ -104,6 +105,26 @@ abstract class RoomIntegrationTestBase {
                 createdAt = createdAt,
                 isCompleted = isCompleted,
                 lastCompletedAt = null
+            )
+        )
+    }
+
+    protected fun seedTrackingSessionEntity(
+        sessionId: Int = 0,
+        goalId: Int,
+        userId: Int,
+        startTime: Long = 1_000_000L,
+        duration: Long = 1_000L
+    ) = runBlocking {
+        trackingDao.insertTrackingSession(
+            TrackingSessionEntity(
+                trackingId = sessionId,
+                goalId = goalId,
+                userId = userId,
+                pauseReminder = false,
+                deepFocus = false,
+                startTime = startTime,
+                endTime = startTime + duration
             )
         )
     }

@@ -28,7 +28,7 @@ class FakeTrackingRepository : TrackingRepository {
 
         val old = sessions[index]
         val updated = old.copy(
-            endTime = java.time.Instant.ofEpochMilli(endTimeMillis)
+            endTime = Instant.ofEpochMilli(endTimeMillis)
         )
         sessions[index] = updated
         return updated
@@ -40,6 +40,11 @@ class FakeTrackingRepository : TrackingRepository {
 
     override suspend fun getActiveTrackingSession(goalId: Int): TrackingSession? {
         return sessions.lastOrNull { it.goalId == goalId && it.endTime == null }
+    }
+
+    // check if there is ANY currently active TrackingSession (for restoring purposes)
+    override suspend fun getAnyActiveTrackingSession(): TrackingSession? {
+        return sessions.lastOrNull { it.endTime == null }
     }
 
     override suspend fun deleteFinishedSessionsForGoalBefore(
@@ -56,6 +61,13 @@ class FakeTrackingRepository : TrackingRepository {
 
     override suspend fun countSessionsForGoal(goalId: Int): Int {
         return sessions.count { it.goalId == goalId }
+    }
+
+    override suspend fun updateTrackingSession(session: TrackingSession) {
+        val index = sessions.indexOfFirst { it.id == session.id }
+        if (index != -1) {
+            sessions[index] = session
+        }
     }
 
     override suspend fun getTrackingSessionsForSync(userId: Int): List<TrackingSession> {

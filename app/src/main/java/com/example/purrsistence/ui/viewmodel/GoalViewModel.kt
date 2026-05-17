@@ -77,6 +77,9 @@ class GoalViewModel(
     fun getGoal(goalId: Int?) =
         goalService.getGoal(goalId)
 
+    fun getGoalWithSessions(goalId: Int?) =
+        goalService.getGoalWithSessions(goalId)
+
     fun updateGoal(
         goalId: Int,
         title: String,

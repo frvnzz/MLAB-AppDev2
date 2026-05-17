@@ -6,6 +6,7 @@ import com.example.purrsistence.domain.service.fakes.FakeSupabaseSyncService
 import com.example.purrsistence.domain.service.fakes.FakeTrackingService
 import com.example.purrsistence.domain.time.FakeTimeProvider
 import com.example.purrsistence.service.SupabaseSyncService
+import com.example.purrsistence.service.RewardService
 import com.example.purrsistence.ui.viewmodel.TrackingViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,18 +40,20 @@ class TrackingViewModelDeepFocusTest {
     @Test
     fun startTrack_withDeepFocus_startsBlocking() = runTest {
         val trackingService = FakeTrackingService()
+        val rewardService = RewardService()
         val blocker = FakeFocusBlocker()
         val timeProvider = FakeTimeProvider(Instant.ofEpochMilli(1_000L))
         val trackingSyncService = FakeSupabaseSyncService()
 
         val viewModel = TrackingViewModel(
             trackingService = trackingService,
+            rewardService = rewardService,
             timeProvider = timeProvider,
             focusBlocker = blocker,
             supabaseSyncService = trackingSyncService
         )
 
-        viewModel.startTrack(goalId = 9, userId = 1, deepFocus = true)
+        viewModel.startTrack(goalId = 9, goalTitle = "Test Goal", userId = 1, deepFocus = true)
         runCurrent()
 
         assertEquals(1, blocker.startCalls)
@@ -65,18 +68,20 @@ class TrackingViewModelDeepFocusTest {
     @Test
     fun startTrack_withoutDeepFocus_doesNotStartBlocking() = runTest {
         val trackingService = FakeTrackingService()
+        val rewardService = RewardService()
         val blocker = FakeFocusBlocker()
         val timeProvider = FakeTimeProvider(Instant.ofEpochMilli(1_000L))
         val trackingSyncService = FakeSupabaseSyncService()
 
         val viewModel = TrackingViewModel(
             trackingService = trackingService,
+            rewardService = rewardService,
             timeProvider = timeProvider,
             focusBlocker = blocker,
             supabaseSyncService = trackingSyncService
         )
 
-        viewModel.startTrack(goalId = 9, userId = 1, deepFocus = false)
+        viewModel.startTrack(goalId = 9, goalTitle = "Test Goal", userId = 1, deepFocus = false)
         runCurrent()
 
         assertEquals(0, blocker.startCalls)
@@ -91,18 +96,20 @@ class TrackingViewModelDeepFocusTest {
     @Test
     fun stopTracking_afterDeepFocusSession_stopsBlocking() = runTest {
         val trackingService = FakeTrackingService()
+        val rewardService = RewardService()
         val blocker = FakeFocusBlocker()
         val timeProvider = FakeTimeProvider(Instant.ofEpochMilli(1_000L))
         val trackingSyncService = FakeSupabaseSyncService()
 
         val viewModel = TrackingViewModel(
             trackingService = trackingService,
+            rewardService = rewardService,
             timeProvider = timeProvider,
             focusBlocker = blocker,
             supabaseSyncService = trackingSyncService
         )
 
-        viewModel.startTrack(goalId = 9, userId = 1, deepFocus = true)
+        viewModel.startTrack(goalId = 9, goalTitle = "Test Goal", userId = 1, deepFocus = true)
         runCurrent()
 
         viewModel.stopTracking()

@@ -23,5 +23,8 @@ data class TrackingSessionEntity(
     val pauseReminder: Boolean,
     val deepFocus: Boolean,
     val startTime: Long,
-    val endTime: Long?
+    val endTime: Long?,
+    val pauseHistory: String = "0;;0", //totalPausedMillis;start1-end1,start2-end2;checkpointedCurrency
+    val currentPauseStart: Long? = null, //when current pause has started
+    val lastResetTime: Long? = null,
 )

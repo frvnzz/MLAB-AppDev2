@@ -7,7 +7,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.example.purrsistence.data.local.entity.GoalEntity
 import com.example.purrsistence.data.local.relation.GoalWithSessionsEntity
-import com.example.purrsistence.ui.navigation.GoalEvent
 import kotlinx.coroutines.flow.Flow
 
 // TODO: SPLIT DAO
@@ -35,6 +34,10 @@ interface GoalsDao {
 
     @Query("SELECT * FROM GoalEntity WHERE goalId = :goalId")
     fun getGoal(goalId: Int): Flow<GoalEntity?>
+
+    @Transaction
+    @Query("SELECT * FROM GoalEntity WHERE goalId = :goalId")
+    fun getGoalWithSessions(goalId: Int): Flow<GoalWithSessionsEntity?>
 
     @Query(
         """

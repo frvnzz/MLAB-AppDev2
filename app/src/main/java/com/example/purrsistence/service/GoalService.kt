@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import java.time.Duration
-import java.time.Instant
 import java.time.ZonedDateTime
 
 class GoalService(
@@ -23,6 +22,10 @@ class GoalService(
     fun getGoal(goalId: Int?): Flow<Goal?> =
         if (goalId == null) flowOf(null)
         else goalRepository.getGoal(goalId)
+
+    fun getGoalWithSessions(goalId: Int?): Flow<GoalWithSessions?> =
+        if (goalId == null) flowOf(null)
+        else goalRepository.getGoalWithSessions(goalId)
 
     suspend fun createGoal(
         userId: Int,

@@ -16,8 +16,8 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
 import java.net.URL
+import java.time.Duration
 import java.time.Instant
-import kotlin.collections.listOf
 
 class TrackingServiceTest {
 
@@ -41,7 +41,8 @@ class TrackingServiceTest {
         val session = service.startTracking(
             goalId = 7,
             userId = 1,
-            pauseReminder = false
+            pauseReminder = false,
+            deepFocus = false
         )
 
         assertEquals(7, session.goalId)
@@ -87,7 +88,8 @@ class TrackingServiceTest {
         val session = service.startTracking(
             goalId = 7,
             userId = 1,
-            pauseReminder = false
+            pauseReminder = false,
+            deepFocus = false
         )
 
         timeProvider.setNow(Instant.ofEpochMilli(901000L))
@@ -162,7 +164,8 @@ class TrackingServiceTest {
         val session = service.startTracking(
             goalId = 7,
             userId = 1,
-            pauseReminder = false
+            pauseReminder = false,
+            deepFocus = false
         )
 
         timeProvider.setNow(Instant.ofEpochMilli(1_000L))
@@ -214,7 +217,8 @@ class TrackingServiceTest {
         val session = service.startTracking(
             goalId = 7,
             userId = 1,
-            pauseReminder = false
+            pauseReminder = false,
+            deepFocus = false
         )
 
         timeProvider.setNow(Instant.ofEpochMilli(841_000L)) // 14 minutes after 1_000
@@ -266,7 +270,8 @@ class TrackingServiceTest {
         val session = service.startTracking(
             goalId = 7,
             userId = 1,
-            pauseReminder = false
+            pauseReminder = false,
+            deepFocus = false
         )
 
         timeProvider.setNow(Instant.ofEpochMilli(9_001_000L)) // 150 minutes
@@ -279,5 +284,115 @@ class TrackingServiceTest {
 
         val updatedUser = userRepository.getUser(1).firstOrNull()
         assertEquals(300, updatedUser!!.balance)
+    }
+
+    @Test
+    fun pauseTracking_updatesSessionWithPauseStartTime() = runBlocking {
+        val trackingRepository = FakeTrackingRepository()
+        val userRepository = FakeUserRepository()
+        val goalRepository = FakeGoalRepository()
+        val timeProvider = FakeTimeProvider(Instant.ofEpochMilli(1000L))
+        val rewardService = RewardService()
+
+        val service = TrackingServiceImpl(
+            trackingRepository = trackingRepository,
+            userRepository = userRepository,
+            goalRepository = goalRepository,
+            goalService = GoalService(goalRepository, timeProvider),
+            rewardService = rewardService,
+            timeProvider = timeProvider
+        )
+
+        val session = service.startTracking(
+            goalId = 1,
+            userId = 1,
+            pauseReminder = false,
+            deepFocus = false
+        )
+        timeProvider.setNow(Instant.ofEpochMilli(2000L))
+
+        val success = service.pauseTracking(session.id)
+
+        val updated = trackingRepository.getTrackingSessionById(session.id)
+        assertEquals(true, success)
+        assertEquals(Instant.ofEpochMilli(2000L), updated?.currentPauseStart)
+    }
+
+    @Test
+    fun resumeTracking_calculatesPausedDurationAndClearsPauseStart() = runBlocking {
+        val trackingRepository = FakeTrackingRepository()
+        val userRepository = FakeUserRepository()
+        val goalRepository = FakeGoalRepository()
+        val timeProvider = FakeTimeProvider(Instant.ofEpochMilli(1000L))
+        val rewardService = RewardService()
+
+        val service = TrackingServiceImpl(
+            trackingRepository = trackingRepository,
+            userRepository = userRepository,
+            goalRepository = goalRepository,
+            goalService = GoalService(goalRepository, timeProvider),
+            rewardService = rewardService,
+            timeProvider = timeProvider
+        )
+
+        val session = service.startTracking(
+            goalId = 1,
+            userId = 1,
+            pauseReminder = false,
+            deepFocus = false
+        )
+        timeProvider.setNow(Instant.ofEpochMilli(2000L))
+        service.pauseTracking(session.id)
+
+        timeProvider.setNow(Instant.ofEpochMilli(5000L))
+        val success = service.resumeTracking(session.id)
+
+        val updated = trackingRepository.getTrackingSessionById(session.id)
+        assertEquals(true, success)
+        assertEquals(3000L, updated?.getTotalPausedMillis(timeProvider.now()))
+        assertNull(updated?.currentPauseStart)
+    }
+
+    @Test
+    fun stopTracking_withLongPause_resetsMultiplier() = runBlocking {
+        val trackingRepository = FakeTrackingRepository()
+        val userRepository = FakeUserRepository()
+        val goalRepository = FakeGoalRepository()
+        val timeProvider = FakeTimeProvider(Instant.ofEpochMilli(0L))
+        val rewardService = RewardService()
+
+        userRepository.insertUser(User(id = 1, username = "User", balance = 0, friends = emptyList(), collectedCatsIds = emptyList(), selectedCatIds = emptyList(), profileImageUrl = URL("https://example.com/p.png"), isSupabaseLinked = false, supabaseUserId = null))
+
+        val service = TrackingServiceImpl(
+            trackingRepository = trackingRepository,
+            userRepository = userRepository,
+            goalRepository = goalRepository,
+            goalService = GoalService(goalRepository, timeProvider),
+            rewardService = rewardService,
+            timeProvider = timeProvider
+        )
+
+        val session = service.startTracking(
+            goalId = 1,
+            userId = 1,
+            pauseReminder = false,
+            deepFocus = false
+        )
+
+        // Track 20 mins
+        timeProvider.setNow(Instant.ofEpochMilli(Duration.ofMinutes(20).toMillis()))
+
+        // Pause 16 mins (over 15 min threshold)
+        service.pauseTracking(session.id)
+        timeProvider.setNow(Instant.ofEpochMilli(Duration.ofMinutes(36).toMillis()))
+        service.resumeTracking(session.id)
+
+        val result = service.stopTracking(session.id)
+
+        assertNotNull(result)
+        assertEquals(1.0, result!!.multiplier, 0.0001)
+        assertEquals(23, result.rewardedCurrency) // 20 mins * 1.15 (checkpointed)
+        assertEquals(false, result.multiplierReset) // Reset already accounted for in resumeTracking
+        assertEquals(Duration.ofMinutes(16).toMillis(), result.totalPausedMillis)
     }
 }

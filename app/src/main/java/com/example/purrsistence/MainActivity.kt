@@ -53,6 +53,7 @@ import com.example.purrsistence.ui.viewmodel.StatisticsViewModelFactory
 import com.example.purrsistence.ui.theme.PurrsistenceTheme
 import com.example.purrsistence.ui.viewmodel.GoalViewModel
 import com.example.purrsistence.ui.viewmodel.TrackingViewModel
+import com.example.purrsistence.ui.viewmodel.TrackingViewModelFactory
 import com.example.purrsistence.ui.viewmodel.UserViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -148,13 +149,23 @@ class MainActivity : ComponentActivity() {
 
         // create ViewModel instances for this activity
         userViewModel = UserViewModel(shopService, supabaseSyncService, profileService)
-        goalViewModel = GoalViewModel(goalService, focusPrefs, supabaseSyncService)
-        trackingViewModel = TrackingViewModel(trackingService, timeProvider, focusBlocker, supabaseSyncService)
+        goalViewModel = GoalViewModel(goalService,focusPrefs, supabaseSyncService)
+        // Factory for TrackingViewModel to preserve states across configuration changes
+        trackingViewModel = ViewModelProvider(
+            this,
+            TrackingViewModelFactory(
+                trackingService = trackingService,
+                rewardService = rewardService,
+                timeProvider = timeProvider,
+                focusBlocker = focusBlocker,
+                supabaseSyncService= supabaseSyncService
+            )
+        )[TrackingViewModel::class.java]
         // Use factory for StatisticsViewModel to preserve week offset across configuration changes
         statisticsViewModel = ViewModelProvider(
             this,
             StatisticsViewModelFactory(statisticsService)
-        ).get(StatisticsViewModel::class.java)
+        )[StatisticsViewModel::class.java]
 
         val cleanupScheduler = CleanupScheduler(cleanupPrefs, timeProvider, trackingCleanupService)
 

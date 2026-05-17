@@ -20,6 +20,7 @@ import com.example.purrsistence.ui.screens.StatisticsScreen
 import com.example.purrsistence.ui.viewmodel.StatisticsViewModel
 import com.example.purrsistence.ui.screens.SettingsScreen
 import com.example.purrsistence.ui.screens.FriendsScreen
+import com.example.purrsistence.ui.screens.RewardsScreen
 import com.example.purrsistence.ui.screens.TrackingScreen
 import com.example.purrsistence.ui.state.TopBarState
 import com.example.purrsistence.ui.viewmodel.TrackingViewModel
@@ -39,9 +40,15 @@ fun AppNavHost(
     LaunchedEffect(Unit) {
         trackingViewModel.events.collect { event ->
             when (event) {
+
                 TrackingEvent.NavigateToTrackingScreen -> {
                     navController.navigate("tracking")
                 }
+
+                TrackingEvent.NavigateToRewardsScreen -> {
+                    navController.navigate("rewards")
+                }
+
                 TrackingEvent.NavigateBackHome -> {
                     navController.popBackStack("home", inclusive = false)
                 }
@@ -62,8 +69,13 @@ fun AppNavHost(
             HomeScreen(
                 userViewModel = userViewModel,
                 goalViewModel = goalViewModel,
-                onStartTracking = { goalId, userId, deepFocus ->
-                    trackingViewModel.startTrack(goalId, userId, deepFocus)
+                onStartTracking = { goalId, goalTitle, userId, deepFocus ->
+                    trackingViewModel.startTrack(
+                        goalId = goalId,
+                        goalTitle = goalTitle,
+                        userId = userId,
+                        deepFocus = deepFocus
+                    )
                 },
                 setTopBar = setTopBar
         ) }
@@ -134,9 +146,14 @@ fun AppNavHost(
         // TRACKING
         composable("tracking") {
             TrackingScreen(
+                viewModel = trackingViewModel
+            )
+        }
+        composable("rewards") {
+            RewardsScreen(
                 viewModel = trackingViewModel,
-                onNavigateBackHome = {
-                    navController.popBackStack("home", inclusive = false)
+                onReturnHome = {
+                    trackingViewModel.returnHome()
                 }
             )
         }

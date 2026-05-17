@@ -1,10 +1,17 @@
 package com.example.purrsistence.ui.screens
 
-import android.annotation.SuppressLint
-import android.os.Debug
-import android.util.Log
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
+import android.content.res.Configuration
+import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,123 +20,186 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.purrsistence.ui.navigation.TrackingEvent
+import com.example.purrsistence.ui.components.tracking.FocusTimerProgress
+import com.example.purrsistence.ui.components.tracking.TrackingActionButton
+import com.example.purrsistence.ui.theme.DarkTertiary
+import com.example.purrsistence.ui.theme.Spacing
 import com.example.purrsistence.ui.viewmodel.TrackingViewModel
-
 
 @Composable
 fun TrackingScreen(
-    viewModel: TrackingViewModel,
-    onNavigateBackHome: () -> Unit
+    viewModel: TrackingViewModel
 ) {
-    val state by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
-            if (event is TrackingEvent.NavigateBackHome) {
-                onNavigateBackHome()
-            }
+    val state by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    val configuration = LocalConfiguration.current
+    val isLandscape =
+        configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    LaunchedEffect(state.pauseAutoStopWarning) {
+        state.pauseAutoStopWarning?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         }
     }
 
-    if (state.rewardedCurrency != null) {
-        Column(
+    LaunchedEffect(state.multiplierResetWarning) {
+        state.multiplierResetWarning?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    if (isLandscape) {
+
+        // LANDSCAPE MODE
+        Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(Spacing.lg),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            //Session reward
-            Text(
-                text = "+${state.rewardedCurrency!!} coins",
-                style = MaterialTheme.typography.headlineLarge
-            )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Tracked Time: ${
-                    formatDuration(state.sessionDurationMillis ?: 0L)
-                }",
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = "Multiplier: x${"%.2f".format(state.multiplier ?: 1.0)}",
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            if ((state.goalCompletionReward ?: 0) > 0) { // Goal completion reward, show additional text and the earned reward
-                Log.d("GOAL COMPLETED", "Goal has been completed and reward will be shown on screen!")
-                Spacer(modifier = Modifier.height(32.dp))
+            // LEFT SECTION
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
                 Text(
-                    text = "🎉 GOAL COMPLETED!",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.primary
+                    text = "TRACKING",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Spacing.sm))
 
                 Text(
-                    text = "+${state.goalCompletionReward} bonus coins",
+                    text = state.goalTitle,
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color.Green
+                    textAlign = TextAlign.Center
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.width(Spacing.xl))
 
-            Button(onClick = viewModel::returnHome) {
-                Text("Return Home")
+            // TIMER
+            FocusTimerProgress(
+                elapsedMillis = state.elapsedMillis,
+                pausedMillis = state.totalPausedMillis,
+                multiplier = state.liveMultiplier.toFloat(),
+                multiplierProgress = state.multiplierProgress,
+                checkpointedCurrency = state.checkpointedCurrency,
+                minutesSinceReset = state.minutesSinceReset,
+                isPaused = state.isPaused,
+                modifier = Modifier.weight(1.4f)
+            )
+
+            Spacer(modifier = Modifier.width(Spacing.xl))
+
+            // BUTTONS
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Spacing.lg)
+            ) {
+
+                TrackingActionButton(
+                    text = if (state.isPaused) "Resume" else "Pause",
+                    onClick = {
+                        if (state.isPaused) {
+                            viewModel.resumeTracking()
+                        } else {
+                            viewModel.pauseTracking()
+                        }
+                    }
+                )
+
+                TrackingActionButton(
+                    text = "Finish",
+                    // remove containerColor if you think this color doesn't fit ???
+                    containerColor = DarkTertiary,
+                    onClick = viewModel::stopTracking
+                )
             }
         }
+
     } else {
-        // TIMER CONTENT
+
+        // PORTRAIT MODE
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(Spacing.lg)
         ) {
 
+            // CENTER CONTENT
             Column(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .offset(y = 100.dp),
+                    .padding(bottom = 64.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
                 Text(
-                    text = formatDuration(state.elapsedMillis),
-                    style = MaterialTheme.typography.displayLarge
+                    text = "TRACKING",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(Spacing.sm))
+
+                Text(
+                    text = state.goalTitle,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(Spacing.xxl))
+
+                FocusTimerProgress(
+                    elapsedMillis = state.elapsedMillis,
+                    pausedMillis = state.totalPausedMillis,
+                    multiplier = state.liveMultiplier.toFloat(),
+                    multiplierProgress = state.multiplierProgress,
+                    checkpointedCurrency = state.checkpointedCurrency,
+                    minutesSinceReset = state.minutesSinceReset,
+                    isPaused = state.isPaused,
+                    modifier = Modifier.fillMaxWidth(0.9f)
                 )
             }
 
+            // BOTTOM BUTTONS
             Row(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(32.dp),
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
+                    .padding(bottom = Spacing.xl),
+                horizontalArrangement = Arrangement.spacedBy(64.dp)
             ) {
-                Button(onClick = { /* TODO: Pause functionality here */ }) {
-                    Text("Pause")
-                }
 
-                Button(
-                    onClick = { viewModel.stopTracking() },
-                    enabled = state.isTracking
-                ) {
-                    Text("Stop")
-                }
+                TrackingActionButton(
+                    text = if (state.isPaused) "Resume" else "Pause",
+                    onClick = {
+                        if (state.isPaused) {
+                            viewModel.resumeTracking()
+                        } else {
+                            viewModel.pauseTracking()
+                        }
+                    }
+                )
+
+                TrackingActionButton(
+                    text = "Finish",
+                    // remove containerColor if you think this color doesn't fit ???
+                    containerColor = DarkTertiary,
+                    onClick = viewModel::stopTracking
+                )
             }
         }
     }
-}
-
-@SuppressLint("DefaultLocale")
-fun formatDuration(durationMillis: Long): String {
-    val totalSeconds = durationMillis / 1000
-    val hours = totalSeconds / 3600
-    val minutes = (totalSeconds % 3600) / 60
-    val seconds = totalSeconds % 60
-    return String.format("%02d:%02d:%02d", hours, minutes, seconds)
 }
